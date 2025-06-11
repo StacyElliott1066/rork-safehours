@@ -124,8 +124,10 @@ export default function EditActivityScreen() {
         {
           text: 'Delete',
           onPress: () => {
-            deleteActivity(id as string);
-            router.back();
+            if (typeof id === 'string') {
+              deleteActivity(id);
+              router.back();
+            }
           },
           style: 'destructive',
         },

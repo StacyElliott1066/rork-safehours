@@ -54,11 +54,14 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
     // Set the raw value for editing
     setDirectInput(value || '');
     
-    // Select all text when focused
-    if (inputRef.current) {
+    // Select all text when focused - only on native platforms
+    if (Platform.OS !== 'web' && inputRef.current) {
       // Small delay to ensure selection works
       setTimeout(() => {
-        inputRef.current?.setSelection(0, value?.length || 0);
+        if (inputRef.current && 'setSelection' in inputRef.current) {
+          // @ts-ignore - TypeScript doesn't know about setSelection on all platforms
+          inputRef.current.setSelection(0, value?.length || 0);
+        }
       }, 50);
     }
   };

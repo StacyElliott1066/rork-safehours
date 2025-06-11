@@ -210,6 +210,19 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     );
   };
 
+  // Format the date for display, with fallback to current date
+  const displayDate = () => {
+    try {
+      if (!selectedDate || !selectedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return formatDate(getCurrentDate());
+      }
+      return formatDate(selectedDate);
+    } catch (error) {
+      console.error("Error formatting date for display:", error);
+      return formatDate(getCurrentDate());
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.dateContainer}>
@@ -219,7 +232,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.dateButton}>
           <Text style={styles.dateText}>
-            {formatDate(selectedDate) || "Select Date"}
+            {displayDate()}
           </Text>
           <Calendar color={COLORS.primary} size={18} style={styles.calendarIcon} />
         </TouchableOpacity>
