@@ -62,10 +62,10 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
           // Check if setSelection exists before calling it
           try {
             // Only call setSelection on native platforms
-            if (Platform.OS !== 'web' && 
-                inputRef.current.setSelection && 
-                typeof inputRef.current.setSelection === 'function') {
-              inputRef.current.setSelection(0, value?.length || 0);
+            if (Platform.OS !== 'web') {
+              // On native platforms, we can use the selection prop instead
+              // This is safer than trying to call setSelection directly
+              inputRef.current.focus();
             }
           } catch (error) {
             console.log('Selection not supported on this platform');

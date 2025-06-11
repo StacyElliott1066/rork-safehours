@@ -38,10 +38,17 @@ export default function EditActivityScreen() {
         setType(activity.type || 'Flight');
         
         // Validate date before setting it
-        if (activity.date && typeof activity.date === 'string' && activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          setDate(activity.date);
+        if (activity.date && typeof activity.date === 'string') {
+          // Ensure date is in YYYY-MM-DD format
+          const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+          if (dateRegex.test(activity.date)) {
+            setDate(activity.date);
+          } else {
+            console.warn(`Invalid date format in activity: ${activity.date}, using current date instead`);
+            setDate(getCurrentDate());
+          }
         } else {
-          console.warn(`Invalid date format in activity: ${activity.date || 'undefined'}, using current date instead`);
+          console.warn(`Missing date in activity, using current date instead`);
           setDate(getCurrentDate());
         }
         
@@ -87,7 +94,14 @@ export default function EditActivityScreen() {
       return;
     }
     
-    if (!date || typeof date !== 'string' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    if (!date || typeof date !== 'string') {
+      Alert.alert('Error', 'Invalid date format');
+      return;
+    }
+    
+    // Ensure date is in YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
       Alert.alert('Error', 'Invalid date format');
       return;
     }

@@ -43,6 +43,13 @@ export default function NewActivityScreen() {
       return;
     }
     
+    // Ensure date is in YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!date || typeof date !== 'string' || !dateRegex.test(date)) {
+      Alert.alert('Error', 'Invalid date format');
+      return;
+    }
+    
     const result = await addActivity({
       type,
       date,

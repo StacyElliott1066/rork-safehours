@@ -58,6 +58,7 @@ export default function DurationInput({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Duration (hours)</Text>
+      <Text style={styles.helperText}>Enter a value for total duration. It will adjust the end time only</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -81,8 +82,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 4,
     color: COLORS.black,
+  },
+  helperText: {
+    fontSize: 12,
+    color: COLORS.gray,
+    marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
