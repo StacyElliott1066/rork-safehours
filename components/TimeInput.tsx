@@ -51,7 +51,7 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
 
   const handleDirectInputFocus = () => {
     setIsDirectEditing(true);
-    // Don't manipulate the value here, just set the raw value
+    // Set the raw value for editing
     setDirectInput(value || '');
   };
 

@@ -118,7 +118,8 @@ X-WR-TIMEZONE:UTC
 
   // Add each activity as a VEVENT
   activities.forEach(activity => {
-    icsContent += `${activityToVEVENT(activity)}\n`;
+    icsContent += `${activityToVEVENT(activity)}
+`;
   });
 
   // Add iCal footer
