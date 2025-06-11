@@ -53,6 +53,14 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
     setIsDirectEditing(true);
     // Set the raw value for editing
     setDirectInput(value || '');
+    
+    // Select all text when focused
+    if (inputRef.current) {
+      // Small delay to ensure selection works
+      setTimeout(() => {
+        inputRef.current?.setSelection(0, value?.length || 0);
+      }, 50);
+    }
   };
 
   const generateTimeOptions = (max: number) => {

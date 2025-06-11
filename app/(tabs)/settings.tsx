@@ -1,75 +1,52 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, Switch, Platform } from 'react-native';
+import { Stack, Link, useRouter } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
+import { exportActivitiesToICS } from '@/utils/export';
+import { Share } from 'lucide-react-native';
 
 export default function SettingsScreen() {
-  const { warningThresholds, updateWarningThresholds, resetWarningThresholds } = useActivityStore();
+  const router = useRouter();
+  const { activities, clearAllActivities } = useActivityStore();
   
-  const [thresholds, setThresholds] = useState({
-    maxFlightHours: warningThresholds.maxFlightHours.toString(),
-    minRestBetweenDays: warningThresholds.minRestBetweenDays.toString(),
-    maxContactTime: warningThresholds.maxContactTime.toString(),
-    maxDutyDay: warningThresholds.maxDutyDay.toString(),
-    maxConsecutiveDays: warningThresholds.maxConsecutiveDays.toString(),
-    maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
-    maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
-  });
-  
-  const handleSave = () => {
-    // Validate inputs
-    const numericValues = {
-      maxFlightHours: 8, // Always use 8 as this is an FAA mandatory limit
-      minRestBetweenDays: parseFloat(thresholds.minRestBetweenDays),
-      maxContactTime: parseFloat(thresholds.maxContactTime),
-      maxDutyDay: parseFloat(thresholds.maxDutyDay),
-      maxConsecutiveDays: parseInt(thresholds.maxConsecutiveDays, 10),
-      maxWeeklyHours: parseFloat(thresholds.maxWeeklyHours),
-      maxPastSevenDaysHours: parseFloat(thresholds.maxPastSevenDaysHours),
-    };
-    
-    // Check for invalid values (excluding maxFlightHours which is fixed)
-    if ([
-      numericValues.minRestBetweenDays,
-      numericValues.maxContactTime,
-      numericValues.maxDutyDay,
-      numericValues.maxConsecutiveDays,
-      numericValues.maxWeeklyHours,
-      numericValues.maxPastSevenDaysHours
-    ].some(isNaN)) {
-      Alert.alert('Invalid Input', 'Please enter valid numbers for all thresholds.');
+  const handleExportToICS = async () => {
+    if (activities.length === 0) {
+      Alert.alert('No Data', 'There are no activities to export.');
       return;
     }
     
-    // Update thresholds
-    updateWarningThresholds(numericValues);
-    Alert.alert('Success', 'Warning thresholds updated successfully.');
+    try {
+      const success = await exportActivitiesToICS(activities);
+      if (success) {
+        if (Platform.OS === 'web') {
+          Alert.alert('Export Successful', 'Your calendar has been downloaded.');
+        }
+      } else {
+        Alert.alert('Export Failed', 'There was an error exporting your calendar.');
+      }
+    } catch (error) {
+      console.error('Error in export handler:', error);
+      Alert.alert('Export Error', 'An unexpected error occurred during export.');
+    }
   };
   
-  const handleReset = () => {
+  const handleClearAllData = () => {
     Alert.alert(
-      'Reset Thresholds',
-      'Are you sure you want to reset all warning thresholds to default values?',
+      'Clear All Data',
+      'Are you sure you want to delete all activities? This action cannot be undone.',
       [
         {
           text: 'Cancel',
           style: 'cancel',
         },
         {
-          text: 'Reset',
+          text: 'Delete All',
           onPress: () => {
-            resetWarningThresholds();
-            setThresholds({
-              maxFlightHours: '8', // Always 8 (FAA mandatory)
-              minRestBetweenDays: '10',
-              maxContactTime: '10',
-              maxDutyDay: '16',
-              maxConsecutiveDays: '15',
-              maxWeeklyHours: '40',
-              maxPastSevenDaysHours: '50',
-            });
-            Alert.alert('Success', 'Warning thresholds reset to defaults.');
+            clearAllActivities();
+            Alert.alert('Success', 'All activities have been deleted.');
           },
+          style: 'destructive',
         },
       ]
     );
@@ -77,121 +54,59 @@ export default function SettingsScreen() {
   
   return (
     <View style={styles.container}>
+      <Stack.Screen 
+        options={{
+          title: 'Settings',
+        }}
+      />
+      
       <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
-          <Text style={styles.description}>
-            Customize the thresholds used to determine when warnings are displayed.
-          </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Export</Text>
           
-          <View style={styles.card}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                Max Flight Instruction Hours <Text style={styles.labelSmall}>(24h)</Text>
-                <Text style={styles.uneditableText}> uneditable</Text>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            onPress={handleExportToICS}
+          >
+            <View style={styles.settingTextContainer}>
+              <Text style={styles.settingTitle}>Export to Calendar</Text>
+              <Text style={styles.settingDescription}>
+                Export your activities as an iCalendar (.ics) file
               </Text>
-              <View style={styles.fixedValueContainer}>
-                <Text style={styles.fixedValue}>8</Text>
+            </View>
+            <Share color={COLORS.primary} size={20} />
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About</Text>
+          
+          <Link href="/about" asChild>
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingTextContainer}>
+                <Text style={styles.settingTitle}>About SafeHours</Text>
+                <Text style={styles.settingDescription}>
+                  Version information and acknowledgments
+                </Text>
               </View>
-              <Text style={styles.unit}>hours</Text>
-              <Text style={styles.faaNote}>FAA Limit</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Min Rest Between Days</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.minRestBetweenDays}
-                onChangeText={(text) => setThresholds({ ...thresholds, minRestBetweenDays: text })}
-                keyboardType="numeric"
-                placeholder="10"
-              />
-              <Text style={styles.unit}>hours</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Contact Time</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxContactTime}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxContactTime: text })}
-                keyboardType="numeric"
-                placeholder="10"
-              />
-              <Text style={styles.unit}>hours</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Duty Day</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxDutyDay}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxDutyDay: text })}
-                keyboardType="numeric"
-                placeholder="16"
-              />
-              <Text style={styles.unit}>hours</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Consecutive Days</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxConsecutiveDays}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxConsecutiveDays: text })}
-                keyboardType="numeric"
-                placeholder="15"
-              />
-              <Text style={styles.unit}>days</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Weekly Hours</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxWeeklyHours}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
-                keyboardType="numeric"
-                placeholder="40"
-              />
-              <Text style={styles.unit}>hours</Text>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Past 7 Days Hours</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxPastSevenDaysHours}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxPastSevenDaysHours: text })}
-                keyboardType="numeric"
-                placeholder="50"
-              />
-              <Text style={styles.unit}>hours</Text>
-            </View>
-          </View>
-          
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={[styles.button, styles.resetButton]}
-              onPress={handleReset}
-            >
-              <Text style={styles.resetButtonText}>Reset to Defaults</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSave}
-            >
-              <Text style={styles.saveButtonText}>Save Changes</Text>
-            </TouchableOpacity>
-          </View>
+          </Link>
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Data Management</Text>
           
-          <View style={styles.aboutContainer}>
-            <Text style={styles.aboutTitle}>About SafeHours</Text>
-            <Text style={styles.aboutText}>
-              SafeHours is designed to help pilots and flight instructors track their duty time and ensure compliance with regulatory requirements.
-            </Text>
-            <Text style={styles.versionText}>Version 25.5.4.21:00</Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            onPress={handleClearAllData}
+          >
+            <View style={styles.settingTextContainer}>
+              <Text style={[styles.settingTitle, styles.dangerText]}>Clear All Data</Text>
+              <Text style={styles.settingDescription}>
+                Delete all activities and reset the app
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -206,130 +121,38 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  content: {
-    padding: 16,
-  },
-  description: {
-    fontSize: 14,
-    color: COLORS.gray,
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  inputGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  label: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  labelSmall: {
-    fontSize: 14,
-    fontWeight: '400',
-  },
-  uneditableText: {
-    fontSize: 12,
-    fontStyle: 'italic',
-    color: COLORS.gray,
-  },
-  input: {
-    width: 80,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    borderRadius: 4,
-    padding: 8,
-    textAlign: 'center',
-    marginHorizontal: 8,
-  },
-  fixedValueContainer: {
-    width: 80,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 4,
-    padding: 8,
-    marginHorizontal: 8,
-    alignItems: 'center',
-  },
-  fixedValue: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.black,
-  },
-  faaNote: {
-    fontSize: 12,
-    color: COLORS.red,
-    fontWeight: 'bold',
-    position: 'absolute',
-    right: 0,
-    bottom: -15,
-  },
-  unit: {
-    width: 50,
-    fontSize: 14,
-    color: COLORS.gray,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  section: {
     marginBottom: 24,
   },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  resetButton: {
-    backgroundColor: COLORS.lightGray,
-    marginRight: 8,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    marginLeft: 8,
-  },
-  resetButtonText: {
-    color: COLORS.black,
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-  },
-  saveButtonText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-  },
-  aboutContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  aboutTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  aboutText: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  versionText: {
-    fontSize: 12,
     color: COLORS.gray,
-    marginTop: 8,
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  settingTextContainer: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 14,
+    color: COLORS.gray,
+  },
+  dangerText: {
+    color: COLORS.red,
   },
 });
