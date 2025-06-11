@@ -41,7 +41,7 @@ export default function EditActivityScreen() {
         if (activity.date && typeof activity.date === 'string' && activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
           setDate(activity.date);
         } else {
-          console.warn(`Invalid date format in activity: ${activity.date}, using current date instead`);
+          console.warn(`Invalid date format in activity: ${activity.date || 'undefined'}, using current date instead`);
           setDate(getCurrentDate());
         }
         
