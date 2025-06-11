@@ -4,9 +4,11 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
 import ActivityTypeSelector from '@/components/ActivityTypeSelector';
 import TimeInput from '@/components/TimeInput';
+import DurationInput from '@/components/DurationInput';
 import PrePostValueInput from '@/components/PrePostValueInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
+import { timeToMinutes, minutesToTime } from '@/utils/time';
 import { ActivityType } from '@/types/activity';
 
 export default function EditActivityScreen() {
@@ -36,6 +38,17 @@ export default function EditActivityScreen() {
       router.back();
     }
   }, [id, activities]);
+  
+  // Update end time when duration changes
+  const handleDurationChange = (durationHours: number) => {
+    if (startTime) {
+      const startMinutes = timeToMinutes(startTime);
+      const durationMinutes = Math.round(durationHours * 60);
+      const newEndMinutes = startMinutes + durationMinutes;
+      const newEndTime = minutesToTime(newEndMinutes);
+      setEndTime(newEndTime);
+    }
+  };
   
   const handleSave = async () => {
     const activity = activities.find(a => a.id === id);
@@ -122,6 +135,12 @@ export default function EditActivityScreen() {
               onChangeText={setEndTime}
             />
           </View>
+          
+          <DurationInput
+            startTime={startTime}
+            endTime={endTime}
+            onDurationChange={handleDurationChange}
+          />
           
           <PrePostValueInput
             value={prePostValue}

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
 import ActivityTypeSelector from '@/components/ActivityTypeSelector';
 import TimeInput from '@/components/TimeInput';
+import DurationInput from '@/components/DurationInput';
 import PrePostValueInput from '@/components/PrePostValueInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
-import { getCurrentDate, getCurrentTime } from '@/utils/time';
+import { getCurrentDate, getCurrentTime, calculateDuration, timeToMinutes, minutesToTime } from '@/utils/time';
 import { ActivityType } from '@/types/activity';
 
 export default function NewActivityScreen() {
@@ -20,6 +21,17 @@ export default function NewActivityScreen() {
   const [endTime, setEndTime] = useState(getCurrentTime());
   const [prePostValue, setPrePostValue] = useState(0);
   const [notes, setNotes] = useState('');
+  
+  // Update end time when duration changes
+  const handleDurationChange = (durationHours: number) => {
+    if (startTime) {
+      const startMinutes = timeToMinutes(startTime);
+      const durationMinutes = Math.round(durationHours * 60);
+      const newEndMinutes = startMinutes + durationMinutes;
+      const newEndTime = minutesToTime(newEndMinutes);
+      setEndTime(newEndTime);
+    }
+  };
   
   const handleSave = async () => {
     const result = await addActivity({
@@ -81,6 +93,12 @@ export default function NewActivityScreen() {
               onChangeText={setEndTime}
             />
           </View>
+          
+          <DurationInput
+            startTime={startTime}
+            endTime={endTime}
+            onDurationChange={handleDurationChange}
+          />
           
           <PrePostValueInput
             value={prePostValue}
