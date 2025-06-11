@@ -235,6 +235,12 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
       return 24; // Default to full rest if invalid input
     }
     
+    // Validate date format
+    if (!currentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", currentDate);
+      return 24;
+    }
+    
     // Parse the current date with noon time to avoid timezone issues
     const date = new Date(currentDate + 'T12:00:00');
     if (isNaN(date.getTime())) {
@@ -290,6 +296,12 @@ export const calculateConsecutiveDays = (activities: Activity[], currentDate: st
       return 0;
     }
     
+    // Validate date format
+    if (!currentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", currentDate);
+      return 0;
+    }
+    
     // Parse the current date with noon time to avoid timezone issues
     const date = new Date(currentDate + 'T12:00:00');
     if (isNaN(date.getTime())) {
@@ -327,6 +339,12 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
       return 0;
     }
     
+    // Validate date format
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", date);
+      return 0;
+    }
+    
     // Parse the current date with noon time to avoid timezone issues
     const targetDate = new Date(date + 'T12:00:00');
     if (isNaN(targetDate.getTime())) {
@@ -354,6 +372,12 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
       if (activity.type === 'Other') return; // Skip 'Other' type activities
       
       try {
+        // Validate date format
+        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          console.error("Invalid activity date format:", activity.date);
+          return;
+        }
+        
         // Parse the activity date with noon time to avoid timezone issues
         const activityDate = new Date(activity.date + 'T12:00:00');
         if (isNaN(activityDate.getTime())) {
@@ -418,6 +442,12 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
       return 0;
     }
     
+    // Validate date format
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", date);
+      return 0;
+    }
+    
     // Parse the current date with noon time to avoid timezone issues
     const targetDate = new Date(date + 'T12:00:00');
     if (isNaN(targetDate.getTime())) {
@@ -442,6 +472,12 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
       if (activity.type === 'Other') return; // Skip 'Other' type activities
       
       try {
+        // Validate date format
+        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          console.error("Invalid activity date format:", activity.date);
+          return;
+        }
+        
         // Parse the activity date with noon time to avoid timezone issues
         const activityDate = new Date(activity.date + 'T12:00:00');
         if (isNaN(activityDate.getTime())) {
@@ -519,6 +555,12 @@ export const calculateRolling24HourFlightTime = (activities: Activity[], fromTim
       if (activity.type !== 'Flight') return; // Only count flight activities
       
       try {
+        // Validate date format
+        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          console.error("Invalid activity date format:", activity.date);
+          return;
+        }
+        
         // Parse the activity date with noon time to avoid timezone issues
         const activityDate = new Date(activity.date + 'T12:00:00');
         if (isNaN(activityDate.getTime())) {
@@ -677,6 +719,12 @@ export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'
       return "";
     }
     
+    // Validate date format
+    if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", dateString);
+      return dateString; // Return the original string if format is invalid
+    }
+    
     // Parse the date with noon time to avoid timezone issues
     const date = new Date(dateString + 'T12:00:00');
     if (isNaN(date.getTime())) {
@@ -707,6 +755,12 @@ export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'
 export const safeParseDate = (dateString: string): Date | null => {
   try {
     if (!dateString) return null;
+    
+    // Validate date format
+    if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error("Invalid date format:", dateString);
+      return null;
+    }
     
     // Try parsing with noon time to avoid timezone issues
     const date = new Date(dateString + 'T12:00:00');

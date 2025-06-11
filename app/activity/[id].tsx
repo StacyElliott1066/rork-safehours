@@ -8,7 +8,7 @@ import DurationInput from '@/components/DurationInput';
 import PrePostValueInput from '@/components/PrePostValueInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
-import { timeToMinutes, minutesToTime } from '@/utils/time';
+import { timeToMinutes, minutesToTime, getCurrentDate } from '@/utils/time';
 import { ActivityType } from '@/types/activity';
 
 export default function EditActivityScreen() {
@@ -17,22 +17,44 @@ export default function EditActivityScreen() {
   const { activities, updateActivity, deleteActivity } = useActivityStore();
   
   const [type, setType] = useState<ActivityType>('Flight');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(getCurrentDate()); // Initialize with current date as fallback
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [prePostValue, setPrePostValue] = useState(0);
   const [notes, setNotes] = useState('');
+  const [activityFound, setActivityFound] = useState(false);
   
   // Find the activity by ID
   useEffect(() => {
+    if (!id) {
+      Alert.alert('Error', 'Activity ID is missing');
+      router.back();
+      return;
+    }
+
     const activity = activities.find(a => a.id === id);
     if (activity) {
-      setType(activity.type);
-      setDate(activity.date);
-      setStartTime(activity.startTime);
-      setEndTime(activity.endTime);
-      setPrePostValue(activity.prePostValue);
-      setNotes(activity.notes || '');
+      try {
+        setType(activity.type || 'Flight');
+        
+        // Validate date before setting it
+        if (activity.date && typeof activity.date === 'string' && activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          setDate(activity.date);
+        } else {
+          console.warn(`Invalid date format in activity: ${activity.date}, using current date instead`);
+          setDate(getCurrentDate());
+        }
+        
+        setStartTime(activity.startTime || '');
+        setEndTime(activity.endTime || '');
+        setPrePostValue(activity.prePostValue || 0);
+        setNotes(activity.notes || '');
+        setActivityFound(true);
+      } catch (error) {
+        console.error("Error setting activity data:", error);
+        Alert.alert('Error', 'Failed to load activity data');
+        router.back();
+      }
     } else {
       Alert.alert('Error', 'Activity not found');
       router.back();
@@ -55,8 +77,18 @@ export default function EditActivityScreen() {
   };
   
   const handleSave = async () => {
+    if (!activityFound) {
+      Alert.alert('Error', 'Activity data not loaded properly');
+      return;
+    }
+    
     if (!startTime || !endTime) {
       Alert.alert('Error', 'Start time and end time are required');
+      return;
+    }
+    
+    if (!date || typeof date !== 'string' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      Alert.alert('Error', 'Invalid date format');
       return;
     }
     

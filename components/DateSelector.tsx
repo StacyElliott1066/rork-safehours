@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, FlatList } from 'react-native';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
-import { formatDate, formatDateToYYYYMMDD } from '@/utils/time';
+import { formatDate, formatDateToYYYYMMDD, getCurrentDate } from '@/utils/time';
 
 interface DateSelectorProps {
   selectedDate: string;
@@ -12,8 +12,30 @@ interface DateSelectorProps {
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
   const [modalVisible, setModalVisible] = useState(false);
   
-  // Parse the selected date string to a Date object, ensuring it uses local time
-  const selectedDateObj = new Date(selectedDate + 'T12:00:00');
+  // Validate and parse the selected date string to a Date object
+  let selectedDateObj: Date;
+  
+  try {
+    // Validate date format
+    if (!selectedDate || !selectedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.warn(`Invalid date format: ${selectedDate}, using current date instead`);
+      selectedDate = getCurrentDate();
+    }
+    
+    // Parse the date with noon time to avoid timezone issues
+    selectedDateObj = new Date(selectedDate + 'T12:00:00');
+    
+    // Check if the date is valid
+    if (isNaN(selectedDateObj.getTime())) {
+      console.warn(`Invalid date: ${selectedDate}, using current date instead`);
+      selectedDate = getCurrentDate();
+      selectedDateObj = new Date(selectedDate + 'T12:00:00');
+    }
+  } catch (error) {
+    console.error("Error parsing date:", error);
+    selectedDate = getCurrentDate();
+    selectedDateObj = new Date(selectedDate + 'T12:00:00');
+  }
   
   const [tempYear, setTempYear] = useState(selectedDateObj.getFullYear());
   const [tempMonth, setTempMonth] = useState(selectedDateObj.getMonth());
@@ -32,17 +54,35 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
   };
 
   const goToPreviousDay = () => {
-    // Create a date object from the selected date string with a noon time to avoid timezone issues
-    const date = new Date(selectedDate + 'T12:00:00');
-    date.setDate(date.getDate() - 1);
-    onDateChange(formatDateToYYYYMMDD(date));
+    try {
+      // Create a date object from the selected date string with a noon time to avoid timezone issues
+      const date = new Date(selectedDate + 'T12:00:00');
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date for previous day:", selectedDate);
+        return;
+      }
+      
+      date.setDate(date.getDate() - 1);
+      onDateChange(formatDateToYYYYMMDD(date));
+    } catch (error) {
+      console.error("Error going to previous day:", error);
+    }
   };
 
   const goToNextDay = () => {
-    // Create a date object from the selected date string with a noon time to avoid timezone issues
-    const date = new Date(selectedDate + 'T12:00:00');
-    date.setDate(date.getDate() + 1);
-    onDateChange(formatDateToYYYYMMDD(date));
+    try {
+      // Create a date object from the selected date string with a noon time to avoid timezone issues
+      const date = new Date(selectedDate + 'T12:00:00');
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date for next day:", selectedDate);
+        return;
+      }
+      
+      date.setDate(date.getDate() + 1);
+      onDateChange(formatDateToYYYYMMDD(date));
+    } catch (error) {
+      console.error("Error going to next day:", error);
+    }
   };
 
   const goToToday = () => {
@@ -178,7 +218,9 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         </TouchableOpacity>
         
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.dateButton}>
-          <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+          <Text style={styles.dateText}>
+            {formatDate(selectedDate) || "Select Date"}
+          </Text>
           <Calendar color={COLORS.primary} size={18} style={styles.calendarIcon} />
         </TouchableOpacity>
         
