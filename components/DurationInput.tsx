@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { COLORS } from '@/constants/colors';
-import { calculateDuration, minutesToTime } from '@/utils/time';
+import { calculateDuration } from '@/utils/time';
 
 interface DurationInputProps {
   startTime: string;
@@ -20,9 +20,14 @@ export default function DurationInput({
   // Calculate duration whenever start or end time changes
   useEffect(() => {
     if (!isEditing && startTime && endTime) {
-      const durationMinutes = calculateDuration(startTime, endTime);
-      const durationHours = (durationMinutes / 60).toFixed(1);
-      setDurationText(durationHours);
+      try {
+        const durationMinutes = calculateDuration(startTime, endTime);
+        const durationHours = (durationMinutes / 60).toFixed(1);
+        setDurationText(durationHours);
+      } catch (error) {
+        console.error("Error calculating duration:", error);
+        setDurationText('0.0');
+      }
     }
   }, [startTime, endTime, isEditing]);
 
@@ -39,9 +44,14 @@ export default function DurationInput({
       onDurationChange(durationHours);
     } else {
       // Reset to calculated duration if invalid input
-      const durationMinutes = calculateDuration(startTime, endTime);
-      const durationHours = (durationMinutes / 60).toFixed(1);
-      setDurationText(durationHours);
+      try {
+        const durationMinutes = calculateDuration(startTime, endTime);
+        const durationHours = (durationMinutes / 60).toFixed(1);
+        setDurationText(durationHours);
+      } catch (error) {
+        console.error("Error calculating duration on blur:", error);
+        setDurationText('0.0');
+      }
     }
   };
 

@@ -8,7 +8,7 @@ import DurationInput from '@/components/DurationInput';
 import PrePostValueInput from '@/components/PrePostValueInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
-import { getCurrentDate, getCurrentTime, calculateDuration, timeToMinutes, minutesToTime } from '@/utils/time';
+import { getCurrentDate, getCurrentTime, timeToMinutes, minutesToTime } from '@/utils/time';
 import { ActivityType } from '@/types/activity';
 
 export default function NewActivityScreen() {
@@ -16,7 +16,7 @@ export default function NewActivityScreen() {
   const { selectedDate, addActivity } = useActivityStore();
   
   const [type, setType] = useState<ActivityType>('Flight');
-  const [date, setDate] = useState(selectedDate);
+  const [date, setDate] = useState(selectedDate || getCurrentDate());
   const [startTime, setStartTime] = useState(getCurrentTime());
   const [endTime, setEndTime] = useState(getCurrentTime());
   const [prePostValue, setPrePostValue] = useState(0);
@@ -25,15 +25,24 @@ export default function NewActivityScreen() {
   // Update end time when duration changes
   const handleDurationChange = (durationHours: number) => {
     if (startTime) {
-      const startMinutes = timeToMinutes(startTime);
-      const durationMinutes = Math.round(durationHours * 60);
-      const newEndMinutes = startMinutes + durationMinutes;
-      const newEndTime = minutesToTime(newEndMinutes);
-      setEndTime(newEndTime);
+      try {
+        const startMinutes = timeToMinutes(startTime);
+        const durationMinutes = Math.round(durationHours * 60);
+        const newEndMinutes = startMinutes + durationMinutes;
+        const newEndTime = minutesToTime(newEndMinutes);
+        setEndTime(newEndTime);
+      } catch (error) {
+        console.error("Error updating end time from duration:", error);
+      }
     }
   };
   
   const handleSave = async () => {
+    if (!startTime || !endTime) {
+      Alert.alert('Error', 'Start time and end time are required');
+      return;
+    }
+    
     const result = await addActivity({
       type,
       date,
@@ -114,6 +123,7 @@ export default function NewActivityScreen() {
               onChangeText={setNotes}
               placeholder="Add any additional information here..."
               numberOfLines={1}
+              selectTextOnFocus={true}
             />
           </View>
         </View>

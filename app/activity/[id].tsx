@@ -42,15 +42,24 @@ export default function EditActivityScreen() {
   // Update end time when duration changes
   const handleDurationChange = (durationHours: number) => {
     if (startTime) {
-      const startMinutes = timeToMinutes(startTime);
-      const durationMinutes = Math.round(durationHours * 60);
-      const newEndMinutes = startMinutes + durationMinutes;
-      const newEndTime = minutesToTime(newEndMinutes);
-      setEndTime(newEndTime);
+      try {
+        const startMinutes = timeToMinutes(startTime);
+        const durationMinutes = Math.round(durationHours * 60);
+        const newEndMinutes = startMinutes + durationMinutes;
+        const newEndTime = minutesToTime(newEndMinutes);
+        setEndTime(newEndTime);
+      } catch (error) {
+        console.error("Error updating end time from duration:", error);
+      }
     }
   };
   
   const handleSave = async () => {
+    if (!startTime || !endTime) {
+      Alert.alert('Error', 'Start time and end time are required');
+      return;
+    }
+    
     const activity = activities.find(a => a.id === id);
     if (activity) {
       const result = await updateActivity({
@@ -156,6 +165,7 @@ export default function EditActivityScreen() {
               onChangeText={setNotes}
               placeholder="Add any additional information here..."
               numberOfLines={1}
+              selectTextOnFocus={true}
             />
           </View>
         </View>

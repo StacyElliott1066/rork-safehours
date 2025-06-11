@@ -12,8 +12,8 @@ interface TimeInputProps {
 
 export default function TimeInput({ label, value, onChangeText }: TimeInputProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [hours, setHours] = useState(value.split(':')[0] || '00');
-  const [minutes, setMinutes] = useState(value.split(':')[1] || '00');
+  const [hours, setHours] = useState(value?.split(':')[0] || '00');
+  const [minutes, setMinutes] = useState(value?.split(':')[1] || '00');
   const [directInput, setDirectInput] = useState('');
   const [isDirectEditing, setIsDirectEditing] = useState(false);
   
@@ -51,8 +51,8 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
 
   const handleDirectInputFocus = () => {
     setIsDirectEditing(true);
-    // Don't try to manipulate the value here, just set an empty string or the raw value
-    setDirectInput(value ? value.replace(':', '') : '');
+    // Don't manipulate the value here, just set the raw value
+    setDirectInput(value || '');
   };
 
   const generateTimeOptions = (max: number) => {
