@@ -216,7 +216,17 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
       if (!selectedDate || !selectedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return formatDate(getCurrentDate());
       }
-      return formatDate(selectedDate);
+      
+      // Create a formatted date string
+      const formattedDate = formatDate(selectedDate);
+      
+      // Check if the formatted date is valid
+      if (formattedDate === "Invalid date" || formattedDate === "Date error") {
+        console.warn("Invalid formatted date, using current date instead");
+        return formatDate(getCurrentDate());
+      }
+      
+      return formattedDate;
     } catch (error) {
       console.error("Error formatting date for display:", error);
       return formatDate(getCurrentDate());

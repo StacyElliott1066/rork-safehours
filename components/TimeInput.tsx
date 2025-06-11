@@ -58,9 +58,11 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
     if (Platform.OS !== 'web' && inputRef.current) {
       // Small delay to ensure selection works
       setTimeout(() => {
-        if (inputRef.current && 'setSelection' in inputRef.current) {
-          // @ts-ignore - TypeScript doesn't know about setSelection on all platforms
-          inputRef.current.setSelection(0, value?.length || 0);
+        if (inputRef.current) {
+          // Check if setSelection exists before calling it
+          if (inputRef.current.setSelection && typeof inputRef.current.setSelection === 'function') {
+            inputRef.current.setSelection(0, value?.length || 0);
+          }
         }
       }, 50);
     }

@@ -715,21 +715,21 @@ export const getCurrentDate = (): string => {
 export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'): string => {
   try {
     if (!dateString) {
-      console.error("Invalid date string:", dateString);
-      return "";
+      console.error("Invalid date string: empty string");
+      return "Invalid date";
     }
     
     // Validate date format
     if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
       console.error("Invalid date format:", dateString);
-      return dateString; // Return the original string if format is invalid
+      return "Invalid date format"; // Return a user-friendly message
     }
     
     // Parse the date with noon time to avoid timezone issues
     const date = new Date(dateString + 'T12:00:00');
     if (isNaN(date.getTime())) {
       console.error("Invalid date:", dateString);
-      return dateString; // Return the original string if it can't be parsed
+      return "Invalid date"; // Return a user-friendly message
     }
     
     if (format === 'short') {
@@ -746,15 +746,18 @@ export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'
       year: 'numeric'
     });
   } catch (error) {
-    console.error("Error formatting date:", error);
-    return dateString; // Return the original string on error
+    console.error("Error formatting date:", error, "for date string:", dateString);
+    return "Date error"; // Return a user-friendly message on error
   }
 };
 
 // Safe date parsing function to handle various date formats and always return a valid date or null
 export const safeParseDate = (dateString: string): Date | null => {
   try {
-    if (!dateString) return null;
+    if (!dateString) {
+      console.error("Empty date string");
+      return null;
+    }
     
     // Validate date format
     if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -773,7 +776,7 @@ export const safeParseDate = (dateString: string): Date | null => {
     
     return date;
   } catch (error) {
-    console.error("Error parsing date:", error);
+    console.error("Error parsing date:", error, "for date string:", dateString);
     return null;
   }
 };
