@@ -289,6 +289,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 12,
+    alignItems: 'center', // Center the content
   },
   summaryContainer: {
     flexDirection: 'row',
@@ -302,6 +303,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    width: '90%', // Reduced width by ~20%
   },
   summaryIconContainer: {
     marginRight: 12,
@@ -313,12 +315,13 @@ const styles = StyleSheet.create({
   },
   warningsContainer: {
     marginBottom: 20,
+    width: '90%', // Reduced width by ~20%
   },
   warningItem: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
-    padding: 6,
-    marginBottom: 6,
+    padding: 10,
+    marginBottom: 8,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -339,28 +342,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   warningTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   warningValues: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   valueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   valueLabel: {
-    fontSize: 11,
+    fontSize: 12,
     marginRight: 4,
     color: COLORS.gray,
   },
   valueText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
   },
   warningValueText: {
@@ -372,7 +375,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   descriptionText: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.gray,
   },
 });

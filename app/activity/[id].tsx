@@ -26,8 +26,8 @@ export default function EditActivityScreen() {
   
   // Find the activity by ID
   useEffect(() => {
-    if (!id) {
-      Alert.alert('Error', 'Activity ID is missing');
+    if (!id || typeof id !== 'string') {
+      Alert.alert('Error', 'Activity ID is missing or invalid');
       router.back();
       return;
     }
@@ -59,7 +59,7 @@ export default function EditActivityScreen() {
       Alert.alert('Error', 'Activity not found');
       router.back();
     }
-  }, [id, activities]);
+  }, [id, activities, router]);
   
   // Update end time when duration changes
   const handleDurationChange = (durationHours: number) => {
@@ -92,6 +92,11 @@ export default function EditActivityScreen() {
       return;
     }
     
+    if (!id || typeof id !== 'string') {
+      Alert.alert('Error', 'Activity ID is missing or invalid');
+      return;
+    }
+    
     const activity = activities.find(a => a.id === id);
     if (activity) {
       const result = await updateActivity({
@@ -113,6 +118,11 @@ export default function EditActivityScreen() {
   };
   
   const handleDelete = () => {
+    if (!id || typeof id !== 'string') {
+      Alert.alert('Error', 'Activity ID is missing or invalid');
+      return;
+    }
+    
     Alert.alert(
       'Delete Activity',
       'Are you sure you want to delete this activity?',
@@ -124,10 +134,8 @@ export default function EditActivityScreen() {
         {
           text: 'Delete',
           onPress: () => {
-            if (typeof id === 'string') {
-              deleteActivity(id);
-              router.back();
-            }
+            deleteActivity(id);
+            router.back();
           },
           style: 'destructive',
         },

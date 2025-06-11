@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '90%',
+    width: '85%', // Reduced from 90%
     maxHeight: '80%',
     backgroundColor: COLORS.white,
     borderRadius: 12,

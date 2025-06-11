@@ -58,6 +58,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    width: '90%', // Reduced width by ~20%
+    alignSelf: 'center',
   },
   compliantContainer: {
     backgroundColor: COLORS.white,
