@@ -146,12 +146,7 @@ export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
       let fileContent;
       try {
         // For native platforms
-        if (Platform.OS !== 'web') {
-          fileContent = await FileSystem.readAsStringAsync(fileUri);
-        } else {
-          // This should never execute since we handle web separately above
-          throw new Error('Web platform should use FileReader');
-        }
+        fileContent = await FileSystem.readAsStringAsync(fileUri);
       } catch (error) {
         console.error('Error reading file with FileSystem:', error);
         // Fallback to fetch API

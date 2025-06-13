@@ -179,7 +179,24 @@ export const importActivities = async (): Promise<Activity[] | null> => {
         }
         
         const fileUri = result.assets[0].uri;
-        const csvString = await FileSystem.readAsStringAsync(fileUri);
+        let csvString;
+        
+        try {
+          // Try to read the file with FileSystem
+          csvString = await FileSystem.readAsStringAsync(fileUri);
+        } catch (fsError) {
+          console.error('Error reading file with FileSystem:', fsError);
+          
+          // Fallback to fetch API
+          try {
+            const response = await fetch(fileUri);
+            csvString = await response.text();
+          } catch (fetchError) {
+            console.error('Error reading file with fetch:', fetchError);
+            throw new Error('Could not read file content');
+          }
+        }
+        
         return parseCSV(csvString);
       } catch (error) {
         console.error('Error picking document:', error);
