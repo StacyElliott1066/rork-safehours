@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal, ScrollView } from 'react-native';
 import { FileDown, FileUp, Trash2, AlertTriangle, Calendar } from 'lucide-react-native';
 import { useActivityStore } from '@/store/activityStore';
 import { exportActivities, importActivities } from '@/utils/csv';
-import { exportActivitiesToICS } from '@/utils/export';
-import { importActivitiesFromICS } from '@/utils/export';
+import { exportActivitiesToICS, importActivitiesFromICS } from '@/utils/export';
 import { COLORS } from '@/constants/colors';
 
 export default function DataScreen() {
@@ -210,101 +209,95 @@ export default function DataScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Export Data</Text>
-          <Text style={styles.cardDescription}>
-            Export all your activities to a CSV file that you can save or share.
-          </Text>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={handleExport}
-            disabled={isExporting}
-          >
-            {isExporting ? (
-              <ActivityIndicator color={COLORS.white} size="small" />
-            ) : (
-              <>
-                <FileDown size={20} color={COLORS.white} />
-                <Text style={styles.buttonText}>Export to CSV</Text>
-              </>
-            )}
-          </TouchableOpacity>
+        <View style={styles.row}>
+          {/* Export Data */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Export Data</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={handleExport}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <FileDown size={18} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Export to CSV</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+          
+          {/* Import Data */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Data</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <FileUp size={18} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import from CSV</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Export to Calendar</Text>
-          <Text style={styles.cardDescription}>
-            Export all your activities to iCalendar format (.ics) that you can import into calendar apps.
-          </Text>
-          <TouchableOpacity 
-            style={[styles.button, styles.calendarButton]}
-            onPress={handleExportICS}
-            disabled={isExportingICS}
-          >
-            {isExportingICS ? (
-              <ActivityIndicator color={COLORS.white} size="small" />
-            ) : (
-              <>
-                <Calendar size={20} color={COLORS.white} />
-                <Text style={styles.buttonText}>Export to iCalendar</Text>
-              </>
-            )}
-          </TouchableOpacity>
+        <View style={styles.row}>
+          {/* Import from Calendar */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Calendar</Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.calendarButton]}
+              onPress={handleImportICS}
+              disabled={isImportingICS}
+            >
+              {isImportingICS ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <Calendar size={18} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import .ics</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+          
+          {/* Export to Calendar */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Export Calendar</Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.calendarButton]}
+              onPress={handleExportICS}
+              disabled={isExportingICS}
+            >
+              {isExportingICS ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <Calendar size={18} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Export .ics</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Import Data</Text>
-          <Text style={styles.cardDescription}>
-            Import activities from a CSV file. The file should have columns for type, date, startTime, endTime, and prePostValue.
-          </Text>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={handleImport}
-            disabled={isImporting}
-          >
-            {isImporting ? (
-              <ActivityIndicator color={COLORS.white} size="small" />
-            ) : (
-              <>
-                <FileUp size={20} color={COLORS.white} />
-                <Text style={styles.buttonText}>Import from CSV</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Import from Calendar</Text>
-          <Text style={styles.cardDescription}>
-            Import activities from an iCalendar file (.ics) exported from calendar apps or SafeHours.
-          </Text>
-          <TouchableOpacity 
-            style={[styles.button, styles.calendarButton]}
-            onPress={handleImportICS}
-            disabled={isImportingICS}
-          >
-            {isImportingICS ? (
-              <ActivityIndicator color={COLORS.white} size="small" />
-            ) : (
-              <>
-                <Calendar size={20} color={COLORS.white} />
-                <Text style={styles.buttonText}>Import from iCalendar</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Clear Data</Text>
-          <Text style={styles.cardDescription}>
-            Delete all activities. This action cannot be undone. Consider exporting your data first.
-          </Text>
+        {/* Clear Data */}
+        <View style={[styles.card, styles.dangerCard]}>
+          <Text style={styles.cardTitle}>Clear All Data</Text>
           <TouchableOpacity 
             style={[styles.button, styles.dangerButton]}
             onPress={handleClearData}
           >
-            <Trash2 size={20} color={COLORS.white} />
-            <Text style={styles.buttonText}>Clear All Data</Text>
+            <Trash2 size={18} color={COLORS.white} />
+            <Text style={styles.buttonText}>Delete Everything</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -355,35 +348,40 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   content: {
-    padding: 16,
+    padding: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
+    padding: 12,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  halfCard: {
+    width: '48%',
   },
-  cardDescription: {
-    fontSize: 14,
-    color: COLORS.gray,
-    marginBottom: 16,
+  dangerCard: {
+    marginBottom: 0,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.primary,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   calendarButton: {
@@ -395,7 +393,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginLeft: 6,
+    fontSize: 14,
   },
   // Modal styles
   modalOverlay: {

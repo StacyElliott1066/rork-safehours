@@ -4,6 +4,89 @@ import { Platform } from 'react-native';
 import { Activity } from '@/types/activity';
 import { parseICSToActivities } from '@/utils/ical';
 
+// Export activities to iCalendar format
+export const exportActivitiesToICS = async (activities: Activity[]): Promise<boolean> => {
+  try {
+    if (activities.length === 0) {
+      return false;
+    }
+    
+    // Generate iCalendar content
+    let icsContent = 'BEGIN:VCALENDAR\r\n';
+    icsContent += 'VERSION:2.0\r\n';
+    icsContent += 'PRODID:-//SafeHours//EN\r\n';
+    
+    // Add each activity as an event
+    activities.forEach(activity => {
+      const startDate = new Date(activity.date);
+      if (activity.startTime) {
+        const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
+        startDate.setHours(startHours, startMinutes);
+      }
+      
+      const endDate = new Date(startDate);
+      if (activity.endTime) {
+        const [endHours, endMinutes] = activity.endTime.split(':').map(Number);
+        endDate.setHours(endHours, endMinutes);
+      } else if (activity.duration) {
+        // If no end time but duration is available
+        endDate.setMinutes(endDate.getMinutes() + activity.duration);
+      } else {
+        // Default to 1 hour if no end time or duration
+        endDate.setHours(endDate.getHours() + 1);
+      }
+      
+      // Format dates for iCal
+      const formatDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+      
+      icsContent += 'BEGIN:VEVENT\r\n';
+      icsContent += `SUMMARY:${activity.type}\r\n`;
+      icsContent += `DTSTART:${formatDate(startDate)}\r\n`;
+      icsContent += `DTEND:${formatDate(endDate)}\r\n`;
+      icsContent += `DESCRIPTION:Pre/Post Value: ${activity.prePostValue || 'N/A'}\r\n`;
+      icsContent += `UID:${activity.id}@safehours.app\r\n`;
+      icsContent += 'END:VEVENT\r\n';
+    });
+    
+    icsContent += 'END:VCALENDAR\r\n';
+    
+    // Save to a temporary file
+    const fileUri = `${FileSystem.cacheDirectory}activities.ics`;
+    await FileSystem.writeAsStringAsync(fileUri, icsContent);
+    
+    if (Platform.OS === 'web') {
+      // For web, create a download link
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'safehours_activities.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return true;
+    } else {
+      // For mobile, use FileSystem.getContentUriAsync and Linking
+      const contentUri = await FileSystem.getContentUriAsync(fileUri);
+      
+      // Use the share API from expo-file-system
+      await FileSystem.shareAsync(contentUri, {
+        mimeType: 'text/calendar',
+        dialogTitle: 'Export Activities',
+        UTI: 'public.calendar'
+      });
+      
+      return true;
+    }
+  } catch (error) {
+    console.error('Error exporting activities to iCalendar:', error);
+    return false;
+  }
+};
+
 // Import activities from iCalendar file
 export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
   try {
