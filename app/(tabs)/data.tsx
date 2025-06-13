@@ -222,51 +222,12 @@ export default function DataScreen() {
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
                 <>
-                  <FileDown size={18} color={COLORS.white} />
+                  <FileDown size={16} color={COLORS.white} />
                   <Text style={styles.buttonText}>Export to CSV</Text>
                 </>
               )}
             </TouchableOpacity>
-          </View>
-          
-          {/* Import Calendar - Swapped position */}
-          <View style={[styles.card, styles.halfCard]}>
-            <Text style={styles.cardTitle}>Import Calendar</Text>
-            <TouchableOpacity 
-              style={[styles.button, styles.calendarButton]}
-              onPress={handleImportICS}
-              disabled={isImportingICS}
-            >
-              {isImportingICS ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : (
-                <>
-                  <Calendar size={18} color={COLORS.white} />
-                  <Text style={styles.buttonText}>Import .ics</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        <View style={styles.row}>
-          {/* Import Data - Swapped position */}
-          <View style={[styles.card, styles.halfCard]}>
-            <Text style={styles.cardTitle}>Import Data</Text>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handleImport}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : (
-                <>
-                  <FileUp size={18} color={COLORS.white} />
-                  <Text style={styles.buttonText}>Import from CSV</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <Text style={styles.noteText}>Export all activities as CSV file</Text>
           </View>
           
           {/* Export to Calendar */}
@@ -281,11 +242,54 @@ export default function DataScreen() {
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
                 <>
-                  <Calendar size={18} color={COLORS.white} />
+                  <Calendar size={16} color={COLORS.white} />
                   <Text style={styles.buttonText}>Export .ics</Text>
                 </>
               )}
             </TouchableOpacity>
+            <Text style={styles.noteText}>Export to calendar format</Text>
+          </View>
+        </View>
+        
+        <View style={styles.row}>
+          {/* Import Calendar */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Calendar</Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.calendarButton]}
+              onPress={handleImportICS}
+              disabled={isImportingICS}
+            >
+              {isImportingICS ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <Calendar size={16} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import .ics</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.noteText}>Import from calendar files</Text>
+          </View>
+          
+          {/* Import Data */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Data</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <FileUp size={16} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import from CSV</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.noteText}>Import activities from CSV</Text>
           </View>
         </View>
         
@@ -296,9 +300,10 @@ export default function DataScreen() {
             style={[styles.button, styles.dangerButton]}
             onPress={handleClearData}
           >
-            <Trash2 size={18} color={COLORS.white} />
+            <Trash2 size={16} color={COLORS.white} />
             <Text style={styles.buttonText}>Delete Everything</Text>
           </TouchableOpacity>
+          <Text style={styles.noteText}>Permanently delete all activities</Text>
         </View>
       </View>
       
@@ -348,17 +353,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   content: {
-    padding: 12,
+    padding: 10,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -372,16 +377,16 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.primary,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 8,
   },
   calendarButton: {
@@ -394,7 +399,13 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: 'bold',
     marginLeft: 6,
-    fontSize: 14,
+    fontSize: 13,
+  },
+  noteText: {
+    fontSize: 12,
+    color: COLORS.gray,
+    marginTop: 6,
+    textAlign: 'center',
   },
   // Modal styles
   modalOverlay: {
@@ -407,7 +418,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: COLORS.white,
     borderRadius: 12,
-    padding: 24,
+    padding: 20,
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',

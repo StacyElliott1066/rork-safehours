@@ -142,10 +142,18 @@ export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
       // Get the file URI
       const fileUri = result.assets[0].uri;
       
-      // Read the file content
-      const fileContent = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
+      // Read the file content - use try/catch for platform compatibility
+      let fileContent;
+      try {
+        fileContent = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+      } catch (error) {
+        console.error('Error reading file:', error);
+        // Fallback for web or if readAsStringAsync fails
+        const response = await fetch(fileUri);
+        fileContent = await response.text();
+      }
       
       // Parse the iCal content to activities
       const activities = parseICSToActivities(fileContent);
