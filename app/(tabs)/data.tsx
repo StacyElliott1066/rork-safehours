@@ -252,26 +252,6 @@ export default function DataScreen() {
         </View>
         
         <View style={styles.row}>
-          {/* Import Data - Swapped position with Import Calendar */}
-          <View style={[styles.card, styles.halfCard]}>
-            <Text style={styles.cardTitle}>Import Data</Text>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handleImport}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : (
-                <>
-                  <FileUp size={16} color={COLORS.white} />
-                  <Text style={styles.buttonText}>Import from CSV</Text>
-                </>
-              )}
-            </TouchableOpacity>
-            <Text style={styles.noteText}>Import activities from CSV</Text>
-          </View>
-          
           {/* Import Calendar - Swapped position with Import Data */}
           <View style={[styles.card, styles.halfCard]}>
             <Text style={styles.cardTitle}>Import Calendar</Text>
@@ -290,6 +270,26 @@ export default function DataScreen() {
               )}
             </TouchableOpacity>
             <Text style={styles.noteText}>Import from calendar files</Text>
+          </View>
+          
+          {/* Import Data - Swapped position with Import Calendar */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Data</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <FileUp size={16} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import from CSV</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.noteText}>Import activities from CSV</Text>
           </View>
         </View>
         
