@@ -4,6 +4,7 @@ import { FileDown, FileUp, Trash2, AlertTriangle, Calendar } from 'lucide-react-
 import { useActivityStore } from '@/store/activityStore';
 import { exportActivities, importActivities } from '@/utils/csv';
 import { exportActivitiesToICS } from '@/utils/export';
+import { importActivitiesFromICS } from '@/utils/export';
 import { COLORS } from '@/constants/colors';
 
 export default function DataScreen() {
@@ -11,6 +12,7 @@ export default function DataScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingICS, setIsExportingICS] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isImportingICS, setIsImportingICS] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   const handleExport = async () => {
@@ -116,6 +118,65 @@ export default function DataScreen() {
     }
   };
   
+  const handleImportICS = async () => {
+    setIsImportingICS(true);
+    try {
+      const importedActivities = await importActivitiesFromICS();
+      
+      if (!importedActivities) {
+        // User cancelled or no file selected
+        setIsImportingICS(false);
+        return;
+      }
+      
+      if (importedActivities.length === 0) {
+        Alert.alert('Import Error', 'No valid activities found in the iCalendar file.');
+        setIsImportingICS(false);
+        return;
+      }
+      
+      // Ask user if they want to replace or append
+      if (activities.length > 0) {
+        Alert.alert(
+          'Import Options',
+          `You have ${importedActivities.length} activities to import. What would you like to do?`,
+          [
+            {
+              text: 'Replace All',
+              onPress: () => {
+                storeImportActivities(importedActivities);
+                Alert.alert('Success', `Imported ${importedActivities.length} activities, replacing existing data.`);
+              },
+              style: 'destructive'
+            },
+            {
+              text: 'Append',
+              onPress: () => {
+                // Combine existing and new activities
+                const combinedActivities = [...activities, ...importedActivities];
+                storeImportActivities(combinedActivities);
+                Alert.alert('Success', `Appended ${importedActivities.length} activities to your existing data.`);
+              }
+            },
+            {
+              text: 'Cancel',
+              style: 'cancel'
+            }
+          ]
+        );
+      } else {
+        // No existing activities, just import
+        storeImportActivities(importedActivities);
+        Alert.alert('Success', `Imported ${importedActivities.length} activities.`);
+      }
+    } catch (error) {
+      console.error('iCalendar import error:', error);
+      Alert.alert('Import Error', 'Failed to import activities. Please check your iCalendar file format.');
+    } finally {
+      setIsImportingICS(false);
+    }
+  };
+  
   const handleClearData = () => {
     if (activities.length === 0) {
       Alert.alert('No Data', 'There are no activities to clear.');
@@ -207,6 +268,27 @@ export default function DataScreen() {
               <>
                 <FileUp size={20} color={COLORS.white} />
                 <Text style={styles.buttonText}>Import from CSV</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Import from Calendar</Text>
+          <Text style={styles.cardDescription}>
+            Import activities from an iCalendar file (.ics) exported from calendar apps or SafeHours.
+          </Text>
+          <TouchableOpacity 
+            style={[styles.button, styles.calendarButton]}
+            onPress={handleImportICS}
+            disabled={isImportingICS}
+          >
+            {isImportingICS ? (
+              <ActivityIndicator color={COLORS.white} size="small" />
+            ) : (
+              <>
+                <Calendar size={20} color={COLORS.white} />
+                <Text style={styles.buttonText}>Import from iCalendar</Text>
               </>
             )}
           </TouchableOpacity>
