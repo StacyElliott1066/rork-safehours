@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal } from 'react-native';
 import { FileDown, FileUp, Trash2, AlertTriangle, Calendar } from 'lucide-react-native';
 import { useActivityStore } from '@/store/activityStore';
 import { exportActivities, importActivities } from '@/utils/csv';
@@ -229,7 +229,7 @@ export default function DataScreen() {
             </TouchableOpacity>
           </View>
           
-          {/* Import from Calendar - Swapped position */}
+          {/* Import Calendar - Swapped position */}
           <View style={[styles.card, styles.halfCard]}>
             <Text style={styles.cardTitle}>Import Calendar</Text>
             <TouchableOpacity 

@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { Platform } from 'react-native';
+import { Platform, Share } from 'react-native';
 import { Activity } from '@/types/activity';
 import { parseICSToActivities } from '@/utils/ical';
 import { calculateDuration } from '@/utils/time';
@@ -74,11 +74,11 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
       URL.revokeObjectURL(url);
       return true;
     } else {
-      // For mobile, use FileSystem sharing
-      await FileSystem.shareAsync(fileUri, {
-        mimeType: 'text/calendar',
-        dialogTitle: 'Export Activities',
-        UTI: 'public.calendar'
+      // For mobile, use Share API
+      await Share.share({
+        url: fileUri,
+        title: 'Export Activities',
+        message: 'SafeHours Activities'
       });
       
       return true;
@@ -92,29 +92,66 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
 // Import activities from iCalendar file
 export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
   try {
-    // Pick a document
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ['text/calendar', 'application/octet-stream'],
-      copyToCacheDirectory: true,
-    });
-    
-    // Check if user cancelled
-    if (result.canceled) {
-      return null;
+    if (Platform.OS === 'web') {
+      // For web, use file input
+      return new Promise((resolve, reject) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.ics';
+        
+        input.onchange = async (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (!file) {
+            resolve(null);
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const icsContent = event.target?.result as string;
+              const activities = parseICSToActivities(icsContent);
+              resolve(activities);
+            } catch (error) {
+              reject(error);
+            }
+          };
+          
+          reader.onerror = () => {
+            reject(new Error('Failed to read file'));
+          };
+          
+          reader.readAsText(file);
+        };
+        
+        input.click();
+      });
+    } else {
+      // For mobile, use DocumentPicker
+      // Pick a document
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['text/calendar', 'application/octet-stream'],
+        copyToCacheDirectory: true,
+      });
+      
+      // Check if user cancelled
+      if (result.canceled) {
+        return null;
+      }
+      
+      // Get the file URI
+      const fileUri = result.assets[0].uri;
+      
+      // Read the file content
+      const fileContent = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      // Parse the iCal content to activities
+      const activities = parseICSToActivities(fileContent);
+      
+      return activities;
     }
-    
-    // Get the file URI
-    const fileUri = result.assets[0].uri;
-    
-    // Read the file content
-    const fileContent = await FileSystem.readAsStringAsync(fileUri, {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
-    
-    // Parse the iCal content to activities
-    const activities = parseICSToActivities(fileContent);
-    
-    return activities;
   } catch (error) {
     console.error('Error importing activities from iCalendar:', error);
     throw error;
