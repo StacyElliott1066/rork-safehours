@@ -3,6 +3,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Platform } from 'react-native';
 import { Activity } from '@/types/activity';
 import { parseICSToActivities } from '@/utils/ical';
+import { calculateDuration } from '@/utils/time';
 
 // Export activities to iCalendar format
 export const exportActivitiesToICS = async (activities: Activity[]): Promise<boolean> => {
@@ -28,12 +29,16 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
       if (activity.endTime) {
         const [endHours, endMinutes] = activity.endTime.split(':').map(Number);
         endDate.setHours(endHours, endMinutes);
-      } else if (activity.duration) {
-        // If no end time but duration is available
-        endDate.setMinutes(endDate.getMinutes() + activity.duration);
       } else {
-        // Default to 1 hour if no end time or duration
-        endDate.setHours(endDate.getHours() + 1);
+        // Calculate duration from start and end time
+        const durationMinutes = calculateDuration(activity.startTime, activity.endTime);
+        // If no end time but we have duration
+        if (durationMinutes > 0) {
+          endDate.setMinutes(endDate.getMinutes() + durationMinutes);
+        } else {
+          // Default to 1 hour if no end time or duration
+          endDate.setHours(endDate.getHours() + 1);
+        }
       }
       
       // Format dates for iCal
@@ -69,11 +74,8 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
       URL.revokeObjectURL(url);
       return true;
     } else {
-      // For mobile, use FileSystem.getContentUriAsync and Linking
-      const contentUri = await FileSystem.getContentUriAsync(fileUri);
-      
-      // Use the share API from expo-file-system
-      await FileSystem.shareAsync(contentUri, {
+      // For mobile, use FileSystem sharing
+      await FileSystem.shareAsync(fileUri, {
         mimeType: 'text/calendar',
         dialogTitle: 'Export Activities',
         UTI: 'public.calendar'

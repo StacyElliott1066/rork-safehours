@@ -229,28 +229,7 @@ export default function DataScreen() {
             </TouchableOpacity>
           </View>
           
-          {/* Import Data */}
-          <View style={[styles.card, styles.halfCard]}>
-            <Text style={styles.cardTitle}>Import Data</Text>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handleImport}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : (
-                <>
-                  <FileUp size={18} color={COLORS.white} />
-                  <Text style={styles.buttonText}>Import from CSV</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        <View style={styles.row}>
-          {/* Import from Calendar */}
+          {/* Import from Calendar - Swapped position */}
           <View style={[styles.card, styles.halfCard]}>
             <Text style={styles.cardTitle}>Import Calendar</Text>
             <TouchableOpacity 
@@ -264,6 +243,27 @@ export default function DataScreen() {
                 <>
                   <Calendar size={18} color={COLORS.white} />
                   <Text style={styles.buttonText}>Import .ics</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        <View style={styles.row}>
+          {/* Import Data - Swapped position */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Data</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <FileUp size={18} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import from CSV</Text>
                 </>
               )}
             </TouchableOpacity>
