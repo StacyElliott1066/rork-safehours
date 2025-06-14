@@ -252,27 +252,7 @@ export default function DataScreen() {
         </View>
         
         <View style={styles.row}>
-          {/* Import Calendar - Swapped position with Import Data */}
-          <View style={[styles.card, styles.halfCard]}>
-            <Text style={styles.cardTitle}>Import Calendar</Text>
-            <TouchableOpacity 
-              style={[styles.button, styles.calendarButton]}
-              onPress={handleImportICS}
-              disabled={isImportingICS}
-            >
-              {isImportingICS ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : (
-                <>
-                  <Calendar size={16} color={COLORS.white} />
-                  <Text style={styles.buttonText}>Import .ics</Text>
-                </>
-              )}
-            </TouchableOpacity>
-            <Text style={styles.noteText}>Import from calendar files</Text>
-          </View>
-          
-          {/* Import Data - Swapped position with Import Calendar */}
+          {/* Import Data */}
           <View style={[styles.card, styles.halfCard]}>
             <Text style={styles.cardTitle}>Import Data</Text>
             <TouchableOpacity 
@@ -290,6 +270,26 @@ export default function DataScreen() {
               )}
             </TouchableOpacity>
             <Text style={styles.noteText}>Import activities from CSV</Text>
+          </View>
+          
+          {/* Import Calendar */}
+          <View style={[styles.card, styles.halfCard]}>
+            <Text style={styles.cardTitle}>Import Calendar</Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.calendarButton]}
+              onPress={handleImportICS}
+              disabled={isImportingICS}
+            >
+              {isImportingICS ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <>
+                  <Calendar size={16} color={COLORS.white} />
+                  <Text style={styles.buttonText}>Import .ics</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.noteText}>Import from calendar files</Text>
           </View>
         </View>
         
