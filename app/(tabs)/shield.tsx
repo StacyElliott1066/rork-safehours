@@ -3,18 +3,20 @@ import { StyleSheet, Text, View, ScrollView, Dimensions, TouchableOpacity } from
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
 import { Activity } from '@/types/activity';
-import { calculateDuration, timeToMinutes } from '@/utils/time';
-import { Shield, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { calculateDuration, timeToMinutes, calculateRollingContactTime } from '@/utils/time';
+import { Shield, AlertCircle, CheckCircle, Clock } from 'lucide-react-native';
 
-const LIMIT_HOURS = 8; // 8-hour limit
+const FLIGHT_LIMIT_HOURS = 8; // 8-hour flight instruction limit
+const CONTACT_LIMIT_HOURS = 10; // 10-hour contact time limit (example, use actual value from settings)
 const INTERVAL_MINUTES = 15; // 15-minute intervals for the chart
 
 export default function ShieldScreen() {
-  const { activities } = useActivityStore();
+  const { activities, warningThresholds } = useActivityStore();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [timePoints, setTimePoints] = useState<{ time: Date; hours: number }[]>([]);
-  const [selectedPoint, setSelectedPoint] = useState<{ time: Date; hours: number } | null>(null);
+  const [timePoints, setTimePoints] = useState<{ time: Date; flightHours: number; contactHours: number }[]>([]);
+  const [selectedPoint, setSelectedPoint] = useState<{ time: Date; flightHours: number; contactHours: number } | null>(null);
   const [maxHours, setMaxHours] = useState(10); // Default max for y-axis
+  const [activeChart, setActiveChart] = useState<'flight' | 'contact'>('flight');
   const scrollViewRef = useRef<ScrollView>(null);
   
   // Update current time every minute
@@ -29,7 +31,7 @@ export default function ShieldScreen() {
   // Generate time points and calculate hours for each point
   useEffect(() => {
     generateTimePoints();
-  }, [activities, currentTime]);
+  }, [activities, currentTime, warningThresholds]);
   
   // Scroll to current time when component mounts
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function ShieldScreen() {
     let latestDate = new Date(0); // Jan 1, 1970
     
     activities.forEach(activity => {
-      if (activity.type === 'Flight') {
+      if (activity.type !== 'Other') {
         const activityDate = new Date(activity.date);
         const startDateTime = new Date(activityDate);
         const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
@@ -90,9 +92,9 @@ export default function ShieldScreen() {
       }
     });
     
-    // If no flight activities found, use current time
+    // If no activities found, use current time
     if (latestDate.getTime() === 0) {
-      setTimePoints([{ time: currentTime, hours: 0 }]);
+      setTimePoints([{ time: currentTime, flightHours: 0, contactHours: 0 }]);
       return;
     }
     
@@ -105,20 +107,28 @@ export default function ShieldScreen() {
     earliestDate.setHours(earliestDate.getHours() - 24);
     latestDate.setHours(latestDate.getHours() + 1);
     
-    const points: { time: Date; hours: number }[] = [];
+    const points: { time: Date; flightHours: number; contactHours: number }[] = [];
     
     // Generate points from earliest to latest at 15-minute intervals
     let currentPoint = new Date(earliestDate);
     while (currentPoint <= latestDate) {
-      const hoursInLast24 = calculateHoursInLast24Hours(currentPoint);
-      points.push({ time: new Date(currentPoint), hours: hoursInLast24 });
+      const flightHoursInLast24 = calculateHoursInLast24Hours(currentPoint);
+      const contactHoursInLast24 = calculateRollingContactTime(activities, currentPoint);
+      points.push({ 
+        time: new Date(currentPoint), 
+        flightHours: flightHoursInLast24,
+        contactHours: contactHoursInLast24
+      });
       
       // Move to next interval
       currentPoint.setMinutes(currentPoint.getMinutes() + INTERVAL_MINUTES);
     }
     
     // Find the maximum hours to adjust the y-axis scale
-    const maxCalculatedHours = Math.max(...points.map(p => p.hours), LIMIT_HOURS);
+    const maxFlightHours = Math.max(...points.map(p => p.flightHours), FLIGHT_LIMIT_HOURS);
+    const maxContactHours = Math.max(...points.map(p => p.contactHours), warningThresholds.maxContactTime);
+    const maxCalculatedHours = Math.max(maxFlightHours, maxContactHours);
+    
     // Round up to the nearest 2 for a clean scale
     const newMaxHours = Math.ceil(maxCalculatedHours / 2) * 2;
     setMaxHours(Math.max(10, newMaxHours)); // At least 10 hours for the scale
@@ -196,12 +206,17 @@ export default function ShieldScreen() {
     return `${day}-${month}`;
   };
   
-  const getPointColor = (hours: number): string => {
-    return hours > LIMIT_HOURS ? COLORS.red : COLORS.primary;
+  const getPointColor = (hours: number, type: 'flight' | 'contact'): string => {
+    const limit = type === 'flight' ? FLIGHT_LIMIT_HOURS : warningThresholds.maxContactTime;
+    return hours > limit ? COLORS.red : (type === 'flight' ? COLORS.primary : COLORS.secondary || '#4CAF50');
   };
   
-  const handlePointPress = (point: { time: Date; hours: number }) => {
+  const handlePointPress = (point: { time: Date; flightHours: number; contactHours: number }) => {
     setSelectedPoint(point);
+  };
+  
+  const toggleChartType = () => {
+    setActiveChart(activeChart === 'flight' ? 'contact' : 'flight');
   };
   
   const renderYAxisLabels = () => {
@@ -209,13 +224,18 @@ export default function ShieldScreen() {
     const step = 2; // 2-hour step for y-axis
     
     for (let i = 0; i <= maxHours; i += step) {
+      const isFlightLimit = i === FLIGHT_LIMIT_HOURS;
+      const isContactLimit = i === warningThresholds.maxContactTime;
+      const isLimit = (activeChart === 'flight' && isFlightLimit) || 
+                      (activeChart === 'contact' && isContactLimit);
+      
       labels.push(
         <Text 
           key={`y-${i}`} 
           style={[
             styles.axisLabel, 
             { bottom: (i / maxHours) * 200 - 10 },
-            i === LIMIT_HOURS && styles.limitLabel
+            isLimit && styles.limitLabel
           ]}
         >
           {i}h
@@ -229,13 +249,14 @@ export default function ShieldScreen() {
   const renderChart = () => {
     if (timePoints.length === 0) return (
       <View style={styles.emptyChart}>
-        <Text style={styles.emptyChartText}>No flight activities found</Text>
+        <Text style={styles.emptyChartText}>No activities found</Text>
       </View>
     );
     
     // Use 20px per point for better spacing
     const pointWidth = 20;
     const chartWidth = timePoints.length * pointWidth;
+    const limitValue = activeChart === 'flight' ? FLIGHT_LIMIT_HOURS : warningThresholds.maxContactTime;
     
     return (
       <View style={styles.chartContainer}>
@@ -252,11 +273,14 @@ export default function ShieldScreen() {
           style={styles.chartScrollView}
           contentContainerStyle={[styles.chartContent, { width: chartWidth }]}
         >
-          {/* 8-hour limit line - aligned with the 8h label */}
+          {/* Limit line */}
           <View 
             style={[
               styles.limitLine, 
-              { bottom: (LIMIT_HOURS / maxHours) * 200 + 65 }
+              { 
+                bottom: (limitValue / maxHours) * 200 + 65,
+                backgroundColor: activeChart === 'flight' ? COLORS.red : COLORS.secondary || '#4CAF50'
+              }
             ]} 
           />
           
@@ -265,7 +289,8 @@ export default function ShieldScreen() {
             const isSelected = selectedPoint && 
                               selectedPoint.time.getTime() === point.time.getTime();
             const isCurrent = Math.abs(point.time.getTime() - currentTime.getTime()) < INTERVAL_MINUTES * 60000;
-            const pointColor = getPointColor(point.hours);
+            const hours = activeChart === 'flight' ? point.flightHours : point.contactHours;
+            const pointColor = getPointColor(hours, activeChart);
             
             // Only show time label for every 4th point (hourly)
             const showTimeLabel = index % 4 === 0;
@@ -285,9 +310,12 @@ export default function ShieldScreen() {
               >
                 {/* Hours value bubble - only show for selected point */}
                 {isSelected && (
-                  <View style={styles.hoursBubble}>
+                  <View style={[
+                    styles.hoursBubble,
+                    { backgroundColor: activeChart === 'flight' ? COLORS.primary : COLORS.secondary || '#4CAF50' }
+                  ]}>
                     <Text style={styles.hoursValue}>
-                      {point.hours.toFixed(1)}h
+                      {hours.toFixed(1)}h
                     </Text>
                   </View>
                 )}
@@ -301,7 +329,7 @@ export default function ShieldScreen() {
                     style={[
                       styles.chartPoint, 
                       { 
-                        bottom: (point.hours / maxHours) * 200,
+                        bottom: (hours / maxHours) * 200,
                         backgroundColor: pointColor,
                       },
                       isSelected && styles.selectedPoint,
@@ -332,70 +360,140 @@ export default function ShieldScreen() {
   };
   
   // Get current hours in last 24 hours
-  const currentHours = timePoints.length > 0 ? 
-    (selectedPoint ? selectedPoint.hours : timePoints[timePoints.length - 1].hours) : 
+  const currentFlightHours = timePoints.length > 0 ? 
+    (selectedPoint ? selectedPoint.flightHours : timePoints[timePoints.length - 1].flightHours) : 
     calculateHoursInLast24Hours(new Date());
   
-  const isOverLimit = currentHours > LIMIT_HOURS;
+  const currentContactHours = timePoints.length > 0 ? 
+    (selectedPoint ? selectedPoint.contactHours : timePoints[timePoints.length - 1].contactHours) : 
+    calculateRollingContactTime(activities, new Date());
+  
+  const isFlightOverLimit = currentFlightHours > FLIGHT_LIMIT_HOURS;
+  const isContactOverLimit = currentContactHours > warningThresholds.maxContactTime;
   
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          {/* Status card */}
-          <View style={[
-            styles.statusCard,
-            isOverLimit ? styles.warningCard : styles.safeCard
-          ]}>
-            <View style={styles.statusHeader}>
-              {isOverLimit ? (
-                <AlertCircle size={24} color={COLORS.white} />
-              ) : (
-                <CheckCircle size={24} color={COLORS.white} />
-              )}
-              <Text style={styles.statusTitle}>
-                {isOverLimit ? "Limit Exceeded" : "Within Limit"}
+          {/* Chart toggle */}
+          <View style={styles.toggleContainer}>
+            <TouchableOpacity 
+              style={[
+                styles.toggleButton, 
+                activeChart === 'flight' && styles.activeToggle
+              ]}
+              onPress={() => setActiveChart('flight')}
+            >
+              <Shield size={16} color={activeChart === 'flight' ? COLORS.white : COLORS.gray} />
+              <Text style={[
+                styles.toggleText,
+                activeChart === 'flight' && styles.activeToggleText
+              ]}>
+                Flight Hours
               </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[
+                styles.toggleButton, 
+                activeChart === 'contact' && styles.activeToggleContact
+              ]}
+              onPress={() => setActiveChart('contact')}
+            >
+              <Clock size={16} color={activeChart === 'contact' ? COLORS.white : COLORS.gray} />
+              <Text style={[
+                styles.toggleText,
+                activeChart === 'contact' && styles.activeToggleText
+              ]}>
+                Contact Time
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Status cards */}
+          <View style={styles.statusCardsContainer}>
+            {/* Flight Hours Status */}
+            <View style={[
+              styles.statusCard,
+              styles.halfCard,
+              isFlightOverLimit ? styles.warningCard : styles.safeCard,
+              activeChart === 'flight' && styles.activeCard
+            ]}>
+              <View style={styles.statusHeader}>
+                {isFlightOverLimit ? (
+                  <AlertCircle size={18} color={COLORS.white} />
+                ) : (
+                  <CheckCircle size={18} color={COLORS.white} />
+                )}
+                <Text style={styles.statusTitle}>
+                  Flight Hours
+                </Text>
+              </View>
+              
+              <View style={styles.statusContent}>
+                <Text style={styles.statusValue}>
+                  {currentFlightHours.toFixed(1)}h
+                </Text>
+                <Text style={styles.statusLabel}>
+                  / {FLIGHT_LIMIT_HOURS}h limit
+                </Text>
+              </View>
             </View>
             
-            <View style={styles.statusContent}>
-              <Text style={styles.statusValue}>
-                {currentHours.toFixed(1)}h
-              </Text>
-              <Text style={styles.statusLabel}>
-                in the last 24 hours
-                {selectedPoint && selectedPoint.time.getTime() !== currentTime.getTime() && 
-                  ` (at ${formatTime(selectedPoint.time)})`}
-              </Text>
-            </View>
-            
-            <View style={styles.statusFooter}>
-              <Text style={styles.statusFooterText}>
-                {isOverLimit 
-                  ? `You are ${(currentHours - LIMIT_HOURS).toFixed(1)} hours over the 8-hour limit`
-                  : `You have ${(LIMIT_HOURS - currentHours).toFixed(1)} hours remaining`
-                }
-              </Text>
+            {/* Contact Time Status */}
+            <View style={[
+              styles.statusCard,
+              styles.halfCard,
+              isContactOverLimit ? styles.warningCard : styles.safeContactCard,
+              activeChart === 'contact' && styles.activeCard
+            ]}>
+              <View style={styles.statusHeader}>
+                {isContactOverLimit ? (
+                  <AlertCircle size={18} color={COLORS.white} />
+                ) : (
+                  <CheckCircle size={18} color={COLORS.white} />
+                )}
+                <Text style={styles.statusTitle}>
+                  Contact Time
+                </Text>
+              </View>
+              
+              <View style={styles.statusContent}>
+                <Text style={styles.statusValue}>
+                  {currentContactHours.toFixed(1)}h
+                </Text>
+                <Text style={styles.statusLabel}>
+                  / {warningThresholds.maxContactTime}h limit
+                </Text>
+              </View>
             </View>
           </View>
           
           {/* Chart section */}
           <View style={styles.chartSection}>
-            <Text style={styles.sectionTitle}>8-Hour Shield Timeline</Text>
+            <Text style={styles.sectionTitle}>
+              {activeChart === 'flight' ? '8-Hour Shield Timeline' : 'Contact Time Timeline'}
+            </Text>
             <Text style={styles.chartSubtitle}>
-              Each dot shows flight instruction hours in the previous 24 hours at that point in time
+              Each dot shows {activeChart === 'flight' ? 'flight instruction hours' : 'contact time'} in the previous 24 hours at that point in time
             </Text>
             
             {renderChart()}
           </View>
           
           <View style={styles.infoSection}>
-            <Text style={styles.infoTitle}>About 8-Hour Shield</Text>
+            <Text style={styles.infoTitle}>About Rolling 24-Hour Limits</Text>
             <Text style={styles.infoText}>
-              The 8-Hour Shield tracks your flight instruction hours in a rolling 24-hour window across your entire activity history. This helps ensure compliance with regulations that limit flight instruction time to 8 hours in any 24-hour period.
+              This chart tracks both flight instruction hours and total contact time in a rolling 24-hour window across your entire activity history. This helps ensure compliance with regulations that limit:
             </Text>
             <Text style={styles.infoText}>
-              The chart shows your flight instruction hours at 15-minute intervals. Tap any point to see details for that specific time.
+              • Flight instruction time to 8 hours in any 24-hour period
+            </Text>
+            <Text style={styles.infoText}>
+              • Total contact time to {warningThresholds.maxContactTime} hours in any 24-hour period
+            </Text>
+            <Text style={styles.infoText}>
+              The chart shows your hours at 15-minute intervals. Tap any point to see details for that specific time.
             </Text>
           </View>
         </View>
@@ -415,57 +513,89 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  toggleContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: COLORS.lightGray,
+  },
+  toggleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    backgroundColor: 'transparent',
+  },
+  activeToggle: {
+    backgroundColor: COLORS.primary,
+  },
+  activeToggleContact: {
+    backgroundColor: COLORS.secondary || '#4CAF50',
+  },
+  toggleText: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: COLORS.gray,
+  },
+  activeToggleText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+  },
+  statusCardsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
   statusCard: {
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
+    padding: 12,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
+  halfCard: {
+    width: '48%',
+  },
+  activeCard: {
+    borderWidth: 2,
+    borderColor: COLORS.black,
+  },
   warningCard: {
     backgroundColor: COLORS.red,
   },
   safeCard: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.primary,
+  },
+  safeContactCard: {
+    backgroundColor: COLORS.secondary || '#4CAF50',
   },
   statusHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   statusTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: COLORS.white,
-    marginLeft: 8,
+    marginLeft: 6,
   },
   statusContent: {
     alignItems: 'center',
-    marginBottom: 12,
   },
   statusValue: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.white,
   },
   statusLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: COLORS.white,
     opacity: 0.8,
-    textAlign: 'center',
-  },
-  statusFooter: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.2)',
-    paddingTop: 12,
-  },
-  statusFooterText: {
-    fontSize: 14,
-    color: COLORS.white,
-    textAlign: 'center',
   },
   chartSection: {
     backgroundColor: COLORS.white,

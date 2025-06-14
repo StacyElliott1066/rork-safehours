@@ -193,6 +193,91 @@ export const calculateContactTime = (activities: Activity[], date: string): numb
   }
 };
 
+// Calculate rolling contact time in a 24-hour window
+export const calculateRollingContactTime = (activities: Activity[], fromTime: Date): number => {
+  try {
+    if (!fromTime || !Array.isArray(activities)) {
+      return 0;
+    }
+    
+    if (!(fromTime instanceof Date) || isNaN(fromTime.getTime())) {
+      console.error("Invalid fromTime:", fromTime);
+      return 0;
+    }
+    
+    const twentyFourHoursAgo = new Date(fromTime.getTime() - (24 * 60 * 60 * 1000));
+    
+    let totalMinutes = 0;
+    
+    activities.forEach(activity => {
+      if (activity.type === 'Other') return; // Skip 'Other' type activities
+      
+      try {
+        // Validate date format
+        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          console.error("Invalid activity date format:", activity.date);
+          return;
+        }
+        
+        // Parse the activity date with noon time to avoid timezone issues
+        const activityDate = new Date(activity.date + 'T12:00:00');
+        if (isNaN(activityDate.getTime())) {
+          console.error("Invalid activity date:", activity.date);
+          return;
+        }
+        
+        const startDateTime = new Date(activityDate);
+        const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
+        if (isNaN(startHours) || isNaN(startMinutes)) {
+          console.error("Invalid start time:", activity.startTime);
+          return;
+        }
+        startDateTime.setHours(startHours, startMinutes, 0, 0);
+        
+        const endDateTime = new Date(activityDate);
+        const [endHours, endMinutes] = activity.endTime.split(':').map(Number);
+        if (isNaN(endHours) || isNaN(endMinutes)) {
+          console.error("Invalid end time:", activity.endTime);
+          return;
+        }
+        endDateTime.setHours(endHours, endMinutes, 0, 0);
+        
+        // Handle overnight activities
+        if (endDateTime < startDateTime) {
+          endDateTime.setDate(endDateTime.getDate() + 1);
+        }
+        
+        // Add pre/post time
+        const prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        const preMinutes = prePostMinutes / 2;
+        const postMinutes = prePostMinutes / 2;
+        
+        const adjustedStartDateTime = new Date(startDateTime.getTime() - (preMinutes * 60000));
+        const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
+        
+        // Check if activity is within the 24-hour window
+        if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTime) {
+          // Calculate overlap with the 24-hour window
+          const overlapStart = Math.max(adjustedStartDateTime.getTime(), twentyFourHoursAgo.getTime());
+          const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTime.getTime());
+          
+          if (overlapEnd > overlapStart) {
+            const overlapMinutes = (overlapEnd - overlapStart) / 60000;
+            totalMinutes += overlapMinutes;
+          }
+        }
+      } catch (error) {
+        console.error("Error calculating rolling contact time for activity:", error);
+      }
+    });
+    
+    return totalMinutes / 60; // Convert to hours
+  } catch (error) {
+    console.error("Error calculating rolling contact time:", error);
+    return 0;
+  }
+};
+
 // Calculate duty day length (first activity start to last activity end including pre/post)
 export const calculateDutyDay = (activities: Activity[], date: string): number => {
   try {

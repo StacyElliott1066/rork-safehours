@@ -26,7 +26,7 @@ interface ActivityState {
 const DEFAULT_WARNING_THRESHOLDS: WarningThresholds = {
   maxFlightHours: 8, // FAA mandatory limit - cannot be changed
   minRestBetweenDays: 10,
-  maxContactTime: 10,
+  maxContactTime: 10, // Now a rolling 24-hour limit
   maxDutyDay: 16,
   maxConsecutiveDays: 15,
   maxWeeklyHours: 40,

@@ -5,12 +5,13 @@ import { AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react-native';
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
 import {
-  calculateContactTime,
+  calculateRollingContactTime,
   calculateDutyDay,
   calculateRestBetween,
   calculateConsecutiveDays,
   calculateWeeklyHours,
   calculatePastSevenDaysHours,
+  calculateRolling24HourFlightTime,
 } from '@/utils/time';
 
 export default function WarningsScreen() {
@@ -22,7 +23,7 @@ export default function WarningsScreen() {
   } = useActivityStore();
   
   // Calculate rolling 24-hour flight time for the current day
-  const calculateRolling24HourFlightTime = (): number => {
+  const calculateMaxRolling24HourFlightTime = (): number => {
     // Get the end of the selected day
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
@@ -35,14 +36,14 @@ export default function WarningsScreen() {
       const checkTime = new Date(selectedDate);
       checkTime.setHours(hour, 0, 0, 0);
       
-      const hoursAtThisTime = calculateHoursInLast24Hours(checkTime);
+      const hoursAtThisTime = calculateRolling24HourFlightTime(activities, checkTime);
       if (hoursAtThisTime > maxRollingHours) {
         maxRollingHours = hoursAtThisTime;
       }
     }
     
     // Also check the end of day
-    const endOfDayHours = calculateHoursInLast24Hours(endOfDay);
+    const endOfDayHours = calculateRolling24HourFlightTime(activities, endOfDay);
     if (endOfDayHours > maxRollingHours) {
       maxRollingHours = endOfDayHours;
     }
@@ -50,56 +51,38 @@ export default function WarningsScreen() {
     return maxRollingHours;
   };
   
-  // Calculate flight instruction hours in the last 24 hours from a given point in time
-  const calculateHoursInLast24Hours = (fromTime: Date): number => {
-    const twentyFourHoursAgo = new Date(fromTime.getTime() - (24 * 60 * 60 * 1000));
+  // Calculate maximum rolling contact time for the current day
+  const calculateMaxRollingContactTime = (): number => {
+    // Get the end of the selected day
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
     
-    let totalMinutes = 0;
+    // Check every hour of the selected day to find the maximum rolling 24-hour value
+    let maxRollingHours = 0;
     
-    activities.forEach(activity => {
-      if (activity.type !== 'Flight') return; // Only count flight activities
+    // Start at midnight and check each hour
+    for (let hour = 0; hour <= 23; hour++) {
+      const checkTime = new Date(selectedDate);
+      checkTime.setHours(hour, 0, 0, 0);
       
-      const activityDate = new Date(activity.date);
-      const startDateTime = new Date(activityDate);
-      const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
-      startDateTime.setHours(startHours, startMinutes, 0, 0);
-      
-      const endDateTime = new Date(activityDate);
-      const [endHours, endMinutes] = activity.endTime.split(':').map(Number);
-      endDateTime.setHours(endHours, endMinutes, 0, 0);
-      
-      // Handle overnight activities
-      if (endDateTime < startDateTime) {
-        endDateTime.setDate(endDateTime.getDate() + 1);
+      const hoursAtThisTime = calculateRollingContactTime(activities, checkTime);
+      if (hoursAtThisTime > maxRollingHours) {
+        maxRollingHours = hoursAtThisTime;
       }
-      
-      // Add pre/post time
-      const prePostMinutes = activity.prePostValue * 60;
-      const preMinutes = prePostMinutes / 2;
-      const postMinutes = prePostMinutes / 2;
-      
-      const adjustedStartDateTime = new Date(startDateTime.getTime() - (preMinutes * 60000));
-      const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
-      
-      // Check if activity is within the 24-hour window
-      if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTime) {
-        // Calculate overlap with the 24-hour window
-        const overlapStart = Math.max(adjustedStartDateTime.getTime(), twentyFourHoursAgo.getTime());
-        const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTime.getTime());
-        
-        if (overlapEnd > overlapStart) {
-          const overlapMinutes = (overlapEnd - overlapStart) / 60000;
-          totalMinutes += overlapMinutes;
-        }
-      }
-    });
+    }
     
-    return totalMinutes / 60; // Convert to hours
+    // Also check the end of day
+    const endOfDayHours = calculateRollingContactTime(activities, endOfDay);
+    if (endOfDayHours > maxRollingHours) {
+      maxRollingHours = endOfDayHours;
+    }
+    
+    return maxRollingHours;
   };
   
   // Calculate warning values
-  const flightHours = calculateRolling24HourFlightTime(); // Use rolling 24-hour calculation
-  const contactTime = calculateContactTime(activities, selectedDate);
+  const flightHours = calculateMaxRolling24HourFlightTime();
+  const contactTime = calculateMaxRollingContactTime(); // Now using rolling 24-hour window
   const dutyDay = calculateDutyDay(activities, selectedDate);
   const restBetween = calculateRestBetween(activities, selectedDate);
   const consecutiveDays = calculateConsecutiveDays(activities, selectedDate);
@@ -174,20 +157,20 @@ export default function WarningsScreen() {
           />
           
           <WarningItem 
+            title="Contact Time (24h)"
+            isCompliant={isContactTimeCompliant}
+            value={`${contactTime.toFixed(1)}h`}
+            threshold={`${warningThresholds.maxContactTime}h max`}
+            description="Maximum total contact hours in any rolling 24-hour period."
+          />
+          
+          <WarningItem 
             title="Rest Between Days"
             isCompliant={isRestBetweenCompliant}
             value={hasPreviousDay() ? `${restBetween.toFixed(1)}h` : "No previous day data"}
             threshold={`${warningThresholds.minRestBetweenDays}h min`}
             description="Minimum rest required between duty days."
             isWarning={!hasPreviousDay()}
-          />
-          
-          <WarningItem 
-            title="Contact Time"
-            isCompliant={isContactTimeCompliant}
-            value={`${contactTime.toFixed(1)}h`}
-            threshold={`${warningThresholds.maxContactTime}h max`}
-            description="Maximum total contact hours in a day."
           />
           
           <WarningItem 
