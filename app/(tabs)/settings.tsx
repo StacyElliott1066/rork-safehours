@@ -196,21 +196,6 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
         </View>
-        
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
-          
-          <Link href="/about" asChild>
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingTextContainer}>
-                <Text style={styles.settingTitle}>About SafeHours</Text>
-                <Text style={styles.settingDescription}>
-                  Version information and acknowledgments
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </Link>
-        </View>
       </ScrollView>
     </View>
   );

@@ -296,13 +296,14 @@ export default function ShieldScreen() {
             const hours = activeChart === 'flight' ? point.flightHours : point.contactHours;
             const pointColor = getPointColor(hours, activeChart);
             
-            // Only show time label for every 4th point (hourly)
+            // Show time label for every 4th point (hourly)
             const showTimeLabel = index % 4 === 0;
             
-            // Show date label for first point of the day
+            // Show date label for first point of the day or every 12th point (every 3 hours)
             const showDateLabel = index === 0 || 
                                 (index > 0 && 
-                                 point.time.getDate() !== timePoints[index-1].time.getDate());
+                                 (point.time.getDate() !== timePoints[index-1].time.getDate() || 
+                                  index % 12 === 0)); // Every 3 hours (12 * 15min = 3h)
             
             return (
               <View
@@ -349,7 +350,7 @@ export default function ShieldScreen() {
                   </Text>
                 )}
                 
-                {/* Date label - only show for first point of each day */}
+                {/* Date label - only show for first point of each day or every 3 hours */}
                 {showDateLabel && (
                   <Text style={styles.dateLabel}>
                     {formatDate(point.time)}
