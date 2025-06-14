@@ -476,7 +476,7 @@ export default function ShieldScreen() {
           {/* Chart section */}
           <View style={styles.chartSection}>
             <Text style={styles.sectionTitle}>
-              {activeChart === 'flight' ? '8-Hour Shield Timeline' : 'Contact Time Timeline'}
+              {activeChart === 'flight' ? 'Flight Hours Timeline' : 'Contact Time Timeline'}
             </Text>
             <Text style={styles.chartSubtitle}>
               Each dot shows {activeChart === 'flight' ? 'flight instruction hours' : 'contact time'} in the previous 24 hours at that point in time
