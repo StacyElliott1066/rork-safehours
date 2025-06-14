@@ -61,10 +61,10 @@ export default function AboutScreen() {
                 <Shield size={24} color={COLORS.primary} />
               </View>
               <View style={styles.featureContent}>
-                <Text style={styles.featureTitle}>8-Hour Shield</Text>
+                <Text style={styles.featureTitle}>Rolling 24-Hour Monitor</Text>
                 <Text style={styles.featureDescription}>
-                  Visual representation of your flight instruction hours in a rolling 24-hour period, 
-                  helping you stay under the 8-hour limit.
+                  Visual representation of your flight instruction hours and contact time in a rolling 24-hour period, 
+                  helping you stay under regulatory limits and maintain compliance.
                 </Text>
               </View>
             </View>
@@ -115,8 +115,8 @@ export default function AboutScreen() {
             </Text>
             <View style={styles.complianceList}>
               <Text style={styles.complianceItem}>• Maximum flight instruction hours in 24 hours</Text>
+              <Text style={styles.complianceItem}>• Maximum contact time in 24 hours</Text>
               <Text style={styles.complianceItem}>• Minimum rest between duty days</Text>
-              <Text style={styles.complianceItem}>• Maximum contact time per day</Text>
               <Text style={styles.complianceItem}>• Maximum duty day length</Text>
               <Text style={styles.complianceItem}>• Maximum consecutive work days</Text>
               <Text style={styles.complianceItem}>• Weekly and rolling 7-day hour limits</Text>

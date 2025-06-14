@@ -70,7 +70,7 @@ export default function TabLayout() {
         name="shield"
         options={{
           title: "Rolling 24 Hour",
-          tabBarLabel: "Flt Instr",
+          tabBarLabel: "Rolling 24h",
           tabBarIcon: ({ color }) => <ShieldWithNumber size={24} color={color} number="24" />,
         }}
       />

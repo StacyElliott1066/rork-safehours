@@ -17,7 +17,7 @@ export const ShieldWithNumber = ({ size, color, number }: ShieldWithNumberProps)
         styles.number, 
         { 
           color, 
-          fontSize: size * 0.5,
+          fontSize: size * 0.4, // Smaller font size for "24" vs "8"
           // Adjust position by moving left 1px and up 2px
           transform: [{ translateX: -1 }, { translateY: -2 }]
         }
