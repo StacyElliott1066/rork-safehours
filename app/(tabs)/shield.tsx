@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Dimensions, TouchableOpacity } from
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
 import { Activity } from '@/types/activity';
-import { calculateDuration, timeToMinutes, calculateRollingContactTime } from '@/utils/time';
+import { calculateDuration, timeToMinutes, calculateRollingContactTime, safeParseDate } from '@/utils/time';
 import { Shield, AlertCircle, CheckCircle, Clock } from 'lucide-react-native';
 
 const FLIGHT_LIMIT_HOURS = 8; // 8-hour flight instruction limit
@@ -68,7 +68,9 @@ export default function ShieldScreen() {
     
     activities.forEach(activity => {
       if (activity.type !== 'Other') {
-        const activityDate = new Date(activity.date);
+        const activityDate = safeParseDate(activity.date);
+        if (!activityDate) return;
+        
         const startDateTime = new Date(activityDate);
         const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
         startDateTime.setHours(startHours, startMinutes, 0, 0);
@@ -156,7 +158,9 @@ export default function ShieldScreen() {
     activities.forEach(activity => {
       if (activity.type !== 'Flight') return; // Only count flight activities
       
-      const activityDate = new Date(activity.date);
+      const activityDate = safeParseDate(activity.date);
+      if (!activityDate) return;
+      
       const startDateTime = new Date(activityDate);
       const [startHours, startMinutes] = activity.startTime.split(':').map(Number);
       startDateTime.setHours(startHours, startMinutes, 0, 0);

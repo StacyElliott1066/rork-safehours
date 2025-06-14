@@ -12,6 +12,7 @@ import {
   calculateWeeklyHours,
   calculatePastSevenDaysHours,
   calculateRolling24HourFlightTime,
+  safeParseDate,
 } from '@/utils/time';
 
 export default function WarningsScreen() {
@@ -22,21 +23,35 @@ export default function WarningsScreen() {
     warningThresholds 
   } = useActivityStore();
   
+  // Create a Date object for the end of the selected day
+  const getEndOfDay = (dateString: string): Date => {
+    const date = safeParseDate(dateString);
+    if (!date) {
+      console.error("Invalid date for getEndOfDay:", dateString);
+      return new Date(); // Fallback to current date
+    }
+    
+    // Set to end of day (23:59:59.999)
+    date.setHours(23, 59, 59, 999);
+    return date;
+  };
+  
   // Calculate rolling 24-hour flight time for the current day
   const calculateMaxRolling24HourFlightTime = (): number => {
     // Get the end of the selected day
-    const endOfDay = new Date(selectedDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const endOfDay = getEndOfDay(selectedDate);
     
     // Check every hour of the selected day to find the maximum rolling 24-hour value
     let maxRollingHours = 0;
     
     // Start at midnight and check each hour
     for (let hour = 0; hour <= 23; hour++) {
-      const checkTime = new Date(selectedDate);
-      checkTime.setHours(hour, 0, 0, 0);
+      const date = safeParseDate(selectedDate);
+      if (!date) continue;
       
-      const hoursAtThisTime = calculateRolling24HourFlightTime(activities, checkTime);
+      date.setHours(hour, 0, 0, 0);
+      
+      const hoursAtThisTime = calculateRolling24HourFlightTime(activities, date);
       if (hoursAtThisTime > maxRollingHours) {
         maxRollingHours = hoursAtThisTime;
       }
@@ -54,18 +69,19 @@ export default function WarningsScreen() {
   // Calculate maximum rolling contact time for the current day
   const calculateMaxRollingContactTime = (): number => {
     // Get the end of the selected day
-    const endOfDay = new Date(selectedDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const endOfDay = getEndOfDay(selectedDate);
     
     // Check every hour of the selected day to find the maximum rolling 24-hour value
     let maxRollingHours = 0;
     
     // Start at midnight and check each hour
     for (let hour = 0; hour <= 23; hour++) {
-      const checkTime = new Date(selectedDate);
-      checkTime.setHours(hour, 0, 0, 0);
+      const date = safeParseDate(selectedDate);
+      if (!date) continue;
       
-      const hoursAtThisTime = calculateRollingContactTime(activities, checkTime);
+      date.setHours(hour, 0, 0, 0);
+      
+      const hoursAtThisTime = calculateRollingContactTime(activities, date);
       if (hoursAtThisTime > maxRollingHours) {
         maxRollingHours = hoursAtThisTime;
       }
@@ -91,7 +107,9 @@ export default function WarningsScreen() {
   
   // Check if previous day exists
   const hasPreviousDay = () => {
-    const date = new Date(selectedDate);
+    const date = safeParseDate(selectedDate);
+    if (!date) return false;
+    
     const prevDate = new Date(date);
     prevDate.setDate(prevDate.getDate() - 1);
     const prevDateStr = prevDate.toISOString().split('T')[0];

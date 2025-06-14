@@ -205,7 +205,11 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
       return 0;
     }
     
-    const twentyFourHoursAgo = new Date(fromTime.getTime() - (24 * 60 * 60 * 1000));
+    // Create a copy of the date to avoid modifying the original
+    const fromTimeCopy = new Date(fromTime.getTime());
+    
+    // Ensure we're using the exact time provided without timezone adjustments
+    const twentyFourHoursAgo = new Date(fromTimeCopy.getTime() - (24 * 60 * 60 * 1000));
     
     let totalMinutes = 0;
     
@@ -220,7 +224,10 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
         }
         
         // Parse the activity date with noon time to avoid timezone issues
-        const activityDate = new Date(activity.date + 'T12:00:00');
+        // Use the exact date string without timezone conversion
+        const [year, month, day] = activity.date.split('-').map(Number);
+        const activityDate = new Date(year, month - 1, day, 12, 0, 0);
+        
         if (isNaN(activityDate.getTime())) {
           console.error("Invalid activity date:", activity.date);
           return;
@@ -256,10 +263,10 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
         const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
         
         // Check if activity is within the 24-hour window
-        if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTime) {
+        if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTimeCopy) {
           // Calculate overlap with the 24-hour window
           const overlapStart = Math.max(adjustedStartDateTime.getTime(), twentyFourHoursAgo.getTime());
-          const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTime.getTime());
+          const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTimeCopy.getTime());
           
           if (overlapEnd > overlapStart) {
             const overlapMinutes = (overlapEnd - overlapStart) / 60000;
@@ -327,7 +334,9 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     }
     
     // Parse the current date with noon time to avoid timezone issues
-    const date = new Date(currentDate + 'T12:00:00');
+    const [year, month, day] = currentDate.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
     if (isNaN(date.getTime())) {
       console.error("Invalid date:", currentDate);
       return 24;
@@ -388,7 +397,9 @@ export const calculateConsecutiveDays = (activities: Activity[], currentDate: st
     }
     
     // Parse the current date with noon time to avoid timezone issues
-    const date = new Date(currentDate + 'T12:00:00');
+    const [year, month, day] = currentDate.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
     if (isNaN(date.getTime())) {
       console.error("Invalid date:", currentDate);
       return 0;
@@ -431,7 +442,9 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
     }
     
     // Parse the current date with noon time to avoid timezone issues
-    const targetDate = new Date(date + 'T12:00:00');
+    const [year, month, day] = date.split('-').map(Number);
+    const targetDate = new Date(year, month - 1, day, 12, 0, 0);
+    
     if (isNaN(targetDate.getTime())) {
       console.error("Invalid date:", date);
       return 0;
@@ -464,7 +477,9 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
         }
         
         // Parse the activity date with noon time to avoid timezone issues
-        const activityDate = new Date(activity.date + 'T12:00:00');
+        const [actYear, actMonth, actDay] = activity.date.split('-').map(Number);
+        const activityDate = new Date(actYear, actMonth - 1, actDay, 12, 0, 0);
+        
         if (isNaN(activityDate.getTime())) {
           console.error("Invalid activity date:", activity.date);
           return;
@@ -534,7 +549,9 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
     }
     
     // Parse the current date with noon time to avoid timezone issues
-    const targetDate = new Date(date + 'T12:00:00');
+    const [year, month, day] = date.split('-').map(Number);
+    const targetDate = new Date(year, month - 1, day, 12, 0, 0);
+    
     if (isNaN(targetDate.getTime())) {
       console.error("Invalid date:", date);
       return 0;
@@ -564,7 +581,9 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
         }
         
         // Parse the activity date with noon time to avoid timezone issues
-        const activityDate = new Date(activity.date + 'T12:00:00');
+        const [actYear, actMonth, actDay] = activity.date.split('-').map(Number);
+        const activityDate = new Date(actYear, actMonth - 1, actDay, 12, 0, 0);
+        
         if (isNaN(activityDate.getTime())) {
           console.error("Invalid activity date:", activity.date);
           return;
@@ -632,7 +651,11 @@ export const calculateRolling24HourFlightTime = (activities: Activity[], fromTim
       return 0;
     }
     
-    const twentyFourHoursAgo = new Date(fromTime.getTime() - (24 * 60 * 60 * 1000));
+    // Create a copy of the date to avoid modifying the original
+    const fromTimeCopy = new Date(fromTime.getTime());
+    
+    // Ensure we're using the exact time provided without timezone adjustments
+    const twentyFourHoursAgo = new Date(fromTimeCopy.getTime() - (24 * 60 * 60 * 1000));
     
     let totalMinutes = 0;
     
@@ -647,7 +670,10 @@ export const calculateRolling24HourFlightTime = (activities: Activity[], fromTim
         }
         
         // Parse the activity date with noon time to avoid timezone issues
-        const activityDate = new Date(activity.date + 'T12:00:00');
+        // Use the exact date string without timezone conversion
+        const [year, month, day] = activity.date.split('-').map(Number);
+        const activityDate = new Date(year, month - 1, day, 12, 0, 0);
+        
         if (isNaN(activityDate.getTime())) {
           console.error("Invalid activity date:", activity.date);
           return;
@@ -683,10 +709,10 @@ export const calculateRolling24HourFlightTime = (activities: Activity[], fromTim
         const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
         
         // Check if activity is within the 24-hour window
-        if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTime) {
+        if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTimeCopy) {
           // Calculate overlap with the 24-hour window
           const overlapStart = Math.max(adjustedStartDateTime.getTime(), twentyFourHoursAgo.getTime());
-          const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTime.getTime());
+          const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTimeCopy.getTime());
           
           if (overlapEnd > overlapStart) {
             const overlapMinutes = (overlapEnd - overlapStart) / 60000;
@@ -811,7 +837,9 @@ export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'
     }
     
     // Parse the date with noon time to avoid timezone issues
-    const date = new Date(dateString + 'T12:00:00');
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
     if (isNaN(date.getTime())) {
       console.error("Invalid date:", dateString);
       return "Invalid date"; // Return a user-friendly message
@@ -850,8 +878,9 @@ export const safeParseDate = (dateString: string): Date | null => {
       return null;
     }
     
-    // Try parsing with noon time to avoid timezone issues
-    const date = new Date(dateString + 'T12:00:00');
+    // Parse the date with noon time to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
     
     // Check if the date is valid
     if (isNaN(date.getTime())) {
