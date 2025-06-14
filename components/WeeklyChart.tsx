@@ -282,7 +282,15 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
             const prePostHours = calculateDailyPrePostHours(dateString);
             
             // Calculate heights for stacked bars
-            let currentHeight = 0;
+            const flightHeight = flightHours * pixelsPerHour;
+            const groundHeight = groundHours * pixelsPerHour;
+            const simHeight = simHours * pixelsPerHour;
+            const prePostHeight = prePostHours * pixelsPerHour;
+            
+            // Calculate bottom positions for stacked bars
+            const groundBottom = flightHeight;
+            const simBottom = flightHeight + groundHeight;
+            const prePostBottom = flightHeight + groundHeight + simHeight;
             
             return (
               <View key={dateString} style={styles.barColumn}>
@@ -293,18 +301,12 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                       style={[
                         styles.bar, 
                         { 
-                          height: flightHours * pixelsPerHour,
-                          bottom: currentHeight,
+                          height: flightHeight,
+                          bottom: 0,
                           backgroundColor: COLORS.flight 
                         }
                       ]} 
                     />
-                  )}
-                  {/* Update current height - but don't render it */}
-                  {flightHours > 0 && (
-                    <View style={{ display: 'none' }}>
-                      <Text>{currentHeight = currentHeight + flightHours * pixelsPerHour}</Text>
-                    </View>
                   )}
                   
                   {/* Ground hours */}
@@ -313,18 +315,12 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                       style={[
                         styles.bar, 
                         { 
-                          height: groundHours * pixelsPerHour,
-                          bottom: currentHeight,
+                          height: groundHeight,
+                          bottom: groundBottom,
                           backgroundColor: COLORS.ground 
                         }
                       ]} 
                     />
-                  )}
-                  {/* Update current height - but don't render it */}
-                  {groundHours > 0 && (
-                    <View style={{ display: 'none' }}>
-                      <Text>{currentHeight = currentHeight + groundHours * pixelsPerHour}</Text>
-                    </View>
                   )}
                   
                   {/* SIM hours */}
@@ -333,18 +329,12 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                       style={[
                         styles.bar, 
                         { 
-                          height: simHours * pixelsPerHour,
-                          bottom: currentHeight,
+                          height: simHeight,
+                          bottom: simBottom,
                           backgroundColor: COLORS.sim 
                         }
                       ]} 
                     />
-                  )}
-                  {/* Update current height - but don't render it */}
-                  {simHours > 0 && (
-                    <View style={{ display: 'none' }}>
-                      <Text>{currentHeight = currentHeight + simHours * pixelsPerHour}</Text>
-                    </View>
                   )}
                   
                   {/* Pre/Post hours */}
@@ -353,8 +343,8 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                       style={[
                         styles.bar, 
                         { 
-                          height: prePostHours * pixelsPerHour,
-                          bottom: currentHeight,
+                          height: prePostHeight,
+                          bottom: prePostBottom,
                           backgroundColor: COLORS.primary 
                         }
                       ]} 
