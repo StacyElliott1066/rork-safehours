@@ -24,6 +24,8 @@ export default function SettingsScreen() {
     maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
   });
   
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  
   const handleSave = () => {
     // Validate inputs
     const numericValues = {
@@ -84,6 +86,12 @@ export default function SettingsScreen() {
   };
   
   const handleClearAllData = () => {
+    if (activities.length === 0) {
+      Alert.alert('No Data', 'There are no activities to clear.');
+      return;
+    }
+    
+    // First confirmation
     Alert.alert(
       'Clear All Data',
       'Are you sure you want to delete all activities? This action cannot be undone.',
@@ -93,15 +101,18 @@ export default function SettingsScreen() {
           style: 'cancel',
         },
         {
-          text: 'Delete All',
-          onPress: () => {
-            clearAllActivities();
-            Alert.alert('Success', 'All activities have been deleted.');
-          },
+          text: 'Continue',
+          onPress: () => setShowConfirmModal(true),
           style: 'destructive',
         },
       ]
     );
+  };
+  
+  const executeDataClear = () => {
+    clearAllActivities();
+    setShowConfirmModal(false);
+    Alert.alert('Success', 'All activities have been deleted.');
   };
   
   return (
@@ -250,6 +261,38 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      {/* Second confirmation modal */}
+      {showConfirmModal && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.warningIconContainer}>
+              <AlertTriangle size={40} color={COLORS.red} />
+            </View>
+            
+            <Text style={styles.modalTitle}>Final Warning</Text>
+            <Text style={styles.modalDescription}>
+              You are about to permanently delete all your activity data. This action cannot be undone.
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={() => setShowConfirmModal(false)}
+              >
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.modalDeleteButton}
+                onPress={executeDataClear}
+              >
+                <Text style={styles.modalDeleteButtonText}>Delete All Data</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -389,5 +432,76 @@ const styles = StyleSheet.create({
   },
   dangerText: {
     color: COLORS.red,
+  },
+  // Modal styles
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  warningIconContainer: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    borderRadius: 40,
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: 16,
+    color: COLORS.gray,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    marginRight: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    alignItems: 'center',
+  },
+  modalCancelButtonText: {
+    fontWeight: 'bold',
+    color: COLORS.gray,
+  },
+  modalDeleteButton: {
+    flex: 1,
+    paddingVertical: 12,
+    marginLeft: 8,
+    borderRadius: 8,
+    backgroundColor: COLORS.red,
+    alignItems: 'center',
+  },
+  modalDeleteButtonText: {
+    fontWeight: 'bold',
+    color: COLORS.white,
   },
 });

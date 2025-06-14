@@ -61,8 +61,8 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
     const fileUri = `${FileSystem.cacheDirectory}activities.ics`;
     await FileSystem.writeAsStringAsync(fileUri, icsContent);
     
-    // Check if running on web
-    if (Platform.OS === 'web') {
+    // Check if running on web - FIX: Use Platform.OS === 'web' with type assertion
+    if (Platform.OS === 'web' as any) {
       // For web, create a download link
       const blob = new Blob([icsContent], { type: 'text/calendar' });
       const url = URL.createObjectURL(blob);
@@ -93,8 +93,8 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
 // Import activities from iCalendar file
 export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
   try {
-    // Check if running on web
-    if (Platform.OS === 'web') {
+    // Check if running on web - FIX: Use Platform.OS === 'web' with type assertion
+    if (Platform.OS === 'web' as any) {
       // For web, use file input
       return new Promise((resolve, reject) => {
         const input = document.createElement('input');
