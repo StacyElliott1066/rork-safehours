@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView } from 'react-native';
-import { Clock } from 'lucide-react-native';
+import { Clock, Check } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { getCurrentTime, parseTimeInput } from '@/utils/time';
 
@@ -73,6 +73,19 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
         }
       }, 50);
     }
+  };
+
+  const handleDonePress = () => {
+    if (directInput) {
+      const formattedTime = parseTimeInput(directInput);
+      if (formattedTime) {
+        onChangeText(formattedTime);
+      }
+    }
+    
+    setIsDirectEditing(false);
+    setDirectInput('');
+    inputRef.current?.blur();
   };
 
   const generateTimeOptions = (max: number) => {
@@ -150,7 +163,10 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
         <TouchableOpacity 
-          style={styles.timeTextContainer}
+          style={[
+            styles.timeTextContainer,
+            isDirectEditing && styles.activeInputContainer
+          ]}
           onPress={() => inputRef.current?.focus()}
         >
           <TextInput
@@ -165,12 +181,22 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
             selectTextOnFocus={true}
           />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.iconButton} 
-          onPress={openTimePicker}
-        >
-          <Clock color={COLORS.primary} size={20} />
-        </TouchableOpacity>
+        
+        {isDirectEditing ? (
+          <TouchableOpacity 
+            style={styles.doneButton} 
+            onPress={handleDonePress}
+          >
+            <Check color={COLORS.white} size={18} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={openTimePicker}
+          >
+            <Clock color={COLORS.primary} size={20} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <Modal
@@ -291,6 +317,9 @@ const styles = StyleSheet.create({
   timeTextContainer: {
     flex: 1,
   },
+  activeInputContainer: {
+    borderRightWidth: 0,
+  },
   input: {
     flex: 1,
     paddingVertical: 10,
@@ -300,6 +329,12 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 10,
     backgroundColor: COLORS.lightGray,
+  },
+  doneButton: {
+    padding: 10,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,
