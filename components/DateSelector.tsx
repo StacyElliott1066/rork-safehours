@@ -137,8 +137,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
       days.push({ key: `day-${i}`, day: i });
     }
 
-    // Weekday labels
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    // Weekday labels - FIXED to use Su Mo Tu We Th Fr Sa format
+    const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     return (
       <View style={styles.calendarContainer}>
