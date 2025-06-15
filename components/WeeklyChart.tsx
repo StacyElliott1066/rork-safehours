@@ -377,7 +377,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
       
       {/* Day labels */}
       <View style={styles.dayLabelsContainer}>
-        <Text style={styles.dayLabels}>Su  Mo  Tu  We  Th  Fr  Sa</Text>
+        <Text style={styles.dayLabels}>Su Mo Tu We Th Fr Sa</Text>
       </View>
       
       {/* Legend */}
