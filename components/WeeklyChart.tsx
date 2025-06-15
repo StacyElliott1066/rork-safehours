@@ -15,19 +15,33 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
   
   // Get the start of the week (Sunday) for the selected date
   const getWeekDates = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    // Parse the date with noon time to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date in getWeekDates:", dateString);
+      return [];
+    }
+    
+    const day_of_week = date.getDay(); // 0 = Sunday, 6 = Saturday
     
     // Calculate the date of the Sunday that starts this week
     const sunday = new Date(date);
-    sunday.setDate(date.getDate() - day);
+    sunday.setDate(date.getDate() - day_of_week);
+    sunday.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
     
     // Generate an array of dates for the week (Sunday to Saturday)
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(sunday);
       currentDate.setDate(sunday.getDate() + i);
-      weekDates.push(currentDate.toISOString().split('T')[0]);
+      
+      // Format as YYYY-MM-DD
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      weekDates.push(`${year}-${month}-${day}`);
     }
     
     return weekDates;
@@ -212,8 +226,32 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
     return dateString === todayString;
   };
   
+  // Get the date range for display (e.g., "Jun 8 - Jun 14")
+  const getWeekDateRange = () => {
+    if (weekDates.length < 7) return "";
+    
+    const startDate = new Date(weekDates[0]);
+    const endDate = new Date(weekDates[6]);
+    
+    const formatShortDate = (date: Date) => {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    };
+    
+    return `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
+  };
+  
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Weekly Statistics</Text>
+        <Text style={styles.headerSubtitle}>
+          {weekDates.length === 7 ? `${getWeekDateRange()} (Sun-Sat)` : "Loading..."}
+        </Text>
+      </View>
+      
       <View style={styles.chartContainer}>
         {/* Y-axis labels */}
         <View style={styles.yAxisLabels}>
@@ -416,6 +454,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  headerContainer: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.black,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: COLORS.gray,
+    marginTop: 4,
   },
   chartContainer: {
     flexDirection: 'row',
