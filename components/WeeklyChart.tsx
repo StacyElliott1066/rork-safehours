@@ -226,30 +226,10 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
     return dateString === todayString;
   };
   
-  // Get the date range for display (e.g., "Jun 8 - Jun 14")
-  const getWeekDateRange = () => {
-    if (weekDates.length < 7) return "";
-    
-    const startDate = new Date(weekDates[0]);
-    const endDate = new Date(weekDates[6]);
-    
-    const formatShortDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      });
-    };
-    
-    return `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
-  };
-  
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Weekly Statistics</Text>
-        <Text style={styles.headerSubtitle}>
-          {weekDates.length === 7 ? `${getWeekDateRange()} (Sun-Sat)` : "Loading..."}
-        </Text>
       </View>
       
       <View style={styles.chartContainer}>
