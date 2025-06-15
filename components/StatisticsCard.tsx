@@ -104,21 +104,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.gray,
-    marginBottom: 16,
-  },
   statsContainer: {
     flexDirection: 'row',
   },
   statsColumn: {
     flex: 1,
-  },
-  divider: {
-    width: 1,
-    backgroundColor: COLORS.lightGray,
-    marginHorizontal: 16,
   },
   statsHeader: {
     fontSize: 16,

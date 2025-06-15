@@ -212,7 +212,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
   const averageHoursPerDay = daysWithActivities > 0 ? totalWeeklyHours / daysWithActivities : 0;
   const averageHeight = averageHoursPerDay * pixelsPerHour;
   
-  // Format day abbreviation - FIXED to use Su Mo Tu We Th Fr Sa format
+  // Format day abbreviation - using Su Mo Tu We Th Fr Sa format
   const formatDayAbbr = (dateString: string) => {
     const date = new Date(dateString);
     const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
