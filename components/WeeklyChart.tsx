@@ -375,7 +375,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
         </View>
       </View>
       
-      {/* Day labels - now aligned with the chart bars */}
+      {/* Day labels - now aligned with the chart bars and spanning full width */}
       <View style={styles.dayLabelsContainer}>
         <View style={styles.dayLabelsRow}>
           <Text style={styles.dayLabel}>Su</Text>
@@ -516,7 +516,6 @@ const styles = StyleSheet.create({
   dayLabelsContainer: {
     width: '100%',
     paddingLeft: 30, // Align with the bars (accounting for y-axis width)
-    marginBottom: 10,
   },
   dayLabelsRow: {
     flexDirection: 'row',

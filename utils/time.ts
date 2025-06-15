@@ -320,7 +320,7 @@ export const calculateDutyDay = (activities: Activity[], date: string): number =
   }
 };
 
-// Calculate rest between days
+// Calculate rest between days - from last activity end (including post) to first activity start (including pre)
 export const calculateRestBetween = (activities: Activity[], currentDate: string): number => {
   try {
     if (!currentDate || !Array.isArray(activities)) {
@@ -357,12 +357,14 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     
     // Find the latest end time from previous day including post-briefing (half of pre/post)
     const prevDayEndTimes = prevDayActivities.map(activity => {
+      // Include all activity types, not just Flight and SIM
       const postTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
       return timeToMinutes(activity.endTime) + postTime;
     });
     
     // Find the earliest start time from current day including pre-briefing (half of pre/post)
     const currentDayStartTimes = currentDayActivities.map(activity => {
+      // Include all activity types, not just Flight and SIM
       const preTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
       return timeToMinutes(activity.startTime) - preTime;
     });
