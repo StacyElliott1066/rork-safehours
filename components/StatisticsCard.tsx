@@ -10,7 +10,7 @@ interface StatisticsCardProps {
 }
 
 export default function StatisticsCard({ activities, date }: StatisticsCardProps) {
-  // Get the start of the week (Sunday) for the selected date
+  // Get the week dates for the selected date
   const getWeekDates = (dateString: string) => {
     // Parse the date with noon time to avoid timezone issues
     const [year, month, day] = dateString.split('-').map(Number);
@@ -24,8 +24,12 @@ export default function StatisticsCard({ activities, date }: StatisticsCardProps
     const day_of_week = date.getDay(); // 0 = Sunday, 6 = Saturday
     
     // Calculate the date of the Sunday that starts this week
+    // If the selected date is a Sunday (day_of_week === 0), use that date
+    // Otherwise, go back to the previous Sunday
     const sunday = new Date(date);
-    sunday.setDate(date.getDate() - day_of_week);
+    if (day_of_week > 0) {
+      sunday.setDate(date.getDate() - day_of_week);
+    }
     sunday.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
     
     // Generate an array of dates for the week (Sunday to Saturday)
