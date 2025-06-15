@@ -370,9 +370,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                   )}
                 </View>
                 
-                <Text style={styles.dayLabel}>
-                  {formatDayAbbr(dateString)}
-                </Text>
+                {/* Day label removed as requested */}
               </View>
             );
           })}
