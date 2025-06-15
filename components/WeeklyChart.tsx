@@ -369,12 +369,15 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
                     />
                   )}
                 </View>
-                
-                {/* Day label removed as requested */}
               </View>
             );
           })}
         </View>
+      </View>
+      
+      {/* Day labels */}
+      <View style={styles.dayLabelsContainer}>
+        <Text style={styles.dayLabels}>Su  Mo  Tu  We  Th  Fr  Sa</Text>
       </View>
       
       {/* Legend */}
@@ -445,7 +448,7 @@ const styles = StyleSheet.create({
   chartContainer: {
     flexDirection: 'row',
     height: 220,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   yAxisLabels: {
     width: 30,
@@ -502,10 +505,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
-  dayLabel: {
+  dayLabelsContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dayLabels: {
     fontSize: 12,
-    marginTop: 5,
     color: COLORS.gray,
+    letterSpacing: 2,
   },
   legendContainer: {
     flexDirection: 'row',
