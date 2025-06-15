@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Activity } from '@/types/activity';
 import { COLORS } from '@/constants/colors';
-import { calculateDuration, timeToMinutes } from '@/utils/time';
+import { timeToMinutes } from '@/utils/time';
 
 interface WeeklyChartProps {
   activities: Activity[];

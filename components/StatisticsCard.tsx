@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Activity } from '@/types/activity';
 import { COLORS } from '@/constants/colors';
-import { calculateDuration } from '@/utils/time';
 
 interface StatisticsCardProps {
   activities: Activity[];
