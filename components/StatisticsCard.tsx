@@ -61,27 +61,8 @@ export default function StatisticsCard({ activities, date }: StatisticsCardProps
   const simCount = countActivitiesByType('SIM');
   const totalCount = flightCount + groundCount + simCount;
   
-  // Get date range for the week
-  const getWeekDateRange = () => {
-    if (weekDates.length === 0) return '';
-    
-    const startDate = new Date(weekDates[0]);
-    const endDate = new Date(weekDates[6]);
-    
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
-    };
-    
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-  };
-  
   return (
     <View style={styles.container}>
-      <Text style={styles.subtitle}>{getWeekDateRange()}</Text>
-      
       <View style={styles.statsContainer}>
         <View style={styles.statsColumn}>
           <Text style={styles.statsHeader}>Activity Count</Text>
