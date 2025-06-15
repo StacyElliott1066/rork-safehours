@@ -22,7 +22,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
     const sunday = new Date(date);
     sunday.setDate(date.getDate() - day);
     
-    // Generate an array of dates for the week
+    // Generate an array of dates for the week (Sunday to Saturday)
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(sunday);
