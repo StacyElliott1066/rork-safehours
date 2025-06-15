@@ -372,11 +372,9 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     const latestPrevEnd = Math.max(...prevDayEndTimes);
     const earliestCurrentStart = Math.min(...currentDayStartTimes);
     
-    // Calculate rest time, handling overnight rest
-    let restMinutes = earliestCurrentStart - latestPrevEnd;
-    if (restMinutes < 0) {
-      restMinutes += 24 * 60; // Add 24 hours for overnight
-    }
+    // Calculate rest time, properly accounting for the day difference
+    // Add 24 hours (1440 minutes) to account for the day difference
+    const restMinutes = (24 * 60 - latestPrevEnd) + earliestCurrentStart;
     
     return restMinutes / 60; // Convert to hours
   } catch (error) {
