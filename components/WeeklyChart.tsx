@@ -375,9 +375,17 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
         </View>
       </View>
       
-      {/* Day labels */}
+      {/* Day labels - now aligned with the chart bars */}
       <View style={styles.dayLabelsContainer}>
-        <Text style={styles.dayLabels}>Su Mo Tu We Th Fr Sa</Text>
+        <View style={styles.dayLabelsRow}>
+          <Text style={styles.dayLabel}>Su</Text>
+          <Text style={styles.dayLabel}>Mo</Text>
+          <Text style={styles.dayLabel}>Tu</Text>
+          <Text style={styles.dayLabel}>We</Text>
+          <Text style={styles.dayLabel}>Th</Text>
+          <Text style={styles.dayLabel}>Fr</Text>
+          <Text style={styles.dayLabel}>Sa</Text>
+        </View>
       </View>
       
       {/* Legend */}
@@ -506,13 +514,20 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 2,
   },
   dayLabelsContainer: {
-    alignItems: 'center',
+    width: '100%',
+    paddingLeft: 30, // Align with the bars (accounting for y-axis width)
     marginBottom: 10,
   },
-  dayLabels: {
+  dayLabelsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  dayLabel: {
     fontSize: 12,
     color: COLORS.gray,
-    letterSpacing: 2,
+    textAlign: 'center',
+    flex: 1,
   },
   legendContainer: {
     flexDirection: 'row',
