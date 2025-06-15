@@ -12,19 +12,33 @@ interface StatisticsCardProps {
 export default function StatisticsCard({ activities, date }: StatisticsCardProps) {
   // Get the start of the week (Sunday) for the selected date
   const getWeekDates = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    // Parse the date with noon time to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date in getWeekDates:", dateString);
+      return [];
+    }
+    
+    const day_of_week = date.getDay(); // 0 = Sunday, 6 = Saturday
     
     // Calculate the date of the Sunday that starts this week
     const sunday = new Date(date);
-    sunday.setDate(date.getDate() - day);
+    sunday.setDate(date.getDate() - day_of_week);
+    sunday.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
     
-    // Generate an array of dates for the week
+    // Generate an array of dates for the week (Sunday to Saturday)
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(sunday);
       currentDate.setDate(sunday.getDate() + i);
-      weekDates.push(currentDate.toISOString().split('T')[0]);
+      
+      // Format as YYYY-MM-DD
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      weekDates.push(`${year}-${month}-${day}`);
     }
     
     return weekDates;

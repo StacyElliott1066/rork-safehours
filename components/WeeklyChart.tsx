@@ -444,11 +444,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.black,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: COLORS.gray,
-    marginTop: 4,
-  },
   chartContainer: {
     flexDirection: 'row',
     height: 220,
