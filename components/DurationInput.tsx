@@ -95,16 +95,24 @@ export default function DurationInput({
       <Text style={styles.label}>Duration (hours)</Text>
       <Text style={styles.helperText}>Editing this will change the End Time.</Text>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={durationText}
-          onChangeText={handleDurationChange}
-          onFocus={() => setIsEditing(true)}
-          onBlur={handleDurationBlur}
-          keyboardType="numeric"
-          placeholder="0.0"
-          selectTextOnFocus={true}
-        />
+        <TouchableOpacity 
+          style={[
+            styles.timeTextContainer,
+            isEditing && styles.activeInputContainer
+          ]}
+          onPress={() => setIsEditing(true)}
+        >
+          <TextInput
+            style={styles.input}
+            value={durationText}
+            onChangeText={handleDurationChange}
+            onFocus={() => setIsEditing(true)}
+            onBlur={handleDurationBlur}
+            keyboardType="numeric"
+            placeholder="0.0"
+            selectTextOnFocus={true}
+          />
+        </TouchableOpacity>
         
         {isEditing && (
           <View style={styles.editButtonsContainer}>
@@ -149,6 +157,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.lightGray,
     borderRadius: 8,
     overflow: 'hidden',
+  },
+  timeTextContainer: {
+    flex: 1,
+  },
+  activeInputContainer: {
+    borderRightWidth: 0,
   },
   input: {
     flex: 1,

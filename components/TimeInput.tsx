@@ -289,14 +289,14 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
             
             <View style={styles.buttonContainer}>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[styles.button, styles.cancelButtonStyle]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                style={[styles.button, styles.confirmButton]}
+                style={[styles.button, styles.confirmButtonStyle]}
                 onPress={confirmTime}
               >
                 <Text style={styles.confirmButtonText}>Confirm</Text>
@@ -441,6 +441,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: '45%',
     alignItems: 'center',
+  },
+  cancelButtonStyle: {
+    backgroundColor: COLORS.lightGray,
+  },
+  confirmButtonStyle: {
+    backgroundColor: COLORS.primary,
   },
   cancelButtonText: {
     color: COLORS.black,
