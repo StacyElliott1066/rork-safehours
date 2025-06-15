@@ -377,15 +377,11 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
       
       {/* Day labels - now aligned with the chart bars and spanning full width */}
       <View style={styles.dayLabelsContainer}>
-        <View style={styles.dayLabelsRow}>
-          <Text style={styles.dayLabel}>Su</Text>
-          <Text style={styles.dayLabel}>Mo</Text>
-          <Text style={styles.dayLabel}>Tu</Text>
-          <Text style={styles.dayLabel}>We</Text>
-          <Text style={styles.dayLabel}>Th</Text>
-          <Text style={styles.dayLabel}>Fr</Text>
-          <Text style={styles.dayLabel}>Sa</Text>
-        </View>
+        {weekDates.map((dateString, index) => (
+          <View key={`day-${index}`} style={styles.dayLabelColumn}>
+            <Text style={styles.dayLabel}>{formatDayAbbr(dateString)}</Text>
+          </View>
+        ))}
       </View>
       
       {/* Legend */}
@@ -500,6 +496,7 @@ const styles = StyleSheet.create({
   },
   barColumn: {
     alignItems: 'center',
+    flex: 1,
   },
   barGroup: {
     width: 20,
@@ -514,19 +511,18 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 2,
   },
   dayLabelsContainer: {
+    flexDirection: 'row',
     width: '100%',
     paddingLeft: 30, // Align with the bars (accounting for y-axis width)
   },
-  dayLabelsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+  dayLabelColumn: {
+    flex: 1,
+    alignItems: 'center',
   },
   dayLabel: {
     fontSize: 12,
     color: COLORS.gray,
     textAlign: 'center',
-    flex: 1,
   },
   legendContainer: {
     flexDirection: 'row',

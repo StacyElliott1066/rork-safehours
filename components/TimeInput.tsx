@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView } from 'react-native';
-import { Clock, Check } from 'lucide-react-native';
+import { Clock, Check, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { getCurrentTime, parseTimeInput } from '@/utils/time';
 
@@ -83,6 +83,12 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
       }
     }
     
+    setIsDirectEditing(false);
+    setDirectInput('');
+    inputRef.current?.blur();
+  };
+
+  const handleCancelPress = () => {
     setIsDirectEditing(false);
     setDirectInput('');
     inputRef.current?.blur();
@@ -183,12 +189,20 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
         </TouchableOpacity>
         
         {isDirectEditing ? (
-          <TouchableOpacity 
-            style={styles.doneButton} 
-            onPress={handleDonePress}
-          >
-            <Check color={COLORS.white} size={18} />
-          </TouchableOpacity>
+          <View style={styles.editButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={handleCancelPress}
+            >
+              <X color={COLORS.white} size={18} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.doneButton} 
+              onPress={handleDonePress}
+            >
+              <Check color={COLORS.white} size={18} />
+            </TouchableOpacity>
+          </View>
         ) : (
           <TouchableOpacity 
             style={styles.iconButton} 
@@ -330,9 +344,18 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: COLORS.lightGray,
   },
+  editButtonsContainer: {
+    flexDirection: 'row',
+  },
   doneButton: {
     padding: 10,
     backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    padding: 10,
+    backgroundColor: COLORS.gray,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -418,12 +441,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: '45%',
     alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: COLORS.lightGray,
-  },
-  confirmButton: {
-    backgroundColor: COLORS.primary,
   },
   cancelButtonText: {
     color: COLORS.black,

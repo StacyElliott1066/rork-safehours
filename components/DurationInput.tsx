@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '@/constants/colors';
 import { calculateDuration } from '@/utils/time';
+import { Check, X } from 'lucide-react-native';
 
 interface DurationInputProps {
   startTime: string;
@@ -55,6 +56,40 @@ export default function DurationInput({
     }
   };
 
+  const handleDonePress = () => {
+    // Parse the duration input
+    const durationHours = parseFloat(durationText);
+    if (!isNaN(durationHours) && durationHours >= 0) {
+      onDurationChange(durationHours);
+    } else {
+      // Reset to calculated duration if invalid input
+      try {
+        const durationMinutes = calculateDuration(startTime, endTime);
+        const durationHours = (durationMinutes / 60).toFixed(1);
+        setDurationText(durationHours);
+      } catch (error) {
+        console.error("Error calculating duration on done press:", error);
+        setDurationText('0.0');
+      }
+    }
+    
+    setIsEditing(false);
+  };
+
+  const handleCancelPress = () => {
+    // Reset to calculated duration
+    try {
+      const durationMinutes = calculateDuration(startTime, endTime);
+      const durationHours = (durationMinutes / 60).toFixed(1);
+      setDurationText(durationHours);
+    } catch (error) {
+      console.error("Error calculating duration on cancel:", error);
+      setDurationText('0.0');
+    }
+    
+    setIsEditing(false);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Duration (hours)</Text>
@@ -70,6 +105,23 @@ export default function DurationInput({
           placeholder="0.0"
           selectTextOnFocus={true}
         />
+        
+        {isEditing && (
+          <View style={styles.editButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={handleCancelPress}
+            >
+              <X color={COLORS.white} size={18} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.doneButton} 
+              onPress={handleDonePress}
+            >
+              <Check color={COLORS.white} size={18} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -103,5 +155,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     fontSize: 14,
+  },
+  editButtonsContainer: {
+    flexDirection: 'row',
+  },
+  doneButton: {
+    padding: 10,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    padding: 10,
+    backgroundColor: COLORS.gray,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
