@@ -25,7 +25,7 @@ export default function StatisticsCard({ activities, date }: StatisticsCardProps
     // Calculate the date of the Sunday that starts this week
     const sunday = new Date(date);
     sunday.setDate(date.getDate() - day_of_week);
-    sunday.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+    sunday.setHours(0, 0, 0, 0); // Set to midnight to ensure correct day
     
     // Generate an array of dates for the week (Sunday to Saturday)
     const weekDates = [];
