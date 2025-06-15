@@ -373,7 +373,10 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     const earliestCurrentStart = Math.min(...currentDayStartTimes);
     
     // Calculate rest time, properly accounting for the day difference
-    // Add 24 hours (1440 minutes) to account for the day difference
+    // The rest time is:
+    // 1. Minutes from the latest end time on previous day until midnight (24 * 60 - latestPrevEnd)
+    // 2. Plus 24 hours (1440 minutes) for the full day between
+    // 3. Plus minutes from midnight until the earliest start time on current day (earliestCurrentStart)
     const restMinutes = (24 * 60 - latestPrevEnd) + earliestCurrentStart;
     
     return restMinutes / 60; // Convert to hours
