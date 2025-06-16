@@ -384,9 +384,6 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     // Total rest time is the sum of these two periods
     restMinutes = minutesToMidnight + minutesFromMidnight;
     
-    // Add 24 hours (1440 minutes) to account for the day difference
-    restMinutes += 24 * 60;
-    
     return restMinutes / 60; // Convert to hours
   } catch (error) {
     console.error("Error calculating rest between days:", error);
