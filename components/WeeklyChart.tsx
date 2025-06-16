@@ -212,20 +212,6 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
   const averageHoursPerDay = daysWithActivities > 0 ? totalWeeklyHours / daysWithActivities : 0;
   const averageHeight = averageHoursPerDay * pixelsPerHour;
   
-  // Format day abbreviation - using Su Mo Tu We Th Fr Sa format
-  const formatDayAbbr = (dateString: string) => {
-    const date = new Date(dateString);
-    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-    return days[date.getDay()];
-  };
-  
-  // Check if a date is today - using local date comparison
-  const isToday = (dateString: string) => {
-    const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
-    return dateString === todayString;
-  };
-  
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -375,14 +361,7 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
         </View>
       </View>
       
-      {/* Day labels - now aligned with the chart bars and spanning full width */}
-      <View style={styles.dayLabelsContainer}>
-        {weekDates.map((dateString, index) => (
-          <View key={`day-${index}`} style={styles.dayLabelColumn}>
-            <Text style={styles.dayLabel}>{formatDayAbbr(dateString)}</Text>
-          </View>
-        ))}
-      </View>
+      {/* Day labels section removed as requested */}
       
       {/* Legend */}
       <View style={styles.legendContainer}>
@@ -510,20 +489,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
-  dayLabelsContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    paddingLeft: 30, // Align with the bars (accounting for y-axis width)
-  },
-  dayLabelColumn: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  dayLabel: {
-    fontSize: 12,
-    color: COLORS.gray,
-    textAlign: 'center',
-  },
+  // dayLabelsContainer and dayLabelColumn styles removed
+  // dayLabel style removed
   legendContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
