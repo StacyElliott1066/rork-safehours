@@ -212,6 +212,9 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
   const averageHoursPerDay = daysWithActivities > 0 ? totalWeeklyHours / daysWithActivities : 0;
   const averageHeight = averageHoursPerDay * pixelsPerHour;
   
+  // Day abbreviations for the week
+  const dayAbbreviations = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -361,7 +364,14 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
         </View>
       </View>
       
-      {/* Day labels section removed as requested */}
+      {/* Day labels */}
+      <View style={styles.dayLabelsContainer}>
+        {dayAbbreviations.map((day, index) => (
+          <View key={`day-${index}`} style={styles.dayLabelColumn}>
+            <Text style={styles.dayLabel}>{day}</Text>
+          </View>
+        ))}
+      </View>
       
       {/* Legend */}
       <View style={styles.legendContainer}>
@@ -489,8 +499,20 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
-  // dayLabelsContainer and dayLabelColumn styles removed
-  // dayLabel style removed
+  dayLabelsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingLeft: 30, // Align with bars (accounting for y-axis labels)
+  },
+  dayLabelColumn: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  dayLabel: {
+    fontSize: 12,
+    color: COLORS.gray,
+    fontWeight: '500',
+  },
   legendContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
