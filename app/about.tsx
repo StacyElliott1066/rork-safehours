@@ -40,6 +40,16 @@ export default function AboutScreen() {
             </Text>
           </View>
           
+          <View style={styles.disclaimerCard}>
+            <Text style={styles.disclaimerTitle}>⚠️ Important Disclaimer</Text>
+            <Text style={styles.disclaimerText}>
+              The maker of this app is not responsible for any violations of FAA or Company regulations. 
+              This data is for informational purposes only. Users are solely responsible for ensuring 
+              the accuracy of all times entered and for compliance with all applicable regulations. 
+              Always verify your duty time calculations and consult official sources for regulatory requirements.
+            </Text>
+          </View>
+          
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Key Features</Text>
             
@@ -179,6 +189,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  disclaimerCard: {
+    backgroundColor: '#FFF3CD',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FFEAA7',
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  disclaimerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#856404',
+  },
+  disclaimerText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#856404',
   },
   sectionTitle: {
     fontSize: 18,
