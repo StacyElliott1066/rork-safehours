@@ -9,6 +9,7 @@ export const COLORS = {
   lightGray: '#E9ECEF',
   red: '#DC3545',
   green: '#28A745',
+  orange: '#FF8C00',
   
   // Activity colors
   flight: '#3498DB', // Blue

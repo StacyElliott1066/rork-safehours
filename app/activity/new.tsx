@@ -7,6 +7,7 @@ import TimeInput from '@/components/TimeInput';
 import DurationInput from '@/components/DurationInput';
 import PrePostSeparateInput from '@/components/PrePostSeparateInput';
 import DateSelector from '@/components/DateSelector';
+import MidnightConfirmationModal from '@/components/MidnightConfirmationModal';
 import { COLORS } from '@/constants/colors';
 import { getCurrentDate, getCurrentTime, timeToMinutes, minutesToTime } from '@/utils/time';
 import { ActivityType } from '@/types/activity';
@@ -22,7 +23,51 @@ export default function NewActivityScreen() {
   const [preValue, setPreValue] = useState(0);
   const [postValue, setPostValue] = useState(0);
   const [notes, setNotes] = useState('');
+  const [showMidnightConfirmation, setShowMidnightConfirmation] = useState(false);
+  const [pendingEndTime, setPendingEndTime] = useState('');
   
+  // Check if end time crosses midnight
+  const checkMidnightCrossing = (start: string, end: string): boolean => {
+    if (!start || !end) return false;
+    const startMinutes = timeToMinutes(start);
+    const endMinutes = timeToMinutes(end);
+    return endMinutes < startMinutes;
+  };
+
+  // Handle start time change with midnight confirmation
+  const handleStartTimeChange = (newStartTime: string) => {
+    if (endTime && checkMidnightCrossing(newStartTime, endTime)) {
+      setStartTime(newStartTime);
+      setPendingEndTime(endTime);
+      setShowMidnightConfirmation(true);
+    } else {
+      setStartTime(newStartTime);
+    }
+  };
+
+  // Handle end time change with midnight confirmation
+  const handleEndTimeChange = (newEndTime: string) => {
+    if (startTime && checkMidnightCrossing(startTime, newEndTime)) {
+      setPendingEndTime(newEndTime);
+      setShowMidnightConfirmation(true);
+    } else {
+      setEndTime(newEndTime);
+    }
+  };
+
+  // Confirm midnight crossing
+  const confirmMidnightCrossing = () => {
+    setEndTime(pendingEndTime);
+    setShowMidnightConfirmation(false);
+    setPendingEndTime('');
+  };
+
+  // Cancel midnight crossing
+  const cancelMidnightCrossing = () => {
+    setShowMidnightConfirmation(false);
+    setPendingEndTime('');
+  };
+
   // Update end time when duration changes
   const handleDurationChange = (durationHours: number) => {
     if (startTime) {
@@ -31,7 +76,14 @@ export default function NewActivityScreen() {
         const durationMinutes = Math.round(durationHours * 60);
         const newEndMinutes = startMinutes + durationMinutes;
         const newEndTime = minutesToTime(newEndMinutes);
-        setEndTime(newEndTime);
+        
+        // Check if this would cross midnight
+        if (checkMidnightCrossing(startTime, newEndTime)) {
+          setPendingEndTime(newEndTime);
+          setShowMidnightConfirmation(true);
+        } else {
+          setEndTime(newEndTime);
+        }
       } catch (error) {
         console.error("Error updating end time from duration:", error);
       }
@@ -103,13 +155,13 @@ export default function NewActivityScreen() {
             <TimeInput
               label="Start Time"
               value={startTime}
-              onChangeText={setStartTime}
+              onChangeText={handleStartTimeChange}
             />
             
             <TimeInput
               label="End Time"
               value={endTime}
-              onChangeText={setEndTime}
+              onChangeText={handleEndTimeChange}
             />
           </View>
           
@@ -156,6 +208,15 @@ export default function NewActivityScreen() {
           <Text style={styles.saveButtonText}>Save Activity</Text>
         </TouchableOpacity>
       </View>
+
+      <MidnightConfirmationModal
+        visible={showMidnightConfirmation}
+        onConfirm={confirmMidnightCrossing}
+        onCancel={cancelMidnightCrossing}
+        startTime={startTime}
+        endTime={pendingEndTime}
+        date={date}
+      />
     </View>
   );
 }
