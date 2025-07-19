@@ -5,7 +5,7 @@ import { useActivityStore } from '@/store/activityStore';
 import ActivityTypeSelector from '@/components/ActivityTypeSelector';
 import TimeInput from '@/components/TimeInput';
 import DurationInput from '@/components/DurationInput';
-import PrePostValueInput from '@/components/PrePostValueInput';
+import PrePostSeparateInput from '@/components/PrePostSeparateInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
 import { timeToMinutes, minutesToTime, getCurrentDate } from '@/utils/time';
@@ -20,7 +20,8 @@ export default function EditActivityScreen() {
   const [date, setDate] = useState(getCurrentDate()); // Initialize with current date as fallback
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [prePostValue, setPrePostValue] = useState(0);
+  const [preValue, setPreValue] = useState(0);
+  const [postValue, setPostValue] = useState(0);
   const [notes, setNotes] = useState('');
   const [activityFound, setActivityFound] = useState(false);
   
@@ -54,7 +55,19 @@ export default function EditActivityScreen() {
         
         setStartTime(activity.startTime || '');
         setEndTime(activity.endTime || '');
-        setPrePostValue(activity.prePostValue || 0);
+        // Handle both new separate values and legacy combined value
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          setPreValue(activity.preValue);
+          setPostValue(activity.postValue);
+        } else if (activity.prePostValue !== undefined) {
+          // Split legacy value evenly for backward compatibility
+          const halfValue = activity.prePostValue / 2;
+          setPreValue(halfValue);
+          setPostValue(halfValue);
+        } else {
+          setPreValue(0);
+          setPostValue(0);
+        }
         setNotes(activity.notes || '');
         setActivityFound(true);
       } catch (error) {
@@ -119,7 +132,9 @@ export default function EditActivityScreen() {
         date,
         startTime,
         endTime,
-        prePostValue,
+        preValue,
+        postValue,
+        prePostValue: preValue + postValue, // For backward compatibility
         notes,
       });
       
@@ -207,9 +222,11 @@ export default function EditActivityScreen() {
             onDurationChange={handleDurationChange}
           />
           
-          <PrePostValueInput
-            value={prePostValue}
-            onChange={setPrePostValue}
+          <PrePostSeparateInput
+            preValue={preValue}
+            postValue={postValue}
+            onPreChange={setPreValue}
+            onPostChange={setPostValue}
             disabled={type !== 'Flight' && type !== 'SIM'}
           />
           

@@ -112,10 +112,20 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
         
         const isOvernight = endMinutes < startMinutes;
         
-        // Calculate pre/post minutes (split evenly)
-        const prePostMinutes = activity.prePostValue * 60;
-        let preMinutes = prePostMinutes / 2;
-        let postMinutes = prePostMinutes / 2;
+        // Calculate pre/post minutes using separate values or legacy combined value
+        let preMinutes, postMinutes;
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          preMinutes = activity.preValue * 60;
+          postMinutes = activity.postValue * 60;
+        } else if (activity.prePostValue !== undefined) {
+          // Fallback to legacy behavior - split evenly
+          const prePostMinutes = activity.prePostValue * 60;
+          preMinutes = prePostMinutes / 2;
+          postMinutes = prePostMinutes / 2;
+        } else {
+          preMinutes = 0;
+          postMinutes = 0;
+        }
         
         // Determine if this is an activity that started on the previous day
         const isFromPreviousDay = activity.date !== date;

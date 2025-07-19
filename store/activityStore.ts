@@ -77,6 +77,10 @@ export const useActivityStore = create<ActivityState>()(
         const newActivity: Activity = {
           ...activityData,
           id: Date.now().toString(),
+          // Ensure both new and legacy fields are set for compatibility
+          preValue: activityData.preValue || 0,
+          postValue: activityData.postValue || 0,
+          prePostValue: activityData.prePostValue || (activityData.preValue || 0) + (activityData.postValue || 0),
         };
         
         set((state) => ({
@@ -113,9 +117,17 @@ export const useActivityStore = create<ActivityState>()(
           };
         }
         
+        const activityWithCompatibility = {
+          ...updatedActivity,
+          // Ensure both new and legacy fields are set for compatibility
+          preValue: updatedActivity.preValue || 0,
+          postValue: updatedActivity.postValue || 0,
+          prePostValue: updatedActivity.prePostValue || (updatedActivity.preValue || 0) + (updatedActivity.postValue || 0),
+        };
+        
         set((state) => ({
           activities: state.activities.map((activity) => 
-            activity.id === updatedActivity.id ? updatedActivity : activity
+            activity.id === updatedActivity.id ? activityWithCompatibility : activity
           ),
         }));
         

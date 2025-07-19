@@ -5,7 +5,7 @@ import { useActivityStore } from '@/store/activityStore';
 import ActivityTypeSelector from '@/components/ActivityTypeSelector';
 import TimeInput from '@/components/TimeInput';
 import DurationInput from '@/components/DurationInput';
-import PrePostValueInput from '@/components/PrePostValueInput';
+import PrePostSeparateInput from '@/components/PrePostSeparateInput';
 import DateSelector from '@/components/DateSelector';
 import { COLORS } from '@/constants/colors';
 import { getCurrentDate, getCurrentTime, timeToMinutes, minutesToTime } from '@/utils/time';
@@ -19,7 +19,8 @@ export default function NewActivityScreen() {
   const [date, setDate] = useState(selectedDate || getCurrentDate());
   const [startTime, setStartTime] = useState(getCurrentTime());
   const [endTime, setEndTime] = useState(getCurrentTime());
-  const [prePostValue, setPrePostValue] = useState(0);
+  const [preValue, setPreValue] = useState(0);
+  const [postValue, setPostValue] = useState(0);
   const [notes, setNotes] = useState('');
   
   // Update end time when duration changes
@@ -55,7 +56,9 @@ export default function NewActivityScreen() {
       date,
       startTime,
       endTime,
-      prePostValue,
+      preValue,
+      postValue,
+      prePostValue: preValue + postValue, // For backward compatibility
       notes,
     });
     
@@ -116,9 +119,11 @@ export default function NewActivityScreen() {
             onDurationChange={handleDurationChange}
           />
           
-          <PrePostValueInput
-            value={prePostValue}
-            onChange={setPrePostValue}
+          <PrePostSeparateInput
+            preValue={preValue}
+            postValue={postValue}
+            onPreChange={setPreValue}
+            onPostChange={setPostValue}
             disabled={type !== 'Flight' && type !== 'SIM'}
           />
           

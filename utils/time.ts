@@ -184,7 +184,14 @@ export const calculateContactTime = (activities: Activity[], date: string): numb
       .filter(activity => activity.date === date && activity.type !== 'Other')
       .reduce((total, activity) => {
         const duration = calculateDuration(activity.startTime, activity.endTime);
-        const prePost = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        // Calculate pre/post time using separate values or legacy combined value
+        let prePostMinutes = 0;
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? (activity.preValue + activity.postValue) * 60 : 0;
+        } else if (activity.prePostValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        }
+        const prePost = prePostMinutes;
         return total + duration + prePost;
       }, 0) / 60; // Convert to hours
   } catch (error) {
@@ -254,10 +261,19 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
           endDateTime.setDate(endDateTime.getDate() + 1);
         }
         
-        // Add pre/post time
-        const prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
-        const preMinutes = prePostMinutes / 2;
-        const postMinutes = prePostMinutes / 2;
+        // Add pre/post time using separate values or legacy combined value
+        let preMinutes, postMinutes;
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          preMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.preValue * 60 : 0;
+          postMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.postValue * 60 : 0;
+        } else if (activity.prePostValue !== undefined) {
+          const prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+          preMinutes = prePostMinutes / 2;
+          postMinutes = prePostMinutes / 2;
+        } else {
+          preMinutes = 0;
+          postMinutes = 0;
+        }
         
         const adjustedStartDateTime = new Date(startDateTime.getTime() - (preMinutes * 60000));
         const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
@@ -296,16 +312,26 @@ export const calculateDutyDay = (activities: Activity[], date: string): number =
     
     if (dayActivities.length === 0) return 0;
     
-    // Find earliest start time considering pre-briefing (half of pre/post)
+    // Find earliest start time considering pre-briefing
     const startTimes = dayActivities.map(activity => {
-      const preTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
+      let preTime = 0;
+      if (activity.preValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        preTime = activity.preValue * 60;
+      } else if (activity.prePostValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        preTime = (activity.prePostValue / 2) * 60;
+      }
       const startMinutes = timeToMinutes(activity.startTime) - preTime;
       return startMinutes;
     });
     
-    // Find latest end time considering post-briefing (half of pre/post)
+    // Find latest end time considering post-briefing
     const endTimes = dayActivities.map(activity => {
-      const postTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
+      let postTime = 0;
+      if (activity.postValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        postTime = activity.postValue * 60;
+      } else if (activity.prePostValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        postTime = (activity.prePostValue / 2) * 60;
+      }
       const endMinutes = timeToMinutes(activity.endTime) + postTime;
       return endMinutes;
     });
@@ -355,17 +381,25 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
       return 24; // No activities on one of the days, so full rest
     }
     
-    // Find the latest end time from previous day including post-briefing (half of pre/post)
+    // Find the latest end time from previous day including post-briefing
     const prevDayEndTimes = prevDayActivities.map(activity => {
-      // Include all activity types, not just Flight and SIM
-      const postTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
+      let postTime = 0;
+      if (activity.postValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        postTime = activity.postValue * 60;
+      } else if (activity.prePostValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        postTime = (activity.prePostValue / 2) * 60;
+      }
       return timeToMinutes(activity.endTime) + postTime;
     });
     
-    // Find the earliest start time from current day including pre-briefing (half of pre/post)
+    // Find the earliest start time from current day including pre-briefing
     const currentDayStartTimes = currentDayActivities.map(activity => {
-      // Include all activity types, not just Flight and SIM
-      const preTime = ['Flight', 'SIM'].includes(activity.type) ? (activity.prePostValue / 2) * 60 : 0;
+      let preTime = 0;
+      if (activity.preValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        preTime = activity.preValue * 60;
+      } else if (activity.prePostValue !== undefined && ['Flight', 'SIM'].includes(activity.type)) {
+        preTime = (activity.prePostValue / 2) * 60;
+      }
       return timeToMinutes(activity.startTime) - preTime;
     });
     
@@ -500,8 +534,13 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
         let endMinutes = timeToMinutes(activity.endTime);
         const isOvernight = endMinutes < startMinutes;
         
-        // Calculate pre/post minutes
-        const prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        // Calculate pre/post minutes using separate values or legacy combined value
+        let prePostMinutes = 0;
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? (activity.preValue + activity.postValue) * 60 : 0;
+        } else if (activity.prePostValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        }
         
         if (isOvernight) {
           // For overnight activities, split the time between days
@@ -604,8 +643,13 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
         let endMinutes = timeToMinutes(activity.endTime);
         const isOvernight = endMinutes < startMinutes;
         
-        // Calculate pre/post minutes
-        const prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        // Calculate pre/post minutes using separate values or legacy combined value
+        let prePostMinutes = 0;
+        if (activity.preValue !== undefined && activity.postValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? (activity.preValue + activity.postValue) * 60 : 0;
+        } else if (activity.prePostValue !== undefined) {
+          prePostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.prePostValue * 60 : 0;
+        }
         
         if (isOvernight) {
           // For overnight activities, split the time between days
@@ -751,28 +795,36 @@ export const checkTimeOverlap = (
     
     if (sameDate.length === 0) return false; // No other activities on this date
     
-    // Calculate new activity times including pre/post (split evenly)
-    const prePostMinutes = newActivity.prePostValue * 60;
-    const preMinutes = prePostMinutes / 2;
-    const postMinutes = prePostMinutes / 2;
+    // Calculate new activity times including pre/post
+    let preMinutes = 0;
+    let postMinutes = 0;
+    if (newActivity.preValue !== undefined && newActivity.postValue !== undefined) {
+      preMinutes = ['Flight', 'SIM'].includes(newActivity.type) ? newActivity.preValue * 60 : 0;
+      postMinutes = ['Flight', 'SIM'].includes(newActivity.type) ? newActivity.postValue * 60 : 0;
+    } else if (newActivity.prePostValue !== undefined) {
+      const prePostMinutes = newActivity.prePostValue * 60;
+      preMinutes = ['Flight', 'SIM'].includes(newActivity.type) ? prePostMinutes / 2 : 0;
+      postMinutes = ['Flight', 'SIM'].includes(newActivity.type) ? prePostMinutes / 2 : 0;
+    }
     
-    const newStartMinutes = timeToMinutes(newActivity.startTime) - 
-      (['Flight', 'SIM'].includes(newActivity.type) ? preMinutes : 0);
-    
-    const newEndMinutes = timeToMinutes(newActivity.endTime) + 
-      (['Flight', 'SIM'].includes(newActivity.type) ? postMinutes : 0);
+    const newStartMinutes = timeToMinutes(newActivity.startTime) - preMinutes;
+    const newEndMinutes = timeToMinutes(newActivity.endTime) + postMinutes;
     
     // Check for overlap with each existing activity
     for (const activity of sameDate) {
-      const existingPrePostMinutes = activity.prePostValue * 60;
-      const existingPreMinutes = existingPrePostMinutes / 2;
-      const existingPostMinutes = existingPrePostMinutes / 2;
+      let existingPreMinutes = 0;
+      let existingPostMinutes = 0;
+      if (activity.preValue !== undefined && activity.postValue !== undefined) {
+        existingPreMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.preValue * 60 : 0;
+        existingPostMinutes = ['Flight', 'SIM'].includes(activity.type) ? activity.postValue * 60 : 0;
+      } else if (activity.prePostValue !== undefined) {
+        const existingPrePostMinutes = activity.prePostValue * 60;
+        existingPreMinutes = ['Flight', 'SIM'].includes(activity.type) ? existingPrePostMinutes / 2 : 0;
+        existingPostMinutes = ['Flight', 'SIM'].includes(activity.type) ? existingPrePostMinutes / 2 : 0;
+      }
       
-      const existingStartMinutes = timeToMinutes(activity.startTime) - 
-        (['Flight', 'SIM'].includes(activity.type) ? existingPreMinutes : 0);
-      
-      const existingEndMinutes = timeToMinutes(activity.endTime) + 
-        (['Flight', 'SIM'].includes(activity.type) ? existingPostMinutes : 0);
+      const existingStartMinutes = timeToMinutes(activity.startTime) - existingPreMinutes;
+      const existingEndMinutes = timeToMinutes(activity.endTime) + existingPostMinutes;
       
       // Check if there's an overlap
       if (

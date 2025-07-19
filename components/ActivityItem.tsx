@@ -12,7 +12,7 @@ interface ActivityItemProps {
 }
 
 export default function ActivityItem({ activity, onEdit, onDelete }: ActivityItemProps) {
-  const { id, type, startTime, endTime, prePostValue } = activity;
+  const { id, type, startTime, endTime, preValue, postValue, prePostValue } = activity;
   
   const getTypeColor = () => {
     switch (type) {
@@ -25,7 +25,16 @@ export default function ActivityItem({ activity, onEdit, onDelete }: ActivityIte
   
   const duration = calculateDuration(startTime, endTime);
   const formattedDuration = formatDuration(duration);
-  const totalTime = duration + (prePostValue * 60);
+  
+  // Calculate total pre/post time using separate values or legacy combined value
+  let totalPrePostMinutes = 0;
+  if (preValue !== undefined && postValue !== undefined) {
+    totalPrePostMinutes = (preValue + postValue) * 60;
+  } else if (prePostValue !== undefined) {
+    totalPrePostMinutes = prePostValue * 60;
+  }
+  
+  const totalTime = duration + totalPrePostMinutes;
   const formattedTotalTime = formatDuration(totalTime);
   
   return (
@@ -71,10 +80,29 @@ export default function ActivityItem({ activity, onEdit, onDelete }: ActivityIte
           
           {(type === 'Flight' || type === 'SIM') && (
             <>
-              <View style={styles.timeInfo}>
-                <Text style={styles.timeLabel}>Pre/Post:</Text>
-                <Text style={styles.timeValue}>{prePostValue}h</Text>
-              </View>
+              {preValue !== undefined && postValue !== undefined ? (
+                <>
+                  <View style={styles.timeInfo}>
+                    <Text style={styles.timeLabel}>Pre:</Text>
+                    <Text style={styles.timeValue}>{preValue.toFixed(1)}h</Text>
+                  </View>
+                  
+                  <View style={styles.timeInfo}>
+                    <Text style={styles.timeLabel}>Post:</Text>
+                    <Text style={styles.timeValue}>{postValue.toFixed(1)}h</Text>
+                  </View>
+                  
+                  <View style={styles.timeInfo}>
+                    <Text style={styles.timeLabel}>Pre/Post Total:</Text>
+                    <Text style={styles.timeValue}>{(preValue + postValue).toFixed(1)}h</Text>
+                  </View>
+                </>
+              ) : (
+                <View style={styles.timeInfo}>
+                  <Text style={styles.timeLabel}>Pre/Post:</Text>
+                  <Text style={styles.timeValue}>{prePostValue?.toFixed(1) || '0.0'}h</Text>
+                </View>
+              )}
               
               <View style={styles.timeInfo}>
                 <Text style={styles.timeLabel}>Total:</Text>

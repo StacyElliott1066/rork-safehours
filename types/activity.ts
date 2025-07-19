@@ -6,7 +6,9 @@ export interface Activity {
   date: string; // ISO date string (YYYY-MM-DD)
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
-  prePostValue: number; // 0-4 hours
+  preValue: number; // 0-2 hours
+  postValue: number; // 0-2 hours
+  prePostValue?: number; // Legacy field for backward compatibility
   notes?: string;
 }
 
