@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ChevronRight } from 'lucide-react-native';
 import { Activity } from '@/types/activity';
 import { COLORS } from '@/constants/colors';
 import { timeToMinutes, safeParseDate } from '@/utils/time';
@@ -212,6 +213,20 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
               onPress={() => handleActivityPress(activity.id)}
             />
             
+            {/* Arrow indicator for activities that go past midnight */}
+            {isOvernight && !isFromPreviousDay ? (
+              <View
+                style={[
+                  styles.arrowIndicator,
+                  {
+                    left: activityStartPosition + Math.max(activityWidth, 10) - 12, // Position at the end of the activity block
+                  }
+                ]}
+              >
+                <ChevronRight size={12} color={COLORS.white} />
+              </View>
+            ) : null}
+            
             {/* Notes container - completely separate from the block */}
             {hasNotes ? (
               <View 
@@ -373,5 +388,13 @@ const styles = StyleSheet.create({
     height: 12,
     top: 20,
     borderRadius: 2,
+  },
+  arrowIndicator: {
+    position: 'absolute',
+    top: 14, // Center vertically with the activity block
+    width: 12,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
