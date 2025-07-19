@@ -223,7 +223,7 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
                   }
                 ]}
               >
-                <ChevronRight size={20} color={COLORS.black} />
+                <ChevronRight size={24} color={COLORS.black} strokeWidth={2.5} />
               </View>
             ) : null}
             
