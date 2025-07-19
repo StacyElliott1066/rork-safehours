@@ -20,10 +20,10 @@ export default function PrePostSeparateInput({
   const [showPreSelector, setShowPreSelector] = useState(false);
   const [showPostSelector, setShowPostSelector] = useState(false);
   
-  // Generate values from 0.0 to 2.0 with 0.1 increments
+  // Generate values from 0.0 to 1.0 with 0.1 increments
   const generateValues = () => {
     const values = [];
-    for (let i = 0; i <= 20; i++) {
+    for (let i = 0; i <= 10; i++) {
       values.push(i / 10);
     }
     return values;
@@ -48,10 +48,10 @@ export default function PrePostSeparateInput({
     currentValue: number,
     title: string
   ) => {
-    // Create chunks of 4 values for the grid layout
+    // Create chunks of 3 values for the grid layout (since we have fewer values now)
     const chunkedValues = [];
-    for (let i = 0; i < values.length; i += 4) {
-      chunkedValues.push(values.slice(i, i + 4));
+    for (let i = 0; i < values.length; i += 3) {
+      chunkedValues.push(values.slice(i, i + 3));
     }
     
     return (
@@ -146,7 +146,7 @@ export default function PrePostSeparateInput({
       </View>
       
       <Text style={styles.helperText}>
-        Enter values between 0 and 2 hours for each
+        Enter values between 0 and 1 hour for each
       </Text>
       
       {renderValueSelector(
@@ -267,19 +267,19 @@ const styles = StyleSheet.create({
   valueItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 5,
-    borderRadius: 8,
+    margin: 8,
+    borderRadius: 12,
     backgroundColor: COLORS.lightGray,
-    width: 50,
-    height: 50,
-    padding: 5,
+    width: 70,
+    height: 70,
+    padding: 8,
   },
   selectedValueItem: {
     backgroundColor: COLORS.primary,
   },
   valueItemText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '600',
   },
   selectedValueItemText: {
     color: COLORS.white,
