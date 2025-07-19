@@ -174,7 +174,11 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
         const postStartPosition = (activityEndMinutes / 60) * hourWidth;
         const postWidth = (postMinutes / 60) * hourWidth;
         
-        const showPrePost = ['Flight', 'SIM'].includes(activity.type) && activity.prePostValue > 0;
+        const showPrePost = ['Flight', 'SIM'].includes(activity.type) && (
+          (activity.prePostValue !== undefined && activity.prePostValue > 0) ||
+          (activity.preValue !== undefined && activity.preValue > 0) ||
+          (activity.postValue !== undefined && activity.postValue > 0)
+        );
         
         // Check if notes exist and are not empty
         const hasNotes = activity.notes && activity.notes.trim() !== '';
