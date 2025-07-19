@@ -143,7 +143,7 @@ export default function AboutScreen() {
           
           <View style={styles.versionContainer}>
             <Text style={styles.versionText}>Version 25.7.19.09</Text>
-            <Text style={styles.copyrightText}>© 2023 SafeHours. All rights reserved.</Text>
+            <Text style={styles.copyrightText}>© 2025 SafeHours. All rights reserved.</Text>
           </View>
         </View>
       </ScrollView>
