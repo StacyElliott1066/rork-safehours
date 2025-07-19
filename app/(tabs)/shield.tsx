@@ -174,19 +174,12 @@ export default function ShieldScreen() {
         endDateTime.setDate(endDateTime.getDate() + 1);
       }
       
-      // Add pre/post time
-      const prePostMinutes = activity.prePostValue * 60;
-      const preMinutes = prePostMinutes / 2;
-      const postMinutes = prePostMinutes / 2;
-      
-      const adjustedStartDateTime = new Date(startDateTime.getTime() - (preMinutes * 60000));
-      const adjustedEndDateTime = new Date(endDateTime.getTime() + (postMinutes * 60000));
-      
+      // For flight hours, only count actual flight time, not pre/post
       // Check if activity is within the 24-hour window
-      if (adjustedEndDateTime > twentyFourHoursAgo && adjustedStartDateTime < fromTime) {
+      if (endDateTime > twentyFourHoursAgo && startDateTime < fromTime) {
         // Calculate overlap with the 24-hour window
-        const overlapStart = Math.max(adjustedStartDateTime.getTime(), twentyFourHoursAgo.getTime());
-        const overlapEnd = Math.min(adjustedEndDateTime.getTime(), fromTime.getTime());
+        const overlapStart = Math.max(startDateTime.getTime(), twentyFourHoursAgo.getTime());
+        const overlapEnd = Math.min(endDateTime.getTime(), fromTime.getTime());
         
         if (overlapEnd > overlapStart) {
           const overlapMinutes = (overlapEnd - overlapStart) / 60000;
