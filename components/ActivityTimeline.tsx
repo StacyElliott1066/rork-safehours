@@ -219,7 +219,7 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
                 style={[
                   styles.arrowIndicator,
                   {
-                    left: activityStartPosition + Math.max(activityWidth, 10) + 2, // Position outside the activity block
+                    left: activityStartPosition + Math.max(activityWidth, 10) - 2, // Position outside the activity block
                   }
                 ]}
               >
