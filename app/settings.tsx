@@ -195,7 +195,7 @@ export default function SettingsScreen() {
             <Text style={styles.aboutText}>
               SafeHours is designed to help pilots and flight instructors track their duty time and ensure compliance with regulatory requirements.
             </Text>
-            <Text style={styles.versionText}>Version 25.5.4.21:00</Text>
+            <Text style={styles.versionText}>Version 25.7.19.09</Text>
           </View>
         </View>
       </ScrollView>
