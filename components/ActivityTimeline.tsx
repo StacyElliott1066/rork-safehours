@@ -219,11 +219,11 @@ export default function ActivityTimeline({ activities, date }: ActivityTimelineP
                 style={[
                   styles.arrowIndicator,
                   {
-                    left: activityStartPosition + Math.max(activityWidth, 10) - 12, // Position at the end of the activity block
+                    left: activityStartPosition + Math.max(activityWidth, 10) + 4, // Position outside the activity block
                   }
                 ]}
               >
-                <ChevronRight size={12} color={COLORS.white} />
+                <ChevronRight size={20} color={COLORS.black} />
               </View>
             ) : null}
             
@@ -391,9 +391,9 @@ const styles = StyleSheet.create({
   },
   arrowIndicator: {
     position: 'absolute',
-    top: 14, // Center vertically with the activity block
-    width: 12,
-    height: 12,
+    top: 10, // Center vertically with the activity block
+    width: 20,
+    height: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
