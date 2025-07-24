@@ -200,10 +200,18 @@ export default function DataScreen() {
     );
   };
   
-  const executeDataClear = () => {
-    clearAllActivities();
-    setShowConfirmModal(false);
-    Alert.alert('Success', 'All activities have been deleted.');
+  const executeDataClear = async () => {
+    console.log('executeDataClear called - activities before clear:', activities.length);
+    try {
+      await clearAllActivities();
+      setShowConfirmModal(false);
+      console.log('executeDataClear completed - clearAllActivities called');
+      Alert.alert('Success', 'All activities have been deleted.');
+    } catch (error) {
+      console.error('Error clearing activities:', error);
+      setShowConfirmModal(false);
+      Alert.alert('Error', 'Failed to clear activities. Please try again.');
+    }
   };
   
   return (

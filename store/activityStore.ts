@@ -18,7 +18,7 @@ interface ActivityState {
   updateWarningThresholds: (thresholds: Partial<WarningThresholds>) => void;
   resetWarningThresholds: () => void;
   updateWarningStatus: (status: Partial<WarningStatus>) => void;
-  clearAllActivities: () => void;
+  clearAllActivities: () => Promise<void>;
   importActivities: (activities: Activity[]) => void;
 }
 
@@ -166,8 +166,26 @@ export const useActivityStore = create<ActivityState>()(
         }));
       },
       
-      clearAllActivities: () => {
-        set({ activities: [] });
+      clearAllActivities: async () => {
+        console.log('clearAllActivities called in store');
+        try {
+          // Clear from AsyncStorage directly to ensure persistence
+          await AsyncStorage.removeItem('safehours-storage');
+          console.log('AsyncStorage cleared');
+          
+          // Reset the state
+          set({ 
+            activities: [],
+            selectedDate: getCurrentDate(),
+            warningThresholds: { ...DEFAULT_WARNING_THRESHOLDS },
+            warningStatus: { ...DEFAULT_WARNING_STATUS }
+          });
+          console.log('clearAllActivities completed - activities set to empty array');
+        } catch (error) {
+          console.error('Error clearing activities:', error);
+          // Fallback to just clearing the state
+          set({ activities: [] });
+        }
       },
       
       importActivities: (activities) => {

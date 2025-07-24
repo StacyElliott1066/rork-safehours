@@ -155,7 +155,7 @@ export default function AboutScreen() {
               <Text style={styles.activityTypeTitle}>Other External</Text>
               <Text style={styles.activityTypeSubtitle}>Job, Class, etc.</Text>
               <Text style={styles.activityTypeDescription}>
-                Does not affect contact time calculations. Only affects duty day.
+                Does not affect contact time calculations. Only affects duty day and rest hours.
               </Text>
             </View>
             
@@ -163,7 +163,7 @@ export default function AboutScreen() {
               <Text style={styles.activityTypeTitle}>Other Internal</Text>
               <Text style={styles.activityTypeSubtitle}>SOF, office, etc.</Text>
               <Text style={styles.activityTypeDescription}>
-                Does not affect contact time calculations. Only affects duty day, 
+                Does not affect contact time calculations. Only affects duty day, rest hours, 
                 consecutive days, and weekly hour limits both 40 and 50.
               </Text>
             </View>
