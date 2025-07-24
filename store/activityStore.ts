@@ -169,22 +169,29 @@ export const useActivityStore = create<ActivityState>()(
       clearAllActivities: async () => {
         console.log('clearAllActivities called in store');
         try {
-          // Clear from AsyncStorage directly to ensure persistence
-          await AsyncStorage.removeItem('safehours-storage');
-          console.log('AsyncStorage cleared');
-          
-          // Reset the state
+          // Reset the state first
           set({ 
             activities: [],
             selectedDate: getCurrentDate(),
             warningThresholds: { ...DEFAULT_WARNING_THRESHOLDS },
             warningStatus: { ...DEFAULT_WARNING_STATUS }
           });
-          console.log('clearAllActivities completed - activities set to empty array');
+          console.log('State cleared - activities set to empty array');
+          
+          // Clear from AsyncStorage to ensure persistence
+          await AsyncStorage.removeItem('safehours-storage');
+          console.log('AsyncStorage cleared');
+          
+          console.log('clearAllActivities completed successfully');
         } catch (error) {
           console.error('Error clearing activities:', error);
-          // Fallback to just clearing the state
-          set({ activities: [] });
+          // Ensure state is cleared even if AsyncStorage fails
+          set({ 
+            activities: [],
+            selectedDate: getCurrentDate(),
+            warningThresholds: { ...DEFAULT_WARNING_THRESHOLDS },
+            warningStatus: { ...DEFAULT_WARNING_STATUS }
+          });
         }
       },
       

@@ -164,7 +164,7 @@ export default function AboutScreen() {
               <Text style={styles.activityTypeSubtitle}>SOF, office, etc.</Text>
               <Text style={styles.activityTypeDescription}>
                 Does not affect contact time calculations. Only affects duty day, rest hours, 
-                consecutive days, and weekly hour limits both 40 and 50.
+                consecutive days, and weekly hour limits.
               </Text>
             </View>
           </View>
