@@ -17,6 +17,8 @@ export const COLORS = {
   sim: '#9B59B6', // Purple
   class: '#2ECC71', // Green
   other: '#95A5A6', // Gray
+  otherInternal: '#E67E22', // Orange
+  otherExternal: '#95A5A6', // Gray
 };
 
 export default {

@@ -19,7 +19,9 @@ export default function ActivityItem({ activity, onEdit, onDelete }: ActivityIte
       case 'Flight': return COLORS.flight;
       case 'Ground': return COLORS.ground;
       case 'SIM': return COLORS.sim;
-      case 'Other': return COLORS.other;
+      case 'Other Internal': return COLORS.otherInternal;
+      case 'Other External': return COLORS.otherExternal;
+      default: return COLORS.gray;
     }
   };
   

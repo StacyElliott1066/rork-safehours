@@ -2,7 +2,7 @@
   "expo": {
     "name": "SafeHours",
     "slug": "safehours-2ul7u7j",
-    "version": "5.3.18",
+    "version": "5.7.18",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -15,14 +15,20 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.safehours-2ul7u7j"
+      "bundleIdentifier": "app.rork.safehours-2ul7u7j",
+      "usesIcloudStorage": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.safehours-2ul7u7j"
+      "package": "app.rork.safehours-2ul7u7j",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -32,6 +38,12 @@
         "expo-router",
         {
           "origin": "https://rork.app/"
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
         }
       ]
     ],

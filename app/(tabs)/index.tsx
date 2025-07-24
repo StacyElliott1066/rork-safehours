@@ -241,7 +241,7 @@ export default function ActivitiesScreen() {
                         <Text style={[styles.tableCell, styles.typeCell, { color: getTypeColor(activity.type) }]}>
                           {activity.type}
                         </Text>
-                        <Text style={styles.tableCell}>{activity.prePostValue.toFixed(1)}</Text>
+                        <Text style={styles.tableCell}>{(activity.prePostValue || 0).toFixed(1)}</Text>
                         <View style={styles.actionCell}>
                           <TouchableOpacity 
                             style={styles.actionButton} 
@@ -268,7 +268,9 @@ const getTypeColor = (type: string) => {
     case 'Flight': return COLORS.flight;
     case 'Ground': return COLORS.ground;
     case 'SIM': return COLORS.sim;
-    case 'Other': return COLORS.other;
+    case 'Other Internal': return COLORS.otherInternal;
+    case 'Other External': return COLORS.otherExternal;
+    case 'Other': return COLORS.other; // For backward compatibility
     default: return COLORS.gray;
   }
 };

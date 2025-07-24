@@ -1,4 +1,4 @@
-export type ActivityType = 'Flight' | 'Ground' | 'SIM' | 'Other';
+export type ActivityType = 'Flight' | 'Ground' | 'SIM' | 'Other Internal' | 'Other External';
 
 export interface Activity {
   id: string;

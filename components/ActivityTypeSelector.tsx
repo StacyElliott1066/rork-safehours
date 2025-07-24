@@ -9,14 +9,23 @@ interface ActivityTypeSelectorProps {
 }
 
 export default function ActivityTypeSelector({ selectedType, onTypeChange }: ActivityTypeSelectorProps) {
-  const activityTypes: ActivityType[] = ['Flight', 'Ground', 'SIM', 'Other'];
+  const activityTypes: ActivityType[] = ['Flight', 'Ground', 'SIM', 'Other Internal', 'Other External'];
   
   const getTypeColor = (type: ActivityType) => {
     switch (type) {
       case 'Flight': return COLORS.flight;
       case 'Ground': return COLORS.ground;
       case 'SIM': return COLORS.sim;
-      case 'Other': return COLORS.other;
+      case 'Other Internal': return COLORS.otherInternal;
+      case 'Other External': return COLORS.otherExternal;
+    }
+  };
+  
+  const getTypeLabel = (type: ActivityType) => {
+    switch (type) {
+      case 'Other Internal': return 'SOF, office, etc.';
+      case 'Other External': return 'Job, Class, etc.';
+      default: return '';
     }
   };
   
@@ -42,6 +51,16 @@ export default function ActivityTypeSelector({ selectedType, onTypeChange }: Act
             >
               {type}
             </Text>
+            {getTypeLabel(type) && (
+              <Text
+                style={[
+                  styles.labelText,
+                  selectedType === type && styles.selectedLabelText
+                ]}
+              >
+                {getTypeLabel(type)}
+              </Text>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -80,5 +99,13 @@ const styles = StyleSheet.create({
   selectedTypeText: {
     color: COLORS.white,
     fontWeight: 'bold',
+  },
+  labelText: {
+    fontSize: 12,
+    color: COLORS.gray,
+    marginTop: 2,
+  },
+  selectedLabelText: {
+    color: COLORS.white,
   },
 });
