@@ -119,6 +119,58 @@ export default function AboutScreen() {
           </View>
           
           <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Activity Types</Text>
+            <Text style={styles.paragraph}>
+              SafeHours tracks different types of activities, each affecting compliance calculations differently:
+            </Text>
+            
+            <View style={styles.activityTypeItem}>
+              <Text style={styles.activityTypeTitle}>Flight</Text>
+              <Text style={styles.activityTypeSubtitle}>Flight instruction activities</Text>
+              <Text style={styles.activityTypeDescription}>
+                Affects all compliance calculations including flight instruction hours and contact time. 
+                Pre/post briefing time is included in contact time calculations.
+              </Text>
+            </View>
+            
+            <View style={styles.activityTypeItem}>
+              <Text style={styles.activityTypeTitle}>Ground</Text>
+              <Text style={styles.activityTypeSubtitle}>Ground instruction activities</Text>
+              <Text style={styles.activityTypeDescription}>
+                Affects all compliance calculations except flight instruction hours. 
+                Counts toward contact time, duty day, and weekly limits.
+              </Text>
+            </View>
+            
+            <View style={styles.activityTypeItem}>
+              <Text style={styles.activityTypeTitle}>SIM</Text>
+              <Text style={styles.activityTypeSubtitle}>Simulator instruction activities</Text>
+              <Text style={styles.activityTypeDescription}>
+                Affects all compliance calculations except flight instruction hours. 
+                Pre/post briefing time is included in contact time calculations.
+              </Text>
+            </View>
+            
+            <View style={styles.activityTypeItem}>
+              <Text style={styles.activityTypeTitle}>Other External</Text>
+              <Text style={styles.activityTypeSubtitle}>Job, Class, etc.</Text>
+              <Text style={styles.activityTypeDescription}>
+                Affects all compliance calculations except flight instruction hours. 
+                Counts toward contact time, duty day, and weekly limits.
+              </Text>
+            </View>
+            
+            <View style={styles.activityTypeItem}>
+              <Text style={styles.activityTypeTitle}>Other Internal</Text>
+              <Text style={styles.activityTypeSubtitle}>SOF, office, etc.</Text>
+              <Text style={styles.activityTypeDescription}>
+                Does not affect contact time calculations. Only affects duty day, 
+                consecutive days, and weekly hour limits.
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.card}>
             <Text style={styles.sectionTitle}>Compliance Tracking</Text>
             <Text style={styles.paragraph}>
               SafeHours helps you monitor and maintain compliance with:
@@ -258,6 +310,28 @@ const styles = StyleSheet.create({
   complianceItem: {
     fontSize: 14,
     lineHeight: 22,
+    color: COLORS.darkGray,
+  },
+  activityTypeItem: {
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  activityTypeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginBottom: 2,
+  },
+  activityTypeSubtitle: {
+    fontSize: 12,
+    color: COLORS.gray,
+    marginBottom: 6,
+  },
+  activityTypeDescription: {
+    fontSize: 14,
+    lineHeight: 20,
     color: COLORS.darkGray,
   },
   versionContainer: {

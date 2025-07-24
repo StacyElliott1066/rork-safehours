@@ -181,7 +181,7 @@ export const calculateContactTime = (activities: Activity[], date: string): numb
     }
     
     return activities
-      .filter(activity => activity.date === date && activity.type !== 'Other')
+      .filter(activity => activity.date === date && activity.type !== 'Other Internal')
       .reduce((total, activity) => {
         const duration = calculateDuration(activity.startTime, activity.endTime);
         // Calculate pre/post time using separate values or legacy combined value
@@ -221,7 +221,7 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
     let totalMinutes = 0;
     
     activities.forEach(activity => {
-      if (activity.type === 'Other') return; // Skip 'Other' type activities
+      if (activity.type === 'Other Internal') return; // Skip 'Other Internal' type activities
       
       try {
         // Validate date format
@@ -455,7 +455,7 @@ export const calculateConsecutiveDays = (activities: Activity[], currentDate: st
       checkDate.setDate(checkDate.getDate() - i);
       const checkDateStr = checkDate.toISOString().split('T')[0];
       
-      const dayActivities = activities.filter(a => a.date === checkDateStr && a.type !== 'Other');
+      const dayActivities = activities.filter(a => a.date === checkDateStr && a.type !== 'Other Internal');
       if (dayActivities.length === 0) {
         break; // Break on first day with no activities
       }
@@ -509,7 +509,7 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
     
     // Process each activity that starts within the week
     activities.forEach(activity => {
-      if (activity.type === 'Other') return; // Skip 'Other' type activities
+      if (activity.type === 'Other Internal') return; // Skip 'Other Internal' type activities
       
       try {
         // Validate date format
@@ -618,7 +618,7 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
     
     // Process each activity that starts within the 7-day period
     activities.forEach(activity => {
-      if (activity.type === 'Other') return; // Skip 'Other' type activities
+      if (activity.type === 'Other Internal') return; // Skip 'Other Internal' type activities
       
       try {
         // Validate date format
