@@ -8,9 +8,10 @@ interface TimeInputProps {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
+  onFocus?: () => void;
 }
 
-export default function TimeInput({ label, value, onChangeText }: TimeInputProps) {
+export default function TimeInput({ label, value, onChangeText, onFocus }: TimeInputProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [hours, setHours] = useState(value?.split(':')[0] || '00');
   const [minutes, setMinutes] = useState(value?.split(':')[1] || '00');
@@ -50,6 +51,7 @@ export default function TimeInput({ label, value, onChangeText }: TimeInputProps
   };
 
   const handleDirectInputFocus = () => {
+    onFocus?.();
     setIsDirectEditing(true);
     // Set the raw value for editing
     setDirectInput(value || '');

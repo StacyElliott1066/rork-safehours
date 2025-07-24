@@ -8,12 +8,14 @@ interface DurationInputProps {
   startTime: string;
   endTime: string;
   onDurationChange: (durationHours: number) => void;
+  onFocus?: () => void;
 }
 
 export default function DurationInput({ 
   startTime, 
   endTime, 
-  onDurationChange 
+  onDurationChange,
+  onFocus 
 }: DurationInputProps) {
   const [durationText, setDurationText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -106,7 +108,10 @@ export default function DurationInput({
             style={styles.input}
             value={durationText}
             onChangeText={handleDurationChange}
-            onFocus={() => setIsEditing(true)}
+            onFocus={() => {
+              onFocus?.();
+              setIsEditing(true);
+            }}
             onBlur={handleDurationBlur}
             keyboardType="numeric"
             placeholder="0.0"
