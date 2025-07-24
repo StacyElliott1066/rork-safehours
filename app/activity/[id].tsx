@@ -27,7 +27,11 @@ export default function EditActivityScreen() {
   const [activityFound, setActivityFound] = useState(false);
   const [showMidnightConfirmation, setShowMidnightConfirmation] = useState(false);
   const [pendingEndTime, setPendingEndTime] = useState('');
-  const [lastTouchedField, setLastTouchedField] = useState<'start' | 'end' | 'duration'>('start');
+  const [fieldTimestamps, setFieldTimestamps] = useState<{
+    start: number;
+    end: number;
+    duration: number;
+  }>({ start: Date.now(), end: 0, duration: 0 });
   
   // Find the activity by ID
   useEffect(() => {
@@ -93,28 +97,42 @@ export default function EditActivityScreen() {
     return endMinutes < startMinutes;
   };
 
+  // Get the two most recently updated fields
+  const getTwoMostRecentFields = (timestamps: typeof fieldTimestamps): [string, string] => {
+    const entries = Object.entries(timestamps).sort((a, b) => b[1] - a[1]);
+    return [entries[0][0], entries[1][0]];
+  };
+
   // Handle start time change with midnight confirmation
   const handleStartTimeChange = (newStartTime: string) => {
-    setLastTouchedField('start');
+    const newTimestamps = { ...fieldTimestamps, start: Date.now() };
+    setFieldTimestamps(newTimestamps);
     
-    if (lastTouchedField === 'duration' && endTime) {
-      // If duration was last touched, adjust end time based on new start time and current duration
-      try {
-        const currentDuration = calculateDuration(startTime, endTime);
-        const startMinutes = timeToMinutes(newStartTime);
-        const newEndMinutes = startMinutes + currentDuration;
-        const newEndTime = minutesToTime(newEndMinutes);
-        
-        if (checkMidnightCrossing(newStartTime, newEndTime)) {
+    const [mostRecent, secondMostRecent] = getTwoMostRecentFields(newTimestamps);
+    
+    // If start and duration are the two most recent, recalculate end time
+    if ((mostRecent === 'start' && secondMostRecent === 'duration') || 
+        (mostRecent === 'duration' && secondMostRecent === 'start')) {
+      if (endTime) {
+        try {
+          const currentDuration = calculateDuration(startTime, endTime);
+          const startMinutes = timeToMinutes(newStartTime);
+          const newEndMinutes = startMinutes + currentDuration;
+          const newEndTime = minutesToTime(newEndMinutes);
+          
+          if (checkMidnightCrossing(newStartTime, newEndTime)) {
+            setStartTime(newStartTime);
+            setPendingEndTime(newEndTime);
+            setShowMidnightConfirmation(true);
+          } else {
+            setStartTime(newStartTime);
+            setEndTime(newEndTime);
+          }
+        } catch (error) {
+          console.error("Error adjusting end time from start time change:", error);
           setStartTime(newStartTime);
-          setPendingEndTime(newEndTime);
-          setShowMidnightConfirmation(true);
-        } else {
-          setStartTime(newStartTime);
-          setEndTime(newEndTime);
         }
-      } catch (error) {
-        console.error("Error adjusting end time from start time change:", error);
+      } else {
         setStartTime(newStartTime);
       }
     } else {
@@ -131,26 +149,34 @@ export default function EditActivityScreen() {
 
   // Handle end time change with midnight confirmation
   const handleEndTimeChange = (newEndTime: string) => {
-    setLastTouchedField('end');
+    const newTimestamps = { ...fieldTimestamps, end: Date.now() };
+    setFieldTimestamps(newTimestamps);
     
-    if (lastTouchedField === 'duration' && startTime) {
-      // If duration was last touched, adjust start time based on new end time and current duration
-      try {
-        const currentDuration = calculateDuration(startTime, endTime);
-        const endMinutes = timeToMinutes(newEndTime);
-        const newStartMinutes = endMinutes - currentDuration;
-        const newStartTime = minutesToTime(newStartMinutes);
-        
-        if (checkMidnightCrossing(newStartTime, newEndTime)) {
-          setStartTime(newStartTime);
-          setPendingEndTime(newEndTime);
-          setShowMidnightConfirmation(true);
-        } else {
-          setStartTime(newStartTime);
+    const [mostRecent, secondMostRecent] = getTwoMostRecentFields(newTimestamps);
+    
+    // If end and duration are the two most recent, recalculate start time
+    if ((mostRecent === 'end' && secondMostRecent === 'duration') || 
+        (mostRecent === 'duration' && secondMostRecent === 'end')) {
+      if (startTime) {
+        try {
+          const currentDuration = calculateDuration(startTime, endTime);
+          const endMinutes = timeToMinutes(newEndTime);
+          const newStartMinutes = endMinutes - currentDuration;
+          const newStartTime = minutesToTime(newStartMinutes);
+          
+          if (checkMidnightCrossing(newStartTime, newEndTime)) {
+            setStartTime(newStartTime);
+            setPendingEndTime(newEndTime);
+            setShowMidnightConfirmation(true);
+          } else {
+            setStartTime(newStartTime);
+            setEndTime(newEndTime);
+          }
+        } catch (error) {
+          console.error("Error adjusting start time from end time change:", error);
           setEndTime(newEndTime);
         }
-      } catch (error) {
-        console.error("Error adjusting start time from end time change:", error);
+      } else {
         setEndTime(newEndTime);
       }
     } else {
@@ -177,47 +203,58 @@ export default function EditActivityScreen() {
     setPendingEndTime('');
   };
 
-  // Update times when duration changes based on pointer logic
+  // Update times when duration changes based on two most recent fields
   const handleDurationChange = (durationHours: number) => {
-    setLastTouchedField('duration');
+    const newTimestamps = { ...fieldTimestamps, duration: Date.now() };
+    setFieldTimestamps(newTimestamps);
     
-    if (lastTouchedField === 'start' && endTime) {
-      // If start time was last touched, adjust end time
-      try {
-        const startMinutes = timeToMinutes(startTime);
-        const durationMinutes = Math.round(durationHours * 60);
-        const newEndMinutes = startMinutes + durationMinutes;
-        const newEndTime = minutesToTime(newEndMinutes);
-        
-        if (checkMidnightCrossing(startTime, newEndTime)) {
-          setPendingEndTime(newEndTime);
-          setShowMidnightConfirmation(true);
-        } else {
-          setEndTime(newEndTime);
+    const [mostRecent, secondMostRecent] = getTwoMostRecentFields(newTimestamps);
+    
+    // If duration and start are the two most recent, recalculate end time
+    if ((mostRecent === 'duration' && secondMostRecent === 'start') || 
+        (mostRecent === 'start' && secondMostRecent === 'duration')) {
+      if (startTime) {
+        try {
+          const startMinutes = timeToMinutes(startTime);
+          const durationMinutes = Math.round(durationHours * 60);
+          const newEndMinutes = startMinutes + durationMinutes;
+          const newEndTime = minutesToTime(newEndMinutes);
+          
+          if (checkMidnightCrossing(startTime, newEndTime)) {
+            setPendingEndTime(newEndTime);
+            setShowMidnightConfirmation(true);
+          } else {
+            setEndTime(newEndTime);
+          }
+        } catch (error) {
+          console.error("Error updating end time from duration:", error);
         }
-      } catch (error) {
-        console.error("Error updating end time from duration:", error);
       }
-    } else if (lastTouchedField === 'end' && startTime) {
-      // If end time was last touched, adjust start time
-      try {
-        const endMinutes = timeToMinutes(endTime);
-        const durationMinutes = Math.round(durationHours * 60);
-        const newStartMinutes = endMinutes - durationMinutes;
-        const newStartTime = minutesToTime(newStartMinutes);
-        
-        if (checkMidnightCrossing(newStartTime, endTime)) {
-          setStartTime(newStartTime);
-          setPendingEndTime(endTime);
-          setShowMidnightConfirmation(true);
-        } else {
-          setStartTime(newStartTime);
+    }
+    // If duration and end are the two most recent, recalculate start time
+    else if ((mostRecent === 'duration' && secondMostRecent === 'end') || 
+             (mostRecent === 'end' && secondMostRecent === 'duration')) {
+      if (endTime) {
+        try {
+          const endMinutes = timeToMinutes(endTime);
+          const durationMinutes = Math.round(durationHours * 60);
+          const newStartMinutes = endMinutes - durationMinutes;
+          const newStartTime = minutesToTime(newStartMinutes);
+          
+          if (checkMidnightCrossing(newStartTime, endTime)) {
+            setStartTime(newStartTime);
+            setPendingEndTime(endTime);
+            setShowMidnightConfirmation(true);
+          } else {
+            setStartTime(newStartTime);
+          }
+        } catch (error) {
+          console.error("Error updating start time from duration:", error);
         }
-      } catch (error) {
-        console.error("Error updating start time from duration:", error);
       }
-    } else {
-      // Default behavior - adjust end time based on start time
+    }
+    // Default behavior - adjust end time based on start time
+    else {
       if (startTime) {
         try {
           const startMinutes = timeToMinutes(startTime);
@@ -349,14 +386,14 @@ export default function EditActivityScreen() {
               label="Start Time"
               value={startTime}
               onChangeText={handleStartTimeChange}
-              onFocus={() => setLastTouchedField('start')}
+              onFocus={() => setFieldTimestamps(prev => ({ ...prev, start: Date.now() }))}
             />
             
             <TimeInput
               label="End Time"
               value={endTime}
               onChangeText={handleEndTimeChange}
-              onFocus={() => setLastTouchedField('end')}
+              onFocus={() => setFieldTimestamps(prev => ({ ...prev, end: Date.now() }))}
             />
           </View>
           
@@ -364,7 +401,7 @@ export default function EditActivityScreen() {
             startTime={startTime}
             endTime={endTime}
             onDurationChange={handleDurationChange}
-            onFocus={() => setLastTouchedField('duration')}
+            onFocus={() => setFieldTimestamps(prev => ({ ...prev, duration: Date.now() }))}
           />
           
           <PrePostSeparateInput
