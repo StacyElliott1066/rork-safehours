@@ -155,8 +155,7 @@ export default function AboutScreen() {
               <Text style={styles.activityTypeTitle}>Other External</Text>
               <Text style={styles.activityTypeSubtitle}>Job, Class, etc.</Text>
               <Text style={styles.activityTypeDescription}>
-                Affects all compliance calculations except flight instruction hours. 
-                Counts toward contact time, duty day, and weekly limits.
+                Does not affect contact time calculations. Only affects duty day.
               </Text>
             </View>
             
@@ -165,7 +164,7 @@ export default function AboutScreen() {
               <Text style={styles.activityTypeSubtitle}>SOF, office, etc.</Text>
               <Text style={styles.activityTypeDescription}>
                 Does not affect contact time calculations. Only affects duty day, 
-                consecutive days, and weekly hour limits.
+                consecutive days, and weekly hour limits both 40 and 50.
               </Text>
             </View>
           </View>
