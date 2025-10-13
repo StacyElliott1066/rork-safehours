@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, Switch, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, Switch, Platform, Modal } from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
@@ -22,6 +22,8 @@ export default function SettingsScreen() {
     maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
     maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
   });
+  
+  const [showChangeLog, setShowChangeLog] = useState(false);
   
   const handleSave = () => {
     // Validate inputs
@@ -195,8 +197,37 @@ export default function SettingsScreen() {
               <Text style={styles.saveButtonText}>Save Changes</Text>
             </TouchableOpacity>
           </View>
+          
+          <TouchableOpacity 
+            style={styles.changeLogButton}
+            onPress={() => setShowChangeLog(true)}
+          >
+            <Text style={styles.changeLogButtonText}>Change Log</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      <Modal
+        visible={showChangeLog}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowChangeLog(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Change Log</Text>
+            <Text style={styles.modalText}>
+              10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours.
+            </Text>
+            <TouchableOpacity 
+              style={styles.modalButton}
+              onPress={() => setShowChangeLog(false)}
+            >
+              <Text style={styles.modalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -312,5 +343,55 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: COLORS.white,
     fontWeight: 'bold',
+  },
+  changeLogButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 24,
+  },
+  changeLogButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 24,
+    marginHorizontal: 32,
+    maxWidth: 400,
+    width: '90%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: COLORS.black,
+  },
+  modalText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: COLORS.black,
+    marginBottom: 24,
+  },
+  modalButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
