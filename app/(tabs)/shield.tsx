@@ -67,7 +67,7 @@ export default function ShieldScreen() {
     let latestDate = new Date(0); // Jan 1, 1970
     
     activities.forEach(activity => {
-      if (activity.type !== 'Other') {
+      if (activity.type !== 'Other Internal' && activity.type !== 'Other External') {
         const activityDate = safeParseDate(activity.date);
         if (!activityDate) return;
         

@@ -96,10 +96,13 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
     let totalMinutes = 0;
     
     activities.forEach(activity => {
-      if (!['Flight', 'SIM'].includes(activity.type) || activity.prePostValue === 0) return;
+      if (!['Flight', 'SIM'].includes(activity.type)) return;
+      
+      const prePostValue = activity.prePostValue ?? 0;
+      if (prePostValue === 0) return;
       
       const activityDate = activity.date;
-      const prePostMinutes = activity.prePostValue * 60;
+      const prePostMinutes = prePostValue * 60;
       const preMinutes = prePostMinutes / 2;
       const postMinutes = prePostMinutes / 2;
       
