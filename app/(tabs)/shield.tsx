@@ -313,7 +313,7 @@ export default function ShieldScreen() {
                     { backgroundColor: activeChart === 'flight' ? COLORS.primary : COLORS.secondary || '#4CAF50' }
                   ]}>
                     <Text style={styles.hoursValue}>
-                      {hours.toFixed(1)}h
+                      {hours.toFixed(2)}h
                     </Text>
                   </View>
                 )}
@@ -430,7 +430,7 @@ export default function ShieldScreen() {
               
               <View style={styles.statusContent}>
                 <Text style={styles.statusValue}>
-                  {currentFlightHours.toFixed(1)}h
+                  {currentFlightHours.toFixed(2)}h
                 </Text>
                 <Text style={styles.statusLabel}>
                   / {FLIGHT_LIMIT_HOURS}h limit
@@ -458,7 +458,7 @@ export default function ShieldScreen() {
               
               <View style={styles.statusContent}>
                 <Text style={styles.statusValue}>
-                  {currentContactHours.toFixed(1)}h
+                  {currentContactHours.toFixed(2)}h
                 </Text>
                 <Text style={styles.statusLabel}>
                   / {warningThresholds.maxContactTime}h limit

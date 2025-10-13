@@ -169,7 +169,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Flight Instruction Hours (24h)"
             isCompliant={isFlightHoursCompliant}
-            value={`${flightHours.toFixed(1)}h`}
+            value={`${flightHours.toFixed(2)}h`}
             threshold={`${warningThresholds.maxFlightHours}h max`}
             description="Maximum flight instruction hours in any rolling 24-hour period."
           />
@@ -177,7 +177,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Contact Time (24h)"
             isCompliant={isContactTimeCompliant}
-            value={`${contactTime.toFixed(1)}h`}
+            value={`${contactTime.toFixed(2)}h`}
             threshold={`${warningThresholds.maxContactTime}h max`}
             description="Maximum total contact hours in any rolling 24-hour period."
           />
@@ -185,7 +185,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Rest Between Days"
             isCompliant={isRestBetweenCompliant}
-            value={hasPreviousDay() ? `${restBetween.toFixed(1)}h` : "No previous day data"}
+            value={hasPreviousDay() ? `${restBetween.toFixed(2)}h` : "No previous day data"}
             threshold={`${warningThresholds.minRestBetweenDays}h min`}
             description="Minimum rest required between duty days."
             isWarning={!hasPreviousDay()}
@@ -194,7 +194,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Duty Day"
             isCompliant={isDutyDayCompliant}
-            value={`${dutyDay.toFixed(1)}h`}
+            value={`${dutyDay.toFixed(2)}h`}
             threshold={`${warningThresholds.maxDutyDay}h max`}
             description="Maximum duty day length."
           />
@@ -210,7 +210,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Weekly Hours"
             isCompliant={isWeeklyHoursCompliant}
-            value={`${weeklyHours.toFixed(1)}h`}
+            value={`${weeklyHours.toFixed(2)}h`}
             threshold={`${warningThresholds.maxWeeklyHours}h max`}
             description="Maximum hours Sunday - Saturday."
           />
@@ -218,7 +218,7 @@ export default function WarningsScreen() {
           <WarningItem 
             title="Past 7 Days"
             isCompliant={isPastSevenDaysHoursCompliant}
-            value={`${pastSevenDaysHours.toFixed(1)}h`}
+            value={`${pastSevenDaysHours.toFixed(2)}h`}
             threshold={`${warningThresholds.maxPastSevenDaysHours}h max`}
             description="Maximum hours the past 7 days."
           />

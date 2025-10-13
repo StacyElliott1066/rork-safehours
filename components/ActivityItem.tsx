@@ -86,23 +86,23 @@ export default function ActivityItem({ activity, onEdit, onDelete }: ActivityIte
                 <>
                   <View style={styles.timeInfo}>
                     <Text style={styles.timeLabel}>Pre:</Text>
-                    <Text style={styles.timeValue}>{preValue.toFixed(1)}h</Text>
+                    <Text style={styles.timeValue}>{preValue.toFixed(2)}h</Text>
                   </View>
                   
                   <View style={styles.timeInfo}>
                     <Text style={styles.timeLabel}>Post:</Text>
-                    <Text style={styles.timeValue}>{postValue.toFixed(1)}h</Text>
+                    <Text style={styles.timeValue}>{postValue.toFixed(2)}h</Text>
                   </View>
                   
                   <View style={styles.timeInfo}>
                     <Text style={styles.timeLabel}>Pre/Post Total:</Text>
-                    <Text style={styles.timeValue}>{(preValue + postValue).toFixed(1)}h</Text>
+                    <Text style={styles.timeValue}>{(preValue + postValue).toFixed(2)}h</Text>
                   </View>
                 </>
               ) : (
                 <View style={styles.timeInfo}>
                   <Text style={styles.timeLabel}>Pre/Post:</Text>
-                  <Text style={styles.timeValue}>{prePostValue?.toFixed(1) || '0.0'}h</Text>
+                  <Text style={styles.timeValue}>{prePostValue?.toFixed(2) || '0.00'}h</Text>
                 </View>
               )}
               

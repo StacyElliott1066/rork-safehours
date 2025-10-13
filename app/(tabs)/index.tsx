@@ -237,11 +237,11 @@ export default function ActivitiesScreen() {
                         <Text style={styles.tableCell}>{formatDate(activity.date, 'short')}</Text>
                         <Text style={styles.tableCell}>{activity.startTime}</Text>
                         <Text style={styles.tableCell}>{activity.endTime}</Text>
-                        <Text style={styles.tableCell}>{(duration / 60).toFixed(1)}</Text>
+                        <Text style={styles.tableCell}>{(duration / 60).toFixed(2)}</Text>
                         <Text style={[styles.tableCell, styles.typeCell, { color: getTypeColor(activity.type) }]}>
                           {activity.type}
                         </Text>
-                        <Text style={styles.tableCell}>{(activity.prePostValue || 0).toFixed(1)}</Text>
+                        <Text style={styles.tableCell}>{(activity.prePostValue || 0).toFixed(2)}</Text>
                         <View style={styles.actionCell}>
                           <TouchableOpacity 
                             style={styles.actionButton} 

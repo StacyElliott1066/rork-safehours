@@ -64,7 +64,7 @@ export default function PrePostValueInput({ value, onChange, disabled = false }:
                         styles.valueItemText,
                         value === item && styles.selectedValueItemText
                       ]}>
-                        {item.toFixed(1)}
+                        {item.toFixed(2)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -100,7 +100,7 @@ export default function PrePostValueInput({ value, onChange, disabled = false }:
         disabled={disabled}
       >
         <Text style={[styles.inputText, disabled && styles.disabledText]}>
-          {value.toFixed(1)}
+          {value.toFixed(2)}
         </Text>
       </TouchableOpacity>
       

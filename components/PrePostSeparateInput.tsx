@@ -81,7 +81,7 @@ export default function PrePostSeparateInput({
                         styles.valueItemText,
                         currentValue === item && styles.selectedValueItemText
                       ]}>
-                        {item.toFixed(1)}
+                        {item.toFixed(2)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -119,7 +119,7 @@ export default function PrePostSeparateInput({
             disabled={disabled}
           >
             <Text style={[styles.inputText, disabled && styles.disabledText]}>
-              {preValue.toFixed(1)}
+              {preValue.toFixed(2)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -135,14 +135,14 @@ export default function PrePostSeparateInput({
             disabled={disabled}
           >
             <Text style={[styles.inputText, disabled && styles.disabledText]}>
-              {postValue.toFixed(1)}
+              {postValue.toFixed(2)}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
       
       <View style={styles.totalContainer}>
-        <Text style={styles.totalLabel}>Total Pre/Post: {totalPrePost.toFixed(1)} hours</Text>
+        <Text style={styles.totalLabel}>Total Pre/Post: {totalPrePost.toFixed(2)} hours</Text>
       </View>
       
       <Text style={styles.helperText}>

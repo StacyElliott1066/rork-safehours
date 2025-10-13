@@ -377,22 +377,22 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
       <View style={styles.legendContainer}>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: COLORS.flight }]} />
-          <Text style={styles.legendText}>Flight: {totalFlightHours.toFixed(1)}h</Text>
+          <Text style={styles.legendText}>Flight: {totalFlightHours.toFixed(2)}h</Text>
         </View>
         
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: COLORS.ground }]} />
-          <Text style={styles.legendText}>Ground: {totalGroundHours.toFixed(1)}h</Text>
+          <Text style={styles.legendText}>Ground: {totalGroundHours.toFixed(2)}h</Text>
         </View>
         
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: COLORS.sim }]} />
-          <Text style={styles.legendText}>SIM: {totalSimHours.toFixed(1)}h</Text>
+          <Text style={styles.legendText}>SIM: {totalSimHours.toFixed(2)}h</Text>
         </View>
         
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: COLORS.primary }]} />
-          <Text style={styles.legendText}>Pre/Post: {totalPrePostHours.toFixed(1)}h</Text>
+          <Text style={styles.legendText}>Pre/Post: {totalPrePostHours.toFixed(2)}h</Text>
         </View>
       </View>
       
@@ -402,14 +402,14 @@ export default function WeeklyChart({ activities, date }: WeeklyChartProps) {
           styles.totalValue,
           totalWeeklyHours > 40 ? styles.warningValue : null
         ]}>
-          {totalWeeklyHours.toFixed(1)}h
+          {totalWeeklyHours.toFixed(2)}h
         </Text>
       </View>
       
       {daysWithActivities > 0 ? (
         <View style={styles.averageContainer}>
           <Text style={styles.averageText}>
-            Average: {averageHoursPerDay.toFixed(1)}h per day ({daysWithActivities} days worked)
+            Average: {averageHoursPerDay.toFixed(2)}h per day ({daysWithActivities} days worked)
           </Text>
         </View>
       ) : null}

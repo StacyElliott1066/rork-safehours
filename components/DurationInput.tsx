@@ -25,7 +25,7 @@ export default function DurationInput({
     if (!isEditing && startTime && endTime) {
       try {
         const durationMinutes = calculateDuration(startTime, endTime);
-        const durationHours = (durationMinutes / 60).toFixed(1);
+        const durationHours = (durationMinutes / 60).toFixed(2);
         setDurationText(durationHours);
       } catch (error) {
         console.error("Error calculating duration:", error);
@@ -49,7 +49,7 @@ export default function DurationInput({
       // Reset to calculated duration if invalid input
       try {
         const durationMinutes = calculateDuration(startTime, endTime);
-        const durationHours = (durationMinutes / 60).toFixed(1);
+        const durationHours = (durationMinutes / 60).toFixed(2);
         setDurationText(durationHours);
       } catch (error) {
         console.error("Error calculating duration on blur:", error);
@@ -67,7 +67,7 @@ export default function DurationInput({
       // Reset to calculated duration if invalid input
       try {
         const durationMinutes = calculateDuration(startTime, endTime);
-        const durationHours = (durationMinutes / 60).toFixed(1);
+        const durationHours = (durationMinutes / 60).toFixed(2);
         setDurationText(durationHours);
       } catch (error) {
         console.error("Error calculating duration on done press:", error);
