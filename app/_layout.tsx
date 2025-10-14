@@ -3,9 +3,10 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { Platform } from "react-native";
 
 import { ErrorBoundary } from "./error-boundary";
+import { useActivityStore } from "@/store/activityStore";
+import { getCurrentDate } from "@/utils/time";
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -45,6 +46,12 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const setSelectedDate = useActivityStore((state) => state.setSelectedDate);
+
+  useEffect(() => {
+    setSelectedDate(getCurrentDate());
+  }, [setSelectedDate]);
+
   return (
     <Stack
       screenOptions={{
