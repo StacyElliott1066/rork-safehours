@@ -49,8 +49,10 @@ function RootLayoutNav() {
   const setSelectedDate = useActivityStore((state) => state.setSelectedDate);
 
   useEffect(() => {
-    setSelectedDate(getCurrentDate());
-  }, [setSelectedDate]);
+    // Always set to current date when app opens
+    const currentDate = getCurrentDate();
+    setSelectedDate(currentDate);
+  }, []);
 
   return (
     <Stack
