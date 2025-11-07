@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
-    color: COLORS.black,
+    color: COLORS.gray,
   },
   customInputRow: {
     flexDirection: 'row',
