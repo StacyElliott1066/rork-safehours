@@ -155,9 +155,7 @@ export default function PrePostSeparateInput({
                   <Text style={styles.customSubmitButtonText}>Set</Text>
                 </TouchableOpacity>
               </View>
-              {customError ? (
-                <Text style={styles.errorText}>{customError}</Text>
-              ) : null}
+              {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
             </View>
             
             <TouchableOpacity
