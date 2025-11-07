@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { COLORS } from '@/constants/colors';
 
 interface PrePostSeparateInputProps {
@@ -41,18 +41,44 @@ export default function PrePostSeparateInput({
     setShowPostSelector(false);
   };
   
+  const [customPreValue, setCustomPreValue] = useState('');
+  const [customPostValue, setCustomPostValue] = useState('');
+  
+  const handleCustomPreSubmit = () => {
+    const numValue = parseFloat(customPreValue);
+    if (!isNaN(numValue) && numValue >= 0 && numValue <= 1) {
+      onPreChange(numValue);
+      setCustomPreValue('');
+      setShowPreSelector(false);
+    }
+  };
+  
+  const handleCustomPostSubmit = () => {
+    const numValue = parseFloat(customPostValue);
+    if (!isNaN(numValue) && numValue >= 0 && numValue <= 1) {
+      onPostChange(numValue);
+      setCustomPostValue('');
+      setShowPostSelector(false);
+    }
+  };
+  
   const renderValueSelector = (
     isVisible: boolean,
     onClose: () => void,
     onSelect: (value: number) => void,
     currentValue: number,
-    title: string
+    title: string,
+    isPre: boolean
   ) => {
     // Create chunks of 3 values for the grid layout (since we have fewer values now)
     const chunkedValues = [];
     for (let i = 0; i < values.length; i += 3) {
       chunkedValues.push(values.slice(i, i + 3));
     }
+    
+    const customValue = isPre ? customPreValue : customPostValue;
+    const setCustomValue = isPre ? setCustomPreValue : setCustomPostValue;
+    const handleCustomSubmit = isPre ? handleCustomPreSubmit : handleCustomPostSubmit;
     
     return (
       <Modal
@@ -87,6 +113,27 @@ export default function PrePostSeparateInput({
                   ))}
                 </View>
               ))}
+            </View>
+            
+            <View style={styles.customInputContainer}>
+              <Text style={styles.customInputLabel}>Or enter custom value:</Text>
+              <View style={styles.customInputRow}>
+                <TextInput
+                  style={styles.customInput}
+                  value={customValue}
+                  onChangeText={setCustomValue}
+                  keyboardType="decimal-pad"
+                  placeholder="0.00"
+                  placeholderTextColor={COLORS.gray}
+                  onSubmitEditing={handleCustomSubmit}
+                />
+                <TouchableOpacity
+                  style={styles.customSubmitButton}
+                  onPress={handleCustomSubmit}
+                >
+                  <Text style={styles.customSubmitButtonText}>Set</Text>
+                </TouchableOpacity>
+              </View>
             </View>
             
             <TouchableOpacity
@@ -154,7 +201,8 @@ export default function PrePostSeparateInput({
         () => setShowPreSelector(false),
         handlePreSelect,
         preValue,
-        'Select Pre Value'
+        'Select Pre Value',
+        true
       )}
       
       {renderValueSelector(
@@ -162,7 +210,8 @@ export default function PrePostSeparateInput({
         () => setShowPostSelector(false),
         handlePostSelect,
         postValue,
-        'Select Post Value'
+        'Select Post Value',
+        false
       )}
     </View>
   );
@@ -296,5 +345,43 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  customInputContainer: {
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.lightGray,
+  },
+  customInputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: COLORS.black,
+  },
+  customInputRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  customInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    fontSize: 16,
+  },
+  customSubmitButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customSubmitButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.white,
   },
 });
