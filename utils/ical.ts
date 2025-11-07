@@ -57,7 +57,7 @@ const activityToVEVENT = (activity: Activity): string => {
   const { type, date, startTime, endTime, notes, prePostValue } = activity;
   
   // Calculate pre/post time adjustments (in minutes)
-  const prePostMinutes = ['Flight', 'SIM'].includes(type) ? prePostValue * 60 : 0;
+  const prePostMinutes = ['Flight', 'SIM'].includes(type) ? (prePostValue || 0) * 60 : 0;
   const preMinutes = prePostMinutes / 2;
   const postMinutes = prePostMinutes / 2;
   
@@ -92,7 +92,7 @@ const activityToVEVENT = (activity: Activity): string => {
   // Create summary and description
   const summary = `SafeHours: ${type} Activity`;
   const description = `Type: ${type}
-${prePostValue > 0 ? `Pre/Post Value: ${prePostValue} hours` : ''}
+${(prePostValue || 0) > 0 ? `Pre/Post Value: ${prePostValue} hours` : ''}
 ${notes ? `Notes: ${notes}` : ''}`;
   
   // Generate VEVENT
@@ -220,7 +220,7 @@ const parseVEVENT = (veventBlock: string): Activity | null => {
     }
     
     // Default activity type
-    let activityType: 'Flight' | 'Ground' | 'SIM' | 'Other' = 'Other';
+    let activityType: 'Flight' | 'Ground' | 'SIM' | 'Other Internal' | 'Other External' = 'Other Internal';
     let prePostValue = 0;
     let notes = '';
     
@@ -236,9 +236,12 @@ const parseVEVENT = (veventBlock: string): Activity | null => {
     // Parse description for more details
     if (description) {
       // Look for type information
-      const typeMatch = description.match(/Type:\s*(\w+)/i);
-      if (typeMatch && ['Flight', 'Ground', 'SIM', 'Other'].includes(typeMatch[1])) {
-        activityType = typeMatch[1] as any;
+      const typeMatch = description.match(/Type:\s*(.+?)(?:\n|$)/i);
+      if (typeMatch) {
+        const matchedType = typeMatch[1].trim();
+        if (['Flight', 'Ground', 'SIM', 'Other Internal', 'Other External'].includes(matchedType)) {
+          activityType = matchedType as any;
+        }
       }
       
       // Look for pre/post value
@@ -266,6 +269,8 @@ const parseVEVENT = (veventBlock: string): Activity | null => {
       date,
       startTime,
       endTime,
+      preValue: prePostValue / 2,
+      postValue: prePostValue / 2,
       prePostValue,
       notes: notes || undefined
     };

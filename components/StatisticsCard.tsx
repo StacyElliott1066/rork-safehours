@@ -45,10 +45,11 @@ export default function StatisticsCard({ activities, date }: StatisticsCardProps
   
   const weekDates = getWeekDates(date);
   
-  // Filter activities for the current week (excluding 'Other' type)
+  // Filter activities for the current week (excluding 'Other Internal' and 'Other External' types)
   const weekActivities = activities.filter(activity => 
     weekDates.includes(activity.date) && 
-    activity.type !== 'Other'
+    activity.type !== 'Other Internal' && 
+    activity.type !== 'Other External'
   );
   
   // Count activities by type

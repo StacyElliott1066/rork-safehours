@@ -1,5 +1,5 @@
 import { Activity } from '@/types/activity';
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import { Platform, Alert, Share } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -38,13 +38,13 @@ export const exportActivities = async (activities: Activity[]): Promise<boolean>
     } else {
       // Native implementation
       const csv = activitiesToCSV(activities);
-      const fileUri = `${FileSystem.documentDirectory}safehours_export_${new Date().toISOString().split('T')[0]}.csv`;
-      await FileSystem.writeAsStringAsync(fileUri, csv);
+      const file = new File(Paths.cache, `safehours_export_${new Date().toISOString().split('T')[0]}.csv`);
+      file.write(csv);
       
       try {
         // Try to share the file
         await Share.share({
-          url: fileUri,
+          url: file.uri,
           title: 'SafeHours Export',
           message: 'Here is your SafeHours data export'
         });
@@ -53,7 +53,7 @@ export const exportActivities = async (activities: Activity[]): Promise<boolean>
         // If sharing fails, just inform the user where the file is saved
         Alert.alert(
           'File Saved',
-          `Your data has been exported to:\n${fileUri}\n\nYou can access this file using the Files app.`
+          `Your data has been exported to:\n${file.uri}\n\nYou can access this file using the Files app.`
         );
       }
       
@@ -105,6 +105,7 @@ export const parseCSV = (csvString: string): Activity[] => {
     fields.push(currentField); // Add the last field
     
     // Create activity object
+    const prePostValue = Number(fields[header.indexOf('prePostValue')]) || 0;
     const activity: Activity = {
       // Use existing ID if present, otherwise generate a new one
       id: header.includes('id') && fields[header.indexOf('id')] ? 
@@ -114,7 +115,9 @@ export const parseCSV = (csvString: string): Activity[] => {
       date: fields[header.indexOf('date')],
       startTime: fields[header.indexOf('startTime')],
       endTime: fields[header.indexOf('endTime')],
-      prePostValue: Number(fields[header.indexOf('prePostValue')]),
+      preValue: prePostValue / 2,
+      postValue: prePostValue / 2,
+      prePostValue: prePostValue,
     };
     
     // Add notes if present
@@ -182,8 +185,9 @@ export const importActivities = async (): Promise<Activity[] | null> => {
         let csvString;
         
         try {
-          // Try to read the file with FileSystem
-          csvString = await FileSystem.readAsStringAsync(fileUri);
+          // Try to read the file with new FileSystem API
+          const file = new File(fileUri);
+          csvString = await file.text();
         } catch (fsError) {
           console.error('Error reading file with FileSystem:', fsError);
           

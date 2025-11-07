@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { Platform, Share } from 'react-native';
 import { Activity } from '@/types/activity';
@@ -57,33 +57,33 @@ export const exportActivitiesToICS = async (activities: Activity[]): Promise<boo
     
     icsContent += 'END:VCALENDAR\r\n';
     
-    // Save to a temporary file
-    const fileUri = `${FileSystem.cacheDirectory}activities.ics`;
-    await FileSystem.writeAsStringAsync(fileUri, icsContent);
-    
-    // Check if running on web - FIX: Use Platform.OS === 'web' with type assertion
-    if (Platform.OS === 'web' as any) {
-      // For web, create a download link
-      const blob = new Blob([icsContent], { type: 'text/calendar' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'safehours_activities.ics';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      return true;
-    } else {
-      // For mobile, use Share API
+    // For mobile platforms
+    if (Platform.OS !== 'web') {
+      // Save to a temporary file
+      const file = new File(Paths.cache, 'activities.ics');
+      file.write(icsContent);
+      
+      // Use Share API
       await Share.share({
-        url: fileUri,
+        url: file.uri,
         title: 'Export Activities',
         message: 'SafeHours Activities'
       });
       
       return true;
     }
+    
+    // For web, create a download link
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'safehours_activities.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
   } catch (error) {
     console.error('Error exporting activities to iCalendar:', error);
     return false;
@@ -148,7 +148,8 @@ export const importActivitiesFromICS = async (): Promise<Activity[] | null> => {
       let fileContent;
       try {
         // For native platforms
-        fileContent = await FileSystem.readAsStringAsync(fileUri);
+        const file = new File(fileUri);
+        fileContent = await file.text();
       } catch (error) {
         console.error('Error reading file with FileSystem:', error);
         // Fallback to fetch API
