@@ -52,8 +52,8 @@ export default function PrePostSeparateInput({
       setCustomPreError('Please enter a valid number');
       return;
     }
-    if (numValue < 0 || numValue > 1) {
-      setCustomPreError('Value must be between 0 and 1');
+    if (numValue < 0 || numValue > 3) {
+      setCustomPreError('Value must be between 0 and 3');
       return;
     }
     onPreChange(numValue);
@@ -68,8 +68,8 @@ export default function PrePostSeparateInput({
       setCustomPostError('Please enter a valid number');
       return;
     }
-    if (numValue < 0 || numValue > 1) {
-      setCustomPostError('Value must be between 0 and 1');
+    if (numValue < 0 || numValue > 3) {
+      setCustomPostError('Value must be between 0 and 3');
       return;
     }
     onPostChange(numValue);
@@ -217,7 +217,7 @@ export default function PrePostSeparateInput({
       </View>
       
       <Text style={styles.helperText}>
-        Enter values between 0 and 1 hour for each
+        Enter values between 0 and 3 hours for each
       </Text>
       
       {renderValueSelector(
