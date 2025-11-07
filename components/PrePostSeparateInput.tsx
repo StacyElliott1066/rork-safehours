@@ -43,23 +43,39 @@ export default function PrePostSeparateInput({
   
   const [customPreValue, setCustomPreValue] = useState('');
   const [customPostValue, setCustomPostValue] = useState('');
+  const [customPreError, setCustomPreError] = useState('');
+  const [customPostError, setCustomPostError] = useState('');
   
   const handleCustomPreSubmit = () => {
     const numValue = parseFloat(customPreValue);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 1) {
-      onPreChange(numValue);
-      setCustomPreValue('');
-      setShowPreSelector(false);
+    if (isNaN(numValue)) {
+      setCustomPreError('Please enter a valid number');
+      return;
     }
+    if (numValue < 0 || numValue > 1) {
+      setCustomPreError('Value must be between 0 and 1');
+      return;
+    }
+    onPreChange(numValue);
+    setCustomPreValue('');
+    setCustomPreError('');
+    setShowPreSelector(false);
   };
   
   const handleCustomPostSubmit = () => {
     const numValue = parseFloat(customPostValue);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 1) {
-      onPostChange(numValue);
-      setCustomPostValue('');
-      setShowPostSelector(false);
+    if (isNaN(numValue)) {
+      setCustomPostError('Please enter a valid number');
+      return;
     }
+    if (numValue < 0 || numValue > 1) {
+      setCustomPostError('Value must be between 0 and 1');
+      return;
+    }
+    onPostChange(numValue);
+    setCustomPostValue('');
+    setCustomPostError('');
+    setShowPostSelector(false);
   };
   
   const renderValueSelector = (
@@ -79,6 +95,8 @@ export default function PrePostSeparateInput({
     const customValue = isPre ? customPreValue : customPostValue;
     const setCustomValue = isPre ? setCustomPreValue : setCustomPostValue;
     const handleCustomSubmit = isPre ? handleCustomPreSubmit : handleCustomPostSubmit;
+    const customError = isPre ? customPreError : customPostError;
+    const setCustomError = isPre ? setCustomPreError : setCustomPostError;
     
     return (
       <Modal
@@ -121,7 +139,10 @@ export default function PrePostSeparateInput({
                 <TextInput
                   style={styles.customInput}
                   value={customValue}
-                  onChangeText={setCustomValue}
+                  onChangeText={(text) => {
+                    setCustomValue(text);
+                    setCustomError('');
+                  }}
                   keyboardType="decimal-pad"
                   placeholder="0.00"
                   placeholderTextColor={COLORS.gray}
@@ -134,6 +155,9 @@ export default function PrePostSeparateInput({
                   <Text style={styles.customSubmitButtonText}>Set</Text>
                 </TouchableOpacity>
               </View>
+              {customError ? (
+                <Text style={styles.errorText}>{customError}</Text>
+              ) : null}
             </View>
             
             <TouchableOpacity
@@ -384,5 +408,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#ff4444',
+    marginTop: 4,
   },
 });
