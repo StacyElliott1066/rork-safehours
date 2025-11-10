@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, S
 import { Clock, Check, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { getCurrentTime, parseTimeInput } from '@/utils/time';
+import NumericKeyboard from './NumericKeyboard';
 
 interface TimeInputProps {
   label: string;
@@ -200,17 +201,7 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
             }}
             selectTextOnFocus={true}
           />
-          {keyboardVisible && Platform.OS !== 'web' && (
-            <View style={styles.keyboardToolbar}>
-              <Text style={styles.keyboardValue}>{directInput || value}</Text>
-              <TouchableOpacity
-                style={styles.closeLink}
-                onPress={handleKeyboardClose}
-              >
-                <Text style={styles.closeLinkText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+
         </TouchableOpacity>
         
         {isDirectEditing ? (
@@ -237,6 +228,30 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
           </TouchableOpacity>
         )}
       </View>
+
+      {keyboardVisible && Platform.OS !== 'web' && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={keyboardVisible}
+          onRequestClose={handleKeyboardClose}
+        >
+          <TouchableOpacity 
+            style={styles.keyboardModalOverlay}
+            activeOpacity={1}
+            onPress={handleKeyboardClose}
+          >
+            <View style={styles.keyboardContainer}>
+              <NumericKeyboard
+                value={directInput}
+                onValueChange={handleDirectInputChange}
+                onDone={handleDonePress}
+                allowDecimal={false}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
 
       <Modal
         animationType="slide"
@@ -481,33 +496,12 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: '600',
   },
-  keyboardToolbar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.lightGray,
+  keyboardModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
-  keyboardValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-  },
-  closeLink: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  closeLinkText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.primary,
-    textDecorationLine: 'underline',
+  keyboardContainer: {
+    backgroundColor: '#D3D6DB',
   },
 });

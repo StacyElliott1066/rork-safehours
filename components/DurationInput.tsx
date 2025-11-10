@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Platform, Modal } from 'react-native';
 import { COLORS } from '@/constants/colors';
 import { calculateDuration } from '@/utils/time';
 import { Check, X } from 'lucide-react-native';
+import NumericKeyboard from './NumericKeyboard';
 
 interface DurationInputProps {
   startTime: string;
@@ -127,17 +128,7 @@ export default function DurationInput({
             placeholder="0.0"
             selectTextOnFocus={true}
           />
-          {keyboardVisible && Platform.OS !== 'web' && (
-            <View style={styles.keyboardToolbar}>
-              <Text style={styles.keyboardValue}>{durationText}</Text>
-              <TouchableOpacity
-                style={styles.closeLink}
-                onPress={handleKeyboardClose}
-              >
-                <Text style={styles.closeLinkText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+
         </TouchableOpacity>
         
         {isEditing && !keyboardVisible && (
@@ -157,6 +148,30 @@ export default function DurationInput({
           </View>
         )}
       </View>
+
+      {keyboardVisible && Platform.OS !== 'web' && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={keyboardVisible}
+          onRequestClose={handleKeyboardClose}
+        >
+          <TouchableOpacity 
+            style={styles.keyboardModalOverlay}
+            activeOpacity={1}
+            onPress={handleKeyboardClose}
+          >
+            <View style={styles.keyboardContainer}>
+              <NumericKeyboard
+                value={durationText}
+                onValueChange={handleDurationChange}
+                onDone={handleDonePress}
+                allowDecimal={true}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -211,33 +226,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  keyboardToolbar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.lightGray,
+  keyboardModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
-  keyboardValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-  },
-  closeLink: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  closeLinkText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.primary,
-    textDecorationLine: 'underline',
+  keyboardContainer: {
+    backgroundColor: '#D3D6DB',
   },
 });
