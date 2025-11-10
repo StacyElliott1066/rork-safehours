@@ -88,10 +88,13 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
       }
     }
     
+    setKeyboardVisible(false);
     setIsDirectEditing(false);
     setDirectInput('');
-    setKeyboardVisible(false);
-    inputRef.current?.blur();
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+    Keyboard.dismiss();
   };
 
   const handleCancelPress = () => {

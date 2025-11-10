@@ -42,11 +42,12 @@ export default function NumericKeyboard({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <Text style={styles.valueDisplay}>{value || '0'}</Text>
         <TouchableOpacity
           style={styles.doneButton}
           onPress={onDone}
         >
-          <Text style={styles.doneText}>Done</Text>
+          <Text style={styles.doneText}>Close</Text>
         </TouchableOpacity>
       </View>
       
@@ -102,11 +103,16 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#D3D6DB',
+  },
+  valueDisplay: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
   },
   doneButton: {
     paddingVertical: 8,
@@ -115,7 +121,7 @@ const styles = StyleSheet.create({
   doneText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#2d5f1e',
     textDecorationLine: 'underline',
   },
   keyboard: {
