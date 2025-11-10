@@ -218,7 +218,7 @@ export default function SettingsScreen() {
             <Text style={styles.modalTitle}>Change Log</Text>
             <ScrollView style={styles.modalScroll}>
               <Text style={styles.modalText}>
-                11/10/25: Target Date will now default to the current date. Pre/Post time can now be manually inputed up to 3 hours each.
+                11/10/25: Target Date will now default to the current date.{"\n"}Pre/Post time can now be manually inputed up to 3 hours each.
               </Text>
               <Text style={styles.modalText}>
                 10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours.
