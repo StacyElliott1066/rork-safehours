@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView, Keyboard } from 'react-native';
-import { Clock } from 'lucide-react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView } from 'react-native';
+import { Clock, Check, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
-import { parseTimeInput } from '@/utils/time';
+import { getCurrentTime, parseTimeInput } from '@/utils/time';
 
 interface TimeInputProps {
   label: string;
@@ -13,66 +13,210 @@ interface TimeInputProps {
 
 export default function TimeInput({ label, value, onChangeText, onFocus }: TimeInputProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [customInput, setCustomInput] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const customInputRef = useRef<TextInput>(null);
+  const [hours, setHours] = useState(value?.split(':')[0] || '00');
+  const [minutes, setMinutes] = useState(value?.split(':')[1] || '00');
+  const [directInput, setDirectInput] = useState('');
+  const [isDirectEditing, setIsDirectEditing] = useState(false);
+  
+  const hoursScrollViewRef = useRef<ScrollView>(null);
+  const minutesScrollViewRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
 
-
-
-  const generateTimeOptions = () => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const h = hour.toString().padStart(2, '0');
-        const m = minute.toString().padStart(2, '0');
-        options.push(`${h}:${m}`);
+  // Update hours and minutes when value changes (for edit mode)
+  useEffect(() => {
+    if (value) {
+      const parts = value.split(':');
+      if (parts.length === 2) {
+        setHours(parts[0] || '00');
+        setMinutes(parts[1] || '00');
       }
+    }
+  }, [value]);
+
+  const handleDirectInputChange = (text: string) => {
+    setDirectInput(text);
+  };
+
+  const handleDirectInputBlur = () => {
+    setIsDirectEditing(false);
+    
+    if (directInput) {
+      const formattedTime = parseTimeInput(directInput);
+      if (formattedTime) {
+        onChangeText(formattedTime);
+      }
+    }
+    
+    setDirectInput('');
+  };
+
+  const handleDirectInputFocus = () => {
+    onFocus?.();
+    setIsDirectEditing(true);
+    // Set the raw value for editing
+    setDirectInput(value || '');
+    
+    // Select all text when focused - only on native platforms
+    if (Platform.OS !== 'web' && inputRef.current) {
+      // Small delay to ensure selection works
+      setTimeout(() => {
+        if (inputRef.current) {
+          // Check if setSelection exists before calling it
+          try {
+            // Only call setSelection on native platforms
+            if (Platform.OS !== 'web') {
+              // On native platforms, we can use the selection prop instead
+              // This is safer than trying to call setSelection directly
+              inputRef.current.focus();
+            }
+          } catch (error) {
+            console.log('Selection not supported on this platform');
+          }
+        }
+      }, 50);
+    }
+  };
+
+  const handleDonePress = () => {
+    if (directInput) {
+      const formattedTime = parseTimeInput(directInput);
+      if (formattedTime) {
+        onChangeText(formattedTime);
+      }
+    }
+    
+    setIsDirectEditing(false);
+    setDirectInput('');
+    inputRef.current?.blur();
+  };
+
+  const handleCancelPress = () => {
+    setIsDirectEditing(false);
+    setDirectInput('');
+    inputRef.current?.blur();
+  };
+
+  const generateTimeOptions = (max: number) => {
+    const options = [];
+    for (let i = 0; i < max; i++) {
+      options.push(i.toString().padStart(2, '0'));
     }
     return options;
   };
 
-  const timeOptions = generateTimeOptions();
+  const hourOptions = generateTimeOptions(24);
+  const minuteOptions = generateTimeOptions(60);
 
-  const handleTimeSelect = (time: string) => {
-    onChangeText(time);
+  const confirmTime = () => {
+    const formattedTime = `${hours}:${minutes}`;
+    onChangeText(formattedTime);
     setModalVisible(false);
   };
 
-  const handleCustomInputSubmit = () => {
-    if (customInput) {
-      const formattedTime = parseTimeInput(customInput);
-      if (formattedTime) {
-        onChangeText(formattedTime);
-        setModalVisible(false);
-        setShowCustomInput(false);
-        setCustomInput('');
+  const openTimePicker = () => {
+    // Use current time if value is empty
+    if (!value) {
+      const currentTime = getCurrentTime();
+      const [currentHours, currentMinutes] = currentTime.split(':');
+      setHours(currentHours);
+      setMinutes(currentMinutes);
+    } else {
+      // Use existing value
+      const parts = value.split(':');
+      if (parts.length === 2) {
+        setHours(parts[0] || '00');
+        setMinutes(parts[1] || '00');
+      } else {
+        // Handle invalid value
+        const currentTime = getCurrentTime();
+        const [currentHours, currentMinutes] = currentTime.split(':');
+        setHours(currentHours);
+        setMinutes(currentMinutes);
       }
     }
-    Keyboard.dismiss();
-  };
-
-  const openTimePicker = () => {
-    onFocus?.();
     setModalVisible(true);
-    setShowCustomInput(false);
-    setCustomInput('');
+    
+    // Schedule scrolling to the selected values after the modal is visible
+    setTimeout(() => {
+      scrollToSelectedTime();
+    }, 300);
+  };
+  
+  const scrollToSelectedTime = () => {
+    // Scroll to selected hour
+    if (hoursScrollViewRef.current) {
+      const hourIndex = hourOptions.indexOf(hours);
+      if (hourIndex !== -1) {
+        hoursScrollViewRef.current.scrollTo({ 
+          y: hourIndex * 50 - 50, // 50 is the height of each item, subtract 50 to center
+          animated: false 
+        });
+      }
+    }
+    
+    // Scroll to selected minute
+    if (minutesScrollViewRef.current) {
+      const minuteIndex = minuteOptions.indexOf(minutes);
+      if (minuteIndex !== -1) {
+        minutesScrollViewRef.current.scrollTo({ 
+          y: minuteIndex * 50 - 50, 
+          animated: false 
+        });
+      }
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <TouchableOpacity 
-        style={styles.inputContainer}
-        onPress={openTimePicker}
-      >
-        <Text style={styles.inputText}>
-          {value || 'HH:MM'}
-        </Text>
-        <Clock color={COLORS.primary} size={20} />
-      </TouchableOpacity>
+      <View style={styles.inputContainer}>
+        <TouchableOpacity 
+          style={[
+            styles.timeTextContainer,
+            isDirectEditing && styles.activeInputContainer
+          ]}
+          onPress={() => inputRef.current?.focus()}
+        >
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            value={isDirectEditing ? directInput : value}
+            onChangeText={handleDirectInputChange}
+            placeholder="HH:MM"
+            keyboardType="numeric"
+            onFocus={handleDirectInputFocus}
+            onBlur={handleDirectInputBlur}
+            selectTextOnFocus={true}
+          />
+        </TouchableOpacity>
+        
+        {isDirectEditing ? (
+          <View style={styles.editButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={handleCancelPress}
+            >
+              <X color={COLORS.white} size={18} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.doneButton} 
+              onPress={handleDonePress}
+            >
+              <Check color={COLORS.white} size={18} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={openTimePicker}
+          >
+            <Clock color={COLORS.primary} size={20} />
+          </TouchableOpacity>
+        )}
+      </View>
 
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
@@ -81,101 +225,85 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Time</Text>
             
-            {!showCustomInput ? (
-              <>
-                <ScrollView 
-                  style={styles.timeScroll}
-                  contentContainerStyle={styles.timeScrollContent}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <View style={styles.timeGrid}>
-                    {timeOptions.map((time) => {
-                      const timeChunks = [];
-                      for (let i = 0; i < timeOptions.length; i += 4) {
-                        timeChunks.push(timeOptions.slice(i, i + 4));
-                      }
-                      return null;
-                    })}
-                    {(() => {
-                      const timeChunks = [];
-                      for (let i = 0; i < timeOptions.length; i += 4) {
-                        timeChunks.push(timeOptions.slice(i, i + 4));
-                      }
-                      return timeChunks.map((row, rowIndex) => (
-                        <View key={`row-${rowIndex}`} style={styles.timeRow}>
-                          {row.map((time) => (
-                            <TouchableOpacity
-                              key={time}
-                              style={[
-                                styles.timeItem,
-                                value === time && styles.selectedTimeItem
-                              ]}
-                              onPress={() => handleTimeSelect(time)}
-                            >
-                              <Text style={[
-                                styles.timeItemText,
-                                value === time && styles.selectedTimeItemText
-                              ]}>
-                                {time}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      ));
-                    })()}
-                  </View>
-                </ScrollView>
-                
-                <TouchableOpacity
-                  style={styles.customInputButton}
-                  onPress={() => setShowCustomInput(true)}
-                >
-                  <Text style={styles.customInputButtonText}>
-                    Or enter a custom time:
-                  </Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <Text style={styles.customInputLabel}>Enter time (HH:MM or HHMM):</Text>
-                <TextInput
-                  ref={customInputRef}
-                  style={styles.customInput}
-                  value={customInput}
-                  onChangeText={setCustomInput}
-                  placeholder="e.g., 14:30 or 1430"
-                  keyboardType="numeric"
-                  autoFocus
-                />
-                
-                <View style={styles.customInputButtons}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.backButton]}
-                    onPress={() => {
-                      setShowCustomInput(false);
-                      setCustomInput('');
-                      Keyboard.dismiss();
-                    }}
+            <View style={styles.timePickerContainer}>
+              <View style={styles.pickerColumn}>
+                <Text style={styles.pickerLabel}>Hours</Text>
+                <View style={styles.pickerWrapper}>
+                  <ScrollView 
+                    ref={hoursScrollViewRef}
+                    style={styles.picker}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.pickerContent}
                   >
-                    <Text style={styles.backButtonText}>Back</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={[styles.button, styles.submitButton]}
-                    onPress={handleCustomInputSubmit}
-                  >
-                    <Text style={styles.submitButtonText}>Done</Text>
-                  </TouchableOpacity>
+                    {hourOptions.map((hour) => (
+                      <TouchableOpacity
+                        key={`hour-${hour}`}
+                        style={[
+                          styles.pickerItem,
+                          hours === hour && styles.selectedPickerItem
+                        ]}
+                        onPress={() => setHours(hour)}
+                      >
+                        <Text style={[
+                          styles.pickerItemText,
+                          hours === hour && styles.selectedPickerItemText
+                        ]}>
+                          {hour}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
                 </View>
-              </>
-            )}
+              </View>
+              
+              <Text style={styles.timeSeparator}>:</Text>
+              
+              <View style={styles.pickerColumn}>
+                <Text style={styles.pickerLabel}>Minutes</Text>
+                <View style={styles.pickerWrapper}>
+                  <ScrollView 
+                    ref={minutesScrollViewRef}
+                    style={styles.picker}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.pickerContent}
+                  >
+                    {minuteOptions.map((minute) => (
+                      <TouchableOpacity
+                        key={`minute-${minute}`}
+                        style={[
+                          styles.pickerItem,
+                          minutes === minute && styles.selectedPickerItem
+                        ]}
+                        onPress={() => setMinutes(minute)}
+                      >
+                        <Text style={[
+                          styles.pickerItemText,
+                          minutes === minute && styles.selectedPickerItemText
+                        ]}>
+                          {minute}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButtonStyle]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.button, styles.confirmButtonStyle]}
+                onPress={confirmTime}
+              >
+                <Text style={styles.confirmButtonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -197,15 +325,41 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 8,
+    overflow: 'hidden',
+  },
+  timeTextContainer: {
+    flex: 1,
+  },
+  activeInputContainer: {
+    borderRightWidth: 0,
+  },
+  input: {
+    flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    fontSize: 14,
   },
-  inputText: {
-    fontSize: 16,
+  iconButton: {
+    padding: 10,
+    backgroundColor: COLORS.lightGray,
+  },
+  editButtonsContainer: {
+    flexDirection: 'row',
+  },
+  doneButton: {
+    padding: 10,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    padding: 10,
+    backgroundColor: COLORS.gray,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,
@@ -214,11 +368,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '90%',
-    maxHeight: '80%',
+    width: '80%',
     backgroundColor: COLORS.white,
     borderRadius: 12,
-    padding: 16,
+    padding: 20,
+    alignItems: 'center',
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -228,72 +382,57 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    marginBottom: 20,
   },
-  timeScroll: {
-    maxHeight: 400,
-  },
-  timeScrollContent: {
-    paddingBottom: 10,
-  },
-  timeGrid: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeRow: {
+  timePickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 10,
-    width: '100%',
-  },
-  timeItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 5,
-    borderRadius: 8,
-    backgroundColor: COLORS.lightGray,
-    width: 60,
-    height: 45,
-    padding: 5,
+    marginBottom: 20,
   },
-  selectedTimeItem: {
-    backgroundColor: COLORS.primary,
+  pickerColumn: {
+    alignItems: 'center',
   },
-  timeItemText: {
+  pickerLabel: {
     fontSize: 14,
-    fontWeight: '500',
-  },
-  selectedTimeItemText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-  },
-  customInputButton: {
-    marginTop: 16,
-    marginBottom: 10,
-    alignSelf: 'center',
-  },
-  customInputButtonText: {
-    fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
-  customInputLabel: {
-    fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 5,
     color: COLORS.gray,
-    textAlign: 'center',
   },
-  customInput: {
+  pickerWrapper: {
+    height: 150,
+    width: 60,
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    marginBottom: 16,
+    overflow: 'hidden',
   },
-  customInputButtons: {
+  picker: {
+    height: 150,
+  },
+  pickerContent: {
+    paddingVertical: 50, // Add padding to allow scrolling to first and last items
+  },
+  pickerItem: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedPickerItem: {
+    backgroundColor: COLORS.primary + '20', // 20% opacity
+  },
+  pickerItemText: {
+    fontSize: 20,
+  },
+  selectedPickerItemText: {
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  timeSeparator: {
+    fontSize: 24,
+    marginHorizontal: 10,
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
@@ -305,30 +444,18 @@ const styles = StyleSheet.create({
     minWidth: '45%',
     alignItems: 'center',
   },
-  backButton: {
+  cancelButtonStyle: {
     backgroundColor: COLORS.lightGray,
   },
-  submitButton: {
+  confirmButtonStyle: {
     backgroundColor: COLORS.primary,
   },
-  backButtonText: {
+  cancelButtonText: {
     color: COLORS.black,
     fontWeight: '600',
   },
-  submitButtonText: {
+  confirmButtonText: {
     color: COLORS.white,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    marginTop: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 8,
-    alignSelf: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
     fontWeight: '600',
   },
 });
