@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   doneText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#2d5f1e',
+    color: '#1b4d0e',
     textDecorationLine: 'underline',
   },
   keyboard: {

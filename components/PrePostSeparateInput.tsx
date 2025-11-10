@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   closeLinkText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: '#1b4d0e',
     textDecorationLine: 'underline',
   },
 });

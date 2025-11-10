@@ -88,9 +88,10 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
       }
     }
     
-    setKeyboardVisible(false);
     setIsDirectEditing(false);
     setDirectInput('');
+    setKeyboardVisible(false);
+    
     if (inputRef.current) {
       inputRef.current.blur();
     }
