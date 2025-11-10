@@ -216,9 +216,14 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Log</Text>
-            <Text style={styles.modalText}>
-              10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours.
-            </Text>
+            <ScrollView style={styles.modalScroll}>
+              <Text style={styles.modalText}>
+                11/10/25: Target Date will now default to the current date. Pre/Post time can now be manually inputed up to 3 hours each.
+              </Text>
+              <Text style={styles.modalText}>
+                10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours.
+              </Text>
+            </ScrollView>
             <TouchableOpacity 
               style={styles.modalButton}
               onPress={() => setShowChangeLog(false)}
@@ -376,6 +381,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     color: COLORS.black,
+  },
+  modalScroll: {
+    maxHeight: 400,
   },
   modalText: {
     fontSize: 16,
