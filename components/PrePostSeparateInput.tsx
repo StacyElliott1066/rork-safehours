@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { COLORS } from '@/constants/colors';
 
 interface PrePostSeparateInputProps {
@@ -105,7 +105,8 @@ export default function PrePostSeparateInput({
         visible={isVisible}
         onRequestClose={onClose}
       >
-        <View style={styles.modalOverlay}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
           <View style={styles.selectorContent}>
             <Text style={styles.selectorTitle}>{title}</Text>
             
@@ -134,7 +135,7 @@ export default function PrePostSeparateInput({
             </View>
             
             <View style={styles.customInputContainer}>
-              <Text style={styles.customInputLabel}>Or enter custom value:</Text>
+              <Text style={styles.customInputLabel}>Or enter a custom value 0-3 hours:</Text>
               <View style={styles.customInputRow}>
                 <TextInput
                   style={styles.customInput}
@@ -147,6 +148,8 @@ export default function PrePostSeparateInput({
                   placeholder="0.00"
                   placeholderTextColor={COLORS.gray}
                   onSubmitEditing={handleCustomSubmit}
+                  returnKeyType="done"
+                  blurOnSubmit={true}
                 />
                 <TouchableOpacity
                   style={styles.customSubmitButton}
@@ -165,7 +168,8 @@ export default function PrePostSeparateInput({
               <Text style={styles.closeButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        </View>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   };
