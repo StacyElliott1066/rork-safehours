@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import { COLORS } from '@/constants/colors';
 
 interface PrePostSeparateInputProps {
@@ -45,6 +45,8 @@ export default function PrePostSeparateInput({
   const [customPostValue, setCustomPostValue] = useState('');
   const [customPreError, setCustomPreError] = useState('');
   const [customPostError, setCustomPostError] = useState('');
+  const [isCustomPreFocused, setIsCustomPreFocused] = useState(false);
+  const [isCustomPostFocused, setIsCustomPostFocused] = useState(false);
   
   const handleCustomPreSubmit = () => {
     const numValue = parseFloat(customPreValue);
@@ -59,6 +61,8 @@ export default function PrePostSeparateInput({
     onPreChange(numValue);
     setCustomPreValue('');
     setCustomPreError('');
+    setIsCustomPreFocused(false);
+    Keyboard.dismiss();
     setShowPreSelector(false);
   };
   
@@ -75,6 +79,8 @@ export default function PrePostSeparateInput({
     onPostChange(numValue);
     setCustomPostValue('');
     setCustomPostError('');
+    setIsCustomPostFocused(false);
+    Keyboard.dismiss();
     setShowPostSelector(false);
   };
   
@@ -147,9 +153,22 @@ export default function PrePostSeparateInput({
                   keyboardType="decimal-pad"
                   placeholder="0.00"
                   placeholderTextColor={COLORS.gray}
+                  onFocus={() => {
+                    if (isPre) {
+                      setIsCustomPreFocused(true);
+                    } else {
+                      setIsCustomPostFocused(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (isPre) {
+                      setIsCustomPreFocused(false);
+                    } else {
+                      setIsCustomPostFocused(false);
+                    }
+                  }}
                   onSubmitEditing={handleCustomSubmit}
                   returnKeyType="done"
-                  blurOnSubmit={true}
                 />
                 <TouchableOpacity
                   style={styles.customSubmitButton}
@@ -159,6 +178,21 @@ export default function PrePostSeparateInput({
                 </TouchableOpacity>
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
+              {(isPre ? isCustomPreFocused : isCustomPostFocused) && Platform.OS !== 'web' && (
+                <TouchableOpacity
+                  style={styles.doneLink}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    if (isPre) {
+                      setIsCustomPreFocused(false);
+                    } else {
+                      setIsCustomPostFocused(false);
+                    }
+                  }}
+                >
+                  <Text style={styles.doneLinkText}>Done</Text>
+                </TouchableOpacity>
+              )}
             </View>
             
             <TouchableOpacity
@@ -415,5 +449,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#ff4444',
     marginTop: 4,
+  },
+  doneLink: {
+    marginTop: 12,
+    alignSelf: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  doneLinkText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
   },
 });
