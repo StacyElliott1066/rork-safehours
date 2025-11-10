@@ -242,14 +242,22 @@ export default function NewActivityScreen() {
     });
     
     if (result.success) {
-      router.back();
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/(tabs)');
+      }
     } else {
       Alert.alert('Error', result.message || 'Failed to add activity');
     }
   };
   
   const handleCancel = () => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
   };
   
   return (
