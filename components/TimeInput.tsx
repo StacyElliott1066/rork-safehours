@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView, Keyboard } from 'react-native';
 import { Clock, Check, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { getCurrentTime, parseTimeInput } from '@/utils/time';
@@ -17,6 +17,7 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
   const [minutes, setMinutes] = useState(value?.split(':')[1] || '00');
   const [directInput, setDirectInput] = useState('');
   const [isDirectEditing, setIsDirectEditing] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const hoursScrollViewRef = useRef<ScrollView>(null);
   const minutesScrollViewRef = useRef<ScrollView>(null);
@@ -53,6 +54,7 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
   const handleDirectInputFocus = () => {
     onFocus?.();
     setIsDirectEditing(true);
+    setKeyboardVisible(true);
     // Set the raw value for editing
     setDirectInput(value || '');
     
@@ -87,13 +89,20 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
     
     setIsDirectEditing(false);
     setDirectInput('');
+    setKeyboardVisible(false);
     inputRef.current?.blur();
   };
 
   const handleCancelPress = () => {
     setIsDirectEditing(false);
     setDirectInput('');
+    setKeyboardVisible(false);
     inputRef.current?.blur();
+  };
+  
+  const handleKeyboardClose = () => {
+    Keyboard.dismiss();
+    setKeyboardVisible(false);
   };
 
   const generateTimeOptions = (max: number) => {
@@ -185,9 +194,23 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
             placeholder="HH:MM"
             keyboardType="numeric"
             onFocus={handleDirectInputFocus}
-            onBlur={handleDirectInputBlur}
+            onBlur={() => {
+              handleDirectInputBlur();
+              setKeyboardVisible(false);
+            }}
             selectTextOnFocus={true}
           />
+          {keyboardVisible && Platform.OS !== 'web' && (
+            <View style={styles.keyboardToolbar}>
+              <Text style={styles.keyboardValue}>{directInput || value}</Text>
+              <TouchableOpacity
+                style={styles.closeLink}
+                onPress={handleKeyboardClose}
+              >
+                <Text style={styles.closeLinkText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </TouchableOpacity>
         
         {isDirectEditing ? (
@@ -457,5 +480,34 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: COLORS.white,
     fontWeight: '600',
+  },
+  keyboardToolbar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.lightGray,
+  },
+  keyboardValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  closeLink: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  closeLinkText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
   },
 });

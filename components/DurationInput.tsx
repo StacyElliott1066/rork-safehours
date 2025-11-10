@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { COLORS } from '@/constants/colors';
 import { calculateDuration } from '@/utils/time';
 import { Check, X } from 'lucide-react-native';
@@ -19,6 +19,7 @@ export default function DurationInput({
 }: DurationInputProps) {
   const [durationText, setDurationText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Calculate duration whenever start or end time changes
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function DurationInput({
 
   const handleDurationBlur = () => {
     setIsEditing(false);
+    setKeyboardVisible(false);
     
     // Parse the duration input
     const durationHours = parseFloat(durationText);
@@ -76,6 +78,7 @@ export default function DurationInput({
     }
     
     setIsEditing(false);
+    setKeyboardVisible(false);
   };
 
   const handleCancelPress = () => {
@@ -90,6 +93,12 @@ export default function DurationInput({
     }
     
     setIsEditing(false);
+    setKeyboardVisible(false);
+  };
+  
+  const handleKeyboardClose = () => {
+    Keyboard.dismiss();
+    setKeyboardVisible(false);
   };
 
   return (
@@ -111,15 +120,27 @@ export default function DurationInput({
             onFocus={() => {
               onFocus?.();
               setIsEditing(true);
+              setKeyboardVisible(true);
             }}
             onBlur={handleDurationBlur}
             keyboardType="numeric"
             placeholder="0.0"
             selectTextOnFocus={true}
           />
+          {keyboardVisible && Platform.OS !== 'web' && (
+            <View style={styles.keyboardToolbar}>
+              <Text style={styles.keyboardValue}>{durationText}</Text>
+              <TouchableOpacity
+                style={styles.closeLink}
+                onPress={handleKeyboardClose}
+              >
+                <Text style={styles.closeLinkText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </TouchableOpacity>
         
-        {isEditing && (
+        {isEditing && !keyboardVisible && (
           <View style={styles.editButtonsContainer}>
             <TouchableOpacity 
               style={styles.cancelButton} 
@@ -189,5 +210,34 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  keyboardToolbar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.lightGray,
+  },
+  keyboardValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  closeLink: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  closeLinkText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
   },
 });

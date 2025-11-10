@@ -179,19 +179,22 @@ export default function PrePostSeparateInput({
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
               {(isPre ? isCustomPreFocused : isCustomPostFocused) && Platform.OS !== 'web' && (
-                <TouchableOpacity
-                  style={styles.doneLink}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    if (isPre) {
-                      setIsCustomPreFocused(false);
-                    } else {
-                      setIsCustomPostFocused(false);
-                    }
-                  }}
-                >
-                  <Text style={styles.doneLinkText}>Done</Text>
-                </TouchableOpacity>
+                <View style={styles.keyboardToolbar}>
+                  <Text style={styles.keyboardValue}>{customValue || '0'}</Text>
+                  <TouchableOpacity
+                    style={styles.closeLink}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      if (isPre) {
+                        setIsCustomPreFocused(false);
+                      } else {
+                        setIsCustomPostFocused(false);
+                      }
+                    }}
+                  >
+                    <Text style={styles.closeLinkText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
             
@@ -450,13 +453,23 @@ const styles = StyleSheet.create({
     color: '#ff4444',
     marginTop: 4,
   },
-  doneLink: {
+  keyboardToolbar: {
     marginTop: 12,
-    alignSelf: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  keyboardValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  closeLink: {
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
-  doneLinkText: {
+  closeLinkText: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.primary,
