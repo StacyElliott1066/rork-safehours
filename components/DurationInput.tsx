@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Platform, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '@/constants/colors';
 import { calculateDuration } from '@/utils/time';
 import { Check, X } from 'lucide-react-native';
-import NumericKeyboard from './NumericKeyboard';
 
 interface DurationInputProps {
   startTime: string;
@@ -20,7 +19,6 @@ export default function DurationInput({
 }: DurationInputProps) {
   const [durationText, setDurationText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Calculate duration whenever start or end time changes
   useEffect(() => {
@@ -42,7 +40,6 @@ export default function DurationInput({
 
   const handleDurationBlur = () => {
     setIsEditing(false);
-    setKeyboardVisible(false);
     
     // Parse the duration input
     const durationHours = parseFloat(durationText);
@@ -79,7 +76,6 @@ export default function DurationInput({
     }
     
     setIsEditing(false);
-    setKeyboardVisible(false);
   };
 
   const handleCancelPress = () => {
@@ -94,12 +90,6 @@ export default function DurationInput({
     }
     
     setIsEditing(false);
-    setKeyboardVisible(false);
-  };
-  
-  const handleKeyboardClose = () => {
-    Keyboard.dismiss();
-    setKeyboardVisible(false);
   };
 
   return (
@@ -121,17 +111,15 @@ export default function DurationInput({
             onFocus={() => {
               onFocus?.();
               setIsEditing(true);
-              setKeyboardVisible(true);
             }}
             onBlur={handleDurationBlur}
             keyboardType="numeric"
             placeholder="0.0"
             selectTextOnFocus={true}
           />
-
         </TouchableOpacity>
         
-        {isEditing && !keyboardVisible && (
+        {isEditing && (
           <View style={styles.editButtonsContainer}>
             <TouchableOpacity 
               style={styles.cancelButton} 
@@ -148,30 +136,6 @@ export default function DurationInput({
           </View>
         )}
       </View>
-
-      {keyboardVisible && Platform.OS !== 'web' && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={keyboardVisible}
-          onRequestClose={handleKeyboardClose}
-        >
-          <TouchableOpacity 
-            style={styles.keyboardModalOverlay}
-            activeOpacity={1}
-            onPress={handleKeyboardClose}
-          >
-            <View style={styles.keyboardContainer}>
-              <NumericKeyboard
-                value={durationText}
-                onValueChange={handleDurationChange}
-                onDone={handleDonePress}
-                allowDecimal={true}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      )}
     </View>
   );
 }
@@ -225,13 +189,5 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  keyboardModalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  keyboardContainer: {
-    backgroundColor: '#D3D6DB',
   },
 });

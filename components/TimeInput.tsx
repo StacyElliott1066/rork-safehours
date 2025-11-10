@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, ScrollView } from 'react-native';
 import { Clock, Check, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { getCurrentTime, parseTimeInput } from '@/utils/time';
-import NumericKeyboard from './NumericKeyboard';
 
 interface TimeInputProps {
   label: string;
@@ -18,7 +17,6 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
   const [minutes, setMinutes] = useState(value?.split(':')[1] || '00');
   const [directInput, setDirectInput] = useState('');
   const [isDirectEditing, setIsDirectEditing] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const hoursScrollViewRef = useRef<ScrollView>(null);
   const minutesScrollViewRef = useRef<ScrollView>(null);
@@ -55,7 +53,6 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
   const handleDirectInputFocus = () => {
     onFocus?.();
     setIsDirectEditing(true);
-    setKeyboardVisible(true);
     // Set the raw value for editing
     setDirectInput(value || '');
     
@@ -90,24 +87,13 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
     
     setIsDirectEditing(false);
     setDirectInput('');
-    setKeyboardVisible(false);
-    
-    if (inputRef.current) {
-      inputRef.current.blur();
-    }
-    Keyboard.dismiss();
+    inputRef.current?.blur();
   };
 
   const handleCancelPress = () => {
     setIsDirectEditing(false);
     setDirectInput('');
-    setKeyboardVisible(false);
     inputRef.current?.blur();
-  };
-  
-  const handleKeyboardClose = () => {
-    Keyboard.dismiss();
-    setKeyboardVisible(false);
   };
 
   const generateTimeOptions = (max: number) => {
@@ -199,13 +185,9 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
             placeholder="HH:MM"
             keyboardType="numeric"
             onFocus={handleDirectInputFocus}
-            onBlur={() => {
-              handleDirectInputBlur();
-              setKeyboardVisible(false);
-            }}
+            onBlur={handleDirectInputBlur}
             selectTextOnFocus={true}
           />
-
         </TouchableOpacity>
         
         {isDirectEditing ? (
@@ -232,30 +214,6 @@ export default function TimeInput({ label, value, onChangeText, onFocus }: TimeI
           </TouchableOpacity>
         )}
       </View>
-
-      {keyboardVisible && Platform.OS !== 'web' && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={keyboardVisible}
-          onRequestClose={handleKeyboardClose}
-        >
-          <TouchableOpacity 
-            style={styles.keyboardModalOverlay}
-            activeOpacity={1}
-            onPress={handleKeyboardClose}
-          >
-            <View style={styles.keyboardContainer}>
-              <NumericKeyboard
-                value={directInput}
-                onValueChange={handleDirectInputChange}
-                onDone={handleDonePress}
-                allowDecimal={false}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      )}
 
       <Modal
         animationType="slide"
@@ -499,13 +457,5 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: COLORS.white,
     fontWeight: '600',
-  },
-  keyboardModalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  keyboardContainer: {
-    backgroundColor: '#D3D6DB',
   },
 });
