@@ -187,8 +187,14 @@ export default function PrePostSeparateInput({
                       Keyboard.dismiss();
                       if (isPre) {
                         setIsCustomPreFocused(false);
+                        setCustomPreValue('');
+                        setCustomPreError('');
+                        setShowPreSelector(false);
                       } else {
                         setIsCustomPostFocused(false);
+                        setCustomPostValue('');
+                        setCustomPostError('');
+                        setShowPostSelector(false);
                       }
                     }}
                   >
