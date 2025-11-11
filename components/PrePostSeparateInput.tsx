@@ -158,12 +158,6 @@ export default function PrePostSeparateInput({
                 >
                   <Text style={styles.customSubmitButtonText}>Set</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.doneButton}
-                  onPress={() => Keyboard.dismiss()}
-                >
-                  <Text style={styles.doneButtonText}>Done</Text>
-                </TouchableOpacity>
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
             </View>
@@ -440,19 +434,7 @@ const styles = StyleSheet.create({
     color: '#ff4444',
     marginTop: 4,
   },
-  doneButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  doneButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-  },
+
   inputAccessoryView: {
     backgroundColor: '#F0F0F5',
     paddingVertical: 8,
