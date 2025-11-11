@@ -157,11 +157,14 @@ export default function PrePostSeparateInput({
                 >
                   <Text style={styles.customSubmitButtonText}>Set</Text>
                 </TouchableOpacity>
+              </View>
+              <View style={styles.keyboardToolbar}>
+                <Text style={styles.keyboardValue}>{customValue || '0.00'}</Text>
                 <TouchableOpacity
-                  style={styles.doneButton}
+                  style={styles.keyboardDoneButton}
                   onPress={() => Keyboard.dismiss()}
                 >
-                  <Text style={styles.doneButtonText}>Done</Text>
+                  <Text style={styles.keyboardDoneButtonText}>Done</Text>
                 </TouchableOpacity>
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
@@ -435,5 +438,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.black,
+  },
+  keyboardToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.background,
+    borderRadius: 8,
+  },
+  keyboardValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.black,
+  },
+  keyboardDoneButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  keyboardDoneButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#007AFF',
   },
 });
