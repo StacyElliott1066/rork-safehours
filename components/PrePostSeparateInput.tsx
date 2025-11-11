@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback, InputAccessoryView, Platform } from 'react-native';
 import { COLORS } from '@/constants/colors';
 
 interface PrePostSeparateInputProps {
@@ -150,6 +150,7 @@ export default function PrePostSeparateInput({
                   onSubmitEditing={handleCustomSubmit}
                   returnKeyType="done"
                   blurOnSubmit={true}
+                  inputAccessoryViewID={isPre ? "preInputAccessory" : "postInputAccessory"}
                 />
                 <TouchableOpacity
                   style={styles.customSubmitButton}
@@ -166,6 +167,22 @@ export default function PrePostSeparateInput({
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
             </View>
+            
+            {Platform.OS === 'ios' && (
+              <InputAccessoryView nativeID={isPre ? "preInputAccessory" : "postInputAccessory"}>
+                <View style={styles.inputAccessoryView}>
+                  <Text style={styles.inputAccessoryText}>
+                    {customValue || '0'}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.inputAccessoryDoneButton}
+                    onPress={() => Keyboard.dismiss()}
+                  >
+                    <Text style={styles.inputAccessoryDoneText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              </InputAccessoryView>
+            )}
             
             <TouchableOpacity
               style={styles.closeButton}
@@ -435,5 +452,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.black,
+  },
+  inputAccessoryView: {
+    backgroundColor: '#F0F0F5',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#C8C8CC',
+  },
+  inputAccessoryText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  inputAccessoryDoneButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+  },
+  inputAccessoryDoneText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#007AFF',
   },
 });
