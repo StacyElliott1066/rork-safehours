@@ -95,7 +95,6 @@ export default function DurationInput({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Duration (hours)</Text>
-      <Text style={styles.helperText}>Editing this will change the End Time.</Text>
       <View style={styles.inputContainer}>
         <TouchableOpacity 
           style={[
