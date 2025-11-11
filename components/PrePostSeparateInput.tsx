@@ -393,17 +393,19 @@ const styles = StyleSheet.create({
   customInputRow: {
     flexDirection: 'row',
     gap: 8,
-    flexWrap: 'wrap',
+    alignItems: 'center',
   },
   customInput: {
     flex: 1,
+    minWidth: 100,
     borderWidth: 1,
     borderColor: COLORS.lightGray,
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     fontSize: 16,
+    fontWeight: '600',
   },
   customSubmitButton: {
     paddingVertical: 10,
