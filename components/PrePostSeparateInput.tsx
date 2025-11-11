@@ -136,38 +136,33 @@ export default function PrePostSeparateInput({
             
             <View style={styles.customInputContainer}>
               <Text style={styles.customInputLabel}>Or enter a custom value 0-3 hours:</Text>
-              <View style={styles.customInputWrapper}>
-                <View style={styles.customInputRow}>
-                  <TextInput
-                    style={styles.customInput}
-                    value={customValue}
-                    onChangeText={(text) => {
-                      setCustomValue(text);
-                      setCustomError('');
-                    }}
-                    keyboardType="decimal-pad"
-                    placeholder="0.00"
-                    placeholderTextColor={COLORS.gray}
-                    onSubmitEditing={handleCustomSubmit}
-                    returnKeyType="done"
-                    blurOnSubmit={true}
-                  />
-                  <TouchableOpacity
-                    style={styles.customSubmitButton}
-                    onPress={handleCustomSubmit}
-                  >
-                    <Text style={styles.customSubmitButtonText}>Set</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.keyboardRow}>
-                  <Text style={styles.displayValue}>{customValue || '0.00'}</Text>
-                  <TouchableOpacity
-                    style={styles.doneButton}
-                    onPress={() => Keyboard.dismiss()}
-                  >
-                    <Text style={styles.doneButtonText}>Done</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.customInputRow}>
+                <TextInput
+                  style={styles.customInput}
+                  value={customValue}
+                  onChangeText={(text) => {
+                    setCustomValue(text);
+                    setCustomError('');
+                  }}
+                  keyboardType="decimal-pad"
+                  placeholder="0.00"
+                  placeholderTextColor={COLORS.gray}
+                  onSubmitEditing={handleCustomSubmit}
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                />
+                <TouchableOpacity
+                  style={styles.customSubmitButton}
+                  onPress={handleCustomSubmit}
+                >
+                  <Text style={styles.customSubmitButtonText}>Set</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.doneButton}
+                  onPress={() => Keyboard.dismiss()}
+                >
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </TouchableOpacity>
               </View>
               {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
             </View>
@@ -395,36 +390,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: COLORS.gray,
   },
-  customInputWrapper: {
-    gap: 8,
-  },
   customInputRow: {
     flexDirection: 'row',
     gap: 8,
-    alignItems: 'center',
-  },
-  keyboardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  displayValue: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: COLORS.black,
+    flexWrap: 'wrap',
   },
   customInput: {
     flex: 1,
-    minWidth: 100,
     borderWidth: 1,
     borderColor: COLORS.lightGray,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.lightGray,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     fontSize: 16,
-    fontWeight: '600',
   },
   customSubmitButton: {
     paddingVertical: 10,
