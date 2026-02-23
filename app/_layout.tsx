@@ -4,7 +4,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 
-import { ErrorBoundary } from "./error-boundary";
+
 import { useActivityStore } from "@/store/activityStore";
 import { getCurrentDate } from "@/utils/time";
 
@@ -39,9 +39,9 @@ export default function RootLayout() {
   }
 
   return (
-    <ErrorBoundary>
+    
       <RootLayoutNav />
-    </ErrorBoundary>
+    
   );
 }
 

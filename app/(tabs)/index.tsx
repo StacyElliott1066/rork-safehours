@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Modal, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Plus, AlertCircle, CheckCircle, Trash2 } from 'lucide-react-native';
 import { useActivityStore } from '@/store/activityStore';
@@ -23,6 +23,12 @@ import {
 
 export default function ActivitiesScreen() {
   const router = useRouter();
+  const [isDisclaimerVisible, setIsDisclaimerVisible] = useState<boolean>(true);
+
+  const handleCloseDisclaimer = () => {
+    console.log('Closing disclaimer modal');
+    setIsDisclaimerVisible(false);
+  };
   const { 
     activities, 
     selectedDate, 
@@ -149,6 +155,39 @@ export default function ActivitiesScreen() {
   
   return (
     <View style={styles.container}>
+      <Modal
+        visible={isDisclaimerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseDisclaimer}
+        testID="disclaimer-modal"
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Important Disclaimer</Text>
+            <View style={styles.modalHelpRow}>
+              <Text style={styles.modalText}>Please read the Help (</Text>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/so5812sf09de11ptp49e1' }}
+                style={styles.helpIcon}
+                resizeMode="contain"
+                accessibilityLabel="Help"
+              />
+              <Text style={styles.modalText}>) before using this app.</Text>
+            </View>
+            <Text style={styles.modalText}>
+              To help avoid mistakes and stay within your limits, enter your hours before you fly or perform duty—ideally the day prior.
+            </Text>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={handleCloseDisclaimer}
+              testID="disclaimer-close"
+            >
+              <Text style={styles.modalCloseText}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <DateSelector 
@@ -414,5 +453,59 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingHorizontal: 4,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 420,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 12,
+  },
+  modalText: {
+    fontSize: 15,
+    color: COLORS.black,
+    lineHeight: 22,
+  },
+  modalHelpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  helpIcon: {
+    width: 18,
+    height: 18,
+    marginHorizontal: 4,
+  },
+  modalCloseButton: {
+    marginTop: 16,
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  modalCloseText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 15,
   },
 });
