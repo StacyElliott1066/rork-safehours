@@ -166,14 +166,14 @@ export default function ActivitiesScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Important Disclaimer</Text>
             <View style={styles.modalHelpRow}>
-              <Text style={styles.modalText}>Please read the Help (</Text>
+              <Text style={styles.modalText}>Please read the Help </Text>
               <Image
                 source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/so5812sf09de11ptp49e1' }}
                 style={styles.helpIcon}
                 resizeMode="contain"
                 accessibilityLabel="Help"
               />
-              <Text style={styles.modalText}>) before using this app.</Text>
+              <Text style={styles.modalText}> before using this app.</Text>
             </View>
             <Text style={styles.modalText}>
               To help avoid mistakes and stay within your limits, enter your hours before you fly or perform duty—ideally the day prior.
@@ -491,9 +491,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   helpIcon: {
-    width: 18,
-    height: 18,
-    marginHorizontal: 4,
+    width: 36,
+    height: 36,
+    marginHorizontal: 6,
   },
   modalCloseButton: {
     marginTop: 16,
