@@ -254,12 +254,11 @@ export default function ActivitiesScreen() {
                   <Text style={styles.tableHeaderCell}>Actions</Text>
                 </View>
                 
-                {activities
+                {[...activities]
                   .sort((a, b) => {
-                    // Sort by date (newest first) then by start time
                     const dateCompare = b.date.localeCompare(a.date);
                     if (dateCompare !== 0) return dateCompare;
-                    return a.startTime.localeCompare(b.startTime);
+                    return b.startTime.localeCompare(a.startTime);
                   })
                   .map((activity) => {
                     const duration = calculateDuration(activity.startTime, activity.endTime);
