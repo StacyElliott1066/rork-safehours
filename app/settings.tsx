@@ -90,10 +90,10 @@ export default function SettingsScreen() {
           
           <View style={styles.card}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                Max Flight Instruction Hours <Text style={styles.labelSmall}>(24h)</Text>
-                <Text style={styles.uneditableText}> uneditable</Text>
-              </Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>{"Max Flight Instruction Hours "}<Text style={styles.labelSmall}>{"(24h)"}</Text></Text>
+                <Text style={styles.uneditableText}>{"uneditable"}</Text>
+              </View>
               <View style={styles.fixedValueContainer}>
                 <Text style={styles.fixedValue}>8</Text>
               </View>
@@ -250,8 +250,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  label: {
+  labelWrap: {
     flex: 1,
+  },
+  label: {
     fontSize: 16,
     fontWeight: '500',
   },

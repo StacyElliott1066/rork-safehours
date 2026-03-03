@@ -98,10 +98,10 @@ export default function SettingsScreen() {
           
           <View style={styles.card}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                Max Flight Instruction Hours <Text style={styles.labelSmall}>(24h)</Text>
-                <Text style={styles.uneditableText}> uneditable</Text>
-              </Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>{"Max Flight Instruction Hours "}<Text style={styles.labelSmall}>{"(24h)"}</Text></Text>
+                <Text style={styles.uneditableText}>{"uneditable"}</Text>
+              </View>
               <View style={styles.fixedValueContainer}>
                 <Text style={styles.fixedValue}>8</Text>
               </View>
@@ -217,12 +217,9 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Log</Text>
             <ScrollView style={styles.modalScroll}>
-              <Text style={styles.modalText}>
-                11/10/25: Target Date will now default to the current date.{"\n"}Pre/Post time can now be manually inputed up to 3 hours each.
-              </Text>
-              <Text style={styles.modalText}>
-                10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours.
-              </Text>
+              <Text style={styles.modalText}>{"02/24/26: Descending Date and Descending Time corrected to display properly. Additionally, a splash screen popup to remind users to use the app to forecast hours prior to execution to ensure the planned day does not bust any rules is a better use of the app."}</Text>
+              <Text style={styles.modalText}>{"11/10/25: Target Date will now default to the current date. Pre/Post time can now be manually inputed up to 3 hours each."}</Text>
+              <Text style={styles.modalText}>{"10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours."}</Text>
             </ScrollView>
             <TouchableOpacity 
               style={styles.modalButton}
@@ -272,8 +269,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  label: {
+  labelWrap: {
     flex: 1,
+  },
+  label: {
     fontSize: 16,
     fontWeight: '500',
   },
