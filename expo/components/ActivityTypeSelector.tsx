@@ -51,7 +51,7 @@ export default function ActivityTypeSelector({ selectedType, onTypeChange }: Act
             >
               {type}
             </Text>
-            {getTypeLabel(type) && (
+            {getTypeLabel(type) ? (
               <Text
                 style={[
                   styles.labelText,
@@ -60,7 +60,7 @@ export default function ActivityTypeSelector({ selectedType, onTypeChange }: Act
               >
                 {getTypeLabel(type)}
               </Text>
-            )}
+            ) : null}
           </TouchableOpacity>
         ))}
       </View>
