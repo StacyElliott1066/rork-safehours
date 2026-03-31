@@ -37,13 +37,7 @@ export default function EditActivityScreen() {
   useEffect(() => {
     if (!id || typeof id !== 'string') {
       Alert.alert('Error', 'Activity ID is missing or invalid', [
-        { text: 'OK', onPress: () => {
-          if (router.canGoBack()) {
-            router.back();
-          } else {
-            router.replace('/(tabs)');
-          }
-        }}
+        { text: 'OK', onPress: () => { router.back(); }}
       ]);
       return;
     }
@@ -88,24 +82,12 @@ export default function EditActivityScreen() {
       } catch (error) {
         console.error("Error setting activity data:", error);
         Alert.alert('Error', 'Failed to load activity data', [
-          { text: 'OK', onPress: () => {
-            if (router.canGoBack()) {
-              router.back();
-            } else {
-              router.replace('/(tabs)');
-            }
-          }}
+          { text: 'OK', onPress: () => { router.back(); }}
         ]);
       }
     } else {
       Alert.alert('Error', 'Activity not found', [
-        { text: 'OK', onPress: () => {
-          if (router.canGoBack()) {
-            router.back();
-          } else {
-            router.replace('/(tabs)');
-          }
-        }}
+        { text: 'OK', onPress: () => { router.back(); }}
       ]);
     }
   }, [id, activities, router]);
@@ -339,11 +321,7 @@ export default function EditActivityScreen() {
       });
       
       if (result.success) {
-        if (router.canGoBack()) {
-          router.back();
-        } else {
-          router.replace('/(tabs)');
-        }
+        router.back();
       } else {
         Alert.alert('Error', result.message || 'Failed to update activity');
       }
@@ -368,11 +346,7 @@ export default function EditActivityScreen() {
           text: 'Delete',
           onPress: () => {
             deleteActivity(id);
-            if (router.canGoBack()) {
-              router.back();
-            } else {
-              router.replace('/(tabs)');
-            }
+            router.back();
           },
           style: 'destructive',
         },
@@ -381,11 +355,7 @@ export default function EditActivityScreen() {
   };
   
   const handleCancel = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)');
-    }
+    router.back();
   };
   
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
@@ -242,22 +242,14 @@ export default function NewActivityScreen() {
     });
     
     if (result.success) {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.back();
     } else {
       Alert.alert('Error', result.message || 'Failed to add activity');
     }
   };
   
   const handleCancel = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)');
-    }
+    router.back();
   };
   
   return (
