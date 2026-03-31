@@ -102,10 +102,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   weeklyActive: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: COLORS.secondary,
   },
   monthlyActive: {
-    backgroundColor: '#28A745',
+    backgroundColor: COLORS.primary,
   },
   toggleText: {
     fontSize: 15,
