@@ -53,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="charts"
         options={{
-          title: "Weekly Statistics",
+          title: "Statistics",
           tabBarLabel: "Stats",
           tabBarIcon: ({ color }) => <BarChart2 size={24} color={color} />,
         }}
