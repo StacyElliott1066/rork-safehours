@@ -191,8 +191,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                   <Text
                     style={[
                       styles.dayText,
-                      isSelected && styles.selectedDayText,
-                      isCurrentDay && styles.todayDayText
+                      isCurrentDay && !isSelected && styles.todayDayText,
+                      isSelected && styles.selectedDayText
                     ]}
                   >
                     {item.day}
