@@ -54,7 +54,7 @@ export default function TabLayout() {
         name="charts"
         options={{
           title: "Weekly Statistics",
-          tabBarLabel: "Weekly Stats",
+          tabBarLabel: "Stats",
           tabBarIcon: ({ color }) => <BarChart2 size={24} color={color} />,
         }}
       />
