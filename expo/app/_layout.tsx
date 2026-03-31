@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 import { useActivityStore } from "@/store/activityStore";
 import { getCurrentDate } from "@/utils/time";
+import { EndorsementProvider } from "@/store/endorsementStore";
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -14,7 +15,7 @@ export const unstable_settings = {
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -30,7 +31,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -38,7 +39,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <EndorsementProvider>
+      <RootLayoutNav />
+    </EndorsementProvider>
+  );
 }
 
 function RootLayoutNav() {
@@ -48,7 +53,7 @@ function RootLayoutNav() {
     // Always set to current date when app opens
     const currentDate = getCurrentDate();
     setSelectedDate(currentDate);
-  }, []);
+  }, [setSelectedDate]);
 
   return (
     <Stack
@@ -58,6 +63,9 @@ function RootLayoutNav() {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+      <Stack.Screen name="endorsements/index" options={{ headerShown: false }} />
+      <Stack.Screen name="endorsements/flight" options={{ headerShown: false }} />
+      <Stack.Screen name="endorsements/written-practical" options={{ headerShown: false }} />
     </Stack>
   );
 }
