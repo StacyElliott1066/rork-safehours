@@ -427,7 +427,7 @@ export default function FlightEndorsementsScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => { if (router.canGoBack()) { router.back(); } else { router.navigate('/endorsements' as never); } }}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ChevronLeft size={22} color={COLORS.white} />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>

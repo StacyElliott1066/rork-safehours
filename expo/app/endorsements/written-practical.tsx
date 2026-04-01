@@ -480,7 +480,7 @@ export default function WrittenPracticalScreen() {
   return (
     <View style={localStyles.container}>
       <View style={[localStyles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={localStyles.backButton} onPress={() => { if (router.canGoBack()) { router.back(); } else { router.navigate('/endorsements' as never); } }}>
+        <TouchableOpacity style={localStyles.backButton} onPress={() => router.back()}>
           <ChevronLeft size={22} color={COLORS.white} />
           <Text style={localStyles.backText}>Back</Text>
         </TouchableOpacity>
