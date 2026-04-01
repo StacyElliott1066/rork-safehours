@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BookOpen, FileText } from 'lucide-react-native';
+import { BookOpen, FileText, ChevronLeft } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 
 export default function EndorsementsHub() {
@@ -12,7 +12,12 @@ export default function EndorsementsHub() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)/data' as never)} activeOpacity={0.7}>
+          <ChevronLeft size={20} color={COLORS.white} />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Endorsements</Text>
+        <View style={styles.headerRight} />
       </View>
 
       <View style={styles.content}>
@@ -57,8 +62,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingBottom: 14,
+    flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    justifyContent: 'space-between' as const,
+  },
+  backButton: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    width: 70,
+  },
+  backButtonText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: '600' as const,
+  },
+  headerRight: {
+    width: 70,
   },
   headerTitle: {
     color: COLORS.white,
