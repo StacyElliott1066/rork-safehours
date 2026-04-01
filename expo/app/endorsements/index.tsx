@@ -12,7 +12,7 @@ export default function EndorsementsHub() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/data' as never)} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)/data' as never)} activeOpacity={0.7}>
           <ChevronLeft size={20} color={COLORS.white} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
