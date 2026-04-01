@@ -268,6 +268,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
+    gap: 16,
   },
   labelWrap: {
     flex: 1,
@@ -275,8 +276,8 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 120,
     justifyContent: 'flex-end',
+    flexShrink: 0,
   },
   label: {
     flex: 1,
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   unit: {
-    width: 40,
+    minWidth: 44,
     fontSize: 14,
     color: COLORS.gray,
     textAlign: 'right',
