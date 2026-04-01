@@ -84,9 +84,6 @@ export default function SettingsScreen() {
           </View>
           
           <Text style={styles.title}>Warning Thresholds</Text>
-          <Text style={styles.description}>
-            Customize the thresholds used to determine when warnings are displayed.
-          </Text>
           
           <View style={styles.card}>
             <View style={styles.inputGroup}>
@@ -98,9 +95,11 @@ export default function SettingsScreen() {
                 <View style={styles.fixedValueContainer}>
                   <Text style={styles.fixedValue}>8</Text>
                 </View>
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                  <Text style={styles.faaNote}>FAA Limit</Text>
+                </View>
               </View>
-              <Text style={styles.faaNote}>FAA Limit</Text>
             </View>
             
             <View style={styles.inputGroup}>
@@ -204,12 +203,10 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
           
+          <Text style={styles.aboutSectionHeader}>About</Text>
           <View style={styles.aboutContainer}>
             <Text style={styles.aboutTitle}>About SafeHours</Text>
-            <Text style={styles.aboutText}>
-              SafeHours is designed to help pilots and flight instructors track their duty time and ensure compliance with regulatory requirements.
-            </Text>
-            <Text style={styles.versionText}>Version 25.7.19.09</Text>
+            <Text style={styles.aboutSubText}>Version information and acknowledgments</Text>
           </View>
         </View>
       </ScrollView>
@@ -247,6 +244,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.gray,
     marginBottom: 20,
+  },
+  aboutSectionHeader: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginBottom: 8,
+    marginTop: 8,
   },
   card: {
     backgroundColor: COLORS.white,
@@ -310,18 +314,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.black,
   },
+  unitWrap: {
+    alignItems: 'flex-end',
+    minWidth: 40,
+  },
   faaNote: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.red,
     fontWeight: 'bold',
-    position: 'absolute',
-    right: 0,
-    bottom: -15,
+    marginTop: 2,
   },
   unit: {
     width: 40,
     fontSize: 14,
     color: COLORS.gray,
+    textAlign: 'right',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -362,9 +369,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   aboutTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  aboutSubText: {
+    fontSize: 13,
+    color: COLORS.gray,
+    marginTop: 2,
   },
   aboutText: {
     fontSize: 14,
