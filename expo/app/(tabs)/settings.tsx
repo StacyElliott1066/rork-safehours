@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, Switch, Platform, Modal } from 'react-native';
-import { Stack, Link, useRouter } from 'expo-router';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, Modal } from 'react-native';
+import { Stack } from 'expo-router';
 import { useActivityStore } from '@/store/activityStore';
 import { COLORS } from '@/constants/colors';
 
 export default function SettingsScreen() {
-  const router = useRouter();
   const { 
-    activities, 
     warningThresholds, 
     updateWarningThresholds, 
     resetWarningThresholds 
@@ -320,6 +318,7 @@ const styles = StyleSheet.create({
     width: 50,
     fontSize: 14,
     color: COLORS.gray,
+    textAlign: 'right',
   },
   buttonContainer: {
     flexDirection: 'row',
