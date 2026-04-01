@@ -2,7 +2,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Platform } from "react-native";
 
 
 import { useActivityStore } from "@/store/activityStore";
@@ -10,32 +11,49 @@ import { getCurrentDate } from "@/utils/time";
 import { EndorsementProvider } from "@/store/endorsementStore";
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: "(tabs)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-void SplashScreen.preventAutoHideAsync();
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync().catch(() => {
+    console.log('SplashScreen.preventAutoHideAsync failed');
+  });
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...FontAwesome.font,
   });
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (error) {
-      console.error(error);
-      throw error;
+      console.error('Font loading error:', error);
     }
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
-      void SplashScreen.hideAsync();
+    if (loaded || error) {
+      setReady(true);
+      if (Platform.OS !== 'web') {
+        SplashScreen.hideAsync().catch(() => {
+          console.log('SplashScreen.hideAsync failed');
+        });
+      }
     }
-  }, [loaded]);
+  }, [loaded, error]);
 
-  if (!loaded) {
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const timeout = setTimeout(() => {
+        console.log('Font loading timeout on web, proceeding anyway');
+        setReady(true);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, []);
+
+  if (!ready) {
     return null;
   }
 
