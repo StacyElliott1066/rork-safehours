@@ -23,9 +23,11 @@ import {
   Filter,
   ArrowDown,
   ArrowUp,
+  Calendar,
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { useEndorsementStore } from '@/store/endorsementStore';
+import { CalendarModal } from '@/components/CalendarModal';
 import {
   WrittenPracticalTest,
   TestType,
@@ -114,16 +116,30 @@ function NameAutocompleteInput({ value, onChangeText, placeholder, allNames }: N
 }
 
 function DatePickerInput({ value, onChangeText, placeholder }: { value: string; onChangeText: (t: string) => void; placeholder: string }) {
+  const [showCal, setShowCal] = useState(false);
   return (
-    <TextInput
-      style={localStyles.modalInput}
-      value={value}
-      onChangeText={(t) => onChangeText(formatDateInput(t))}
-      placeholder={placeholder}
-      placeholderTextColor={COLORS.gray}
-      keyboardType="number-pad"
-      maxLength={8}
-    />
+    <View>
+      <View style={localStyles.dateRow}>
+        <TextInput
+          style={localStyles.dateInput}
+          value={value}
+          onChangeText={(t) => onChangeText(formatDateInput(t))}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.gray}
+          keyboardType="number-pad"
+          maxLength={8}
+        />
+        <TouchableOpacity style={localStyles.calIconBtn} onPress={() => setShowCal(true)}>
+          <Calendar size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+      <CalendarModal
+        visible={showCal}
+        currentValue={value}
+        onClose={() => setShowCal(false)}
+        onSelect={(d) => { onChangeText(d); setShowCal(false); }}
+      />
+    </View>
   );
 }
 
@@ -464,7 +480,7 @@ export default function WrittenPracticalScreen() {
   return (
     <View style={localStyles.container}>
       <View style={[localStyles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={localStyles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={localStyles.backButton} onPress={() => { if (router.canGoBack()) { router.back(); } else { router.navigate('/endorsements' as never); } }}>
           <ChevronLeft size={22} color={COLORS.white} />
           <Text style={localStyles.backText}>Back</Text>
         </TouchableOpacity>
@@ -1132,5 +1148,26 @@ const localStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600' as const,
     color: COLORS.white,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  dateInput: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: COLORS.black,
+  },
+  calIconBtn: {
+    padding: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: COLORS.lightGray,
   },
 });

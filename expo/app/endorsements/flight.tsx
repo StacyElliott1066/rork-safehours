@@ -25,9 +25,11 @@ import {
   ImageIcon,
   ArrowDown,
   ArrowUp,
+  Calendar,
 } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { useEndorsementStore } from '@/store/endorsementStore';
+import { CalendarModal } from '@/components/CalendarModal';
 import { FlightEndorsement } from '@/types/endorsement';
 
 type EndorsementSortField = 'name' | 'date';
@@ -108,16 +110,30 @@ interface DatePickerInputProps {
 }
 
 function DatePickerInput({ value, onChangeText, placeholder }: DatePickerInputProps) {
+  const [showCal, setShowCal] = useState(false);
   return (
-    <TextInput
-      style={styles.modalInput}
-      value={value}
-      onChangeText={(t) => onChangeText(formatDateInput(t))}
-      placeholder={placeholder}
-      placeholderTextColor={COLORS.gray}
-      keyboardType="number-pad"
-      maxLength={8}
-    />
+    <View>
+      <View style={styles.dateRow}>
+        <TextInput
+          style={styles.dateInput}
+          value={value}
+          onChangeText={(t) => onChangeText(formatDateInput(t))}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.gray}
+          keyboardType="number-pad"
+          maxLength={8}
+        />
+        <TouchableOpacity style={styles.calIconBtn} onPress={() => setShowCal(true)}>
+          <Calendar size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+      <CalendarModal
+        visible={showCal}
+        currentValue={value}
+        onClose={() => setShowCal(false)}
+        onSelect={(d) => { onChangeText(d); setShowCal(false); }}
+      />
+    </View>
   );
 }
 
@@ -411,7 +427,7 @@ export default function FlightEndorsementsScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => { if (router.canGoBack()) { router.back(); } else { router.navigate('/endorsements' as never); } }}>
           <ChevronLeft size={22} color={COLORS.white} />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
@@ -803,5 +819,26 @@ const styles = StyleSheet.create({
   photoViewerImage: {
     width: '90%',
     height: '70%',
+  },
+  dateRow: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  dateInput: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: COLORS.black,
+  },
+  calIconBtn: {
+    padding: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: COLORS.lightGray,
   },
 });
