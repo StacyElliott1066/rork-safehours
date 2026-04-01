@@ -14,13 +14,13 @@ export default function SettingsScreen() {
   } = useActivityStore();
   
   const [thresholds, setThresholds] = useState({
-    maxFlightHours: warningThresholds.maxFlightHours.toString(),
-    minRestBetweenDays: warningThresholds.minRestBetweenDays.toString(),
-    maxContactTime: warningThresholds.maxContactTime.toString(),
-    maxDutyDay: warningThresholds.maxDutyDay.toString(),
-    maxConsecutiveDays: warningThresholds.maxConsecutiveDays.toString(),
-    maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
-    maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
+    maxFlightHours: (warningThresholds?.maxFlightHours ?? 8).toString(),
+    minRestBetweenDays: (warningThresholds?.minRestBetweenDays ?? 10).toString(),
+    maxContactTime: (warningThresholds?.maxContactTime ?? 10).toString(),
+    maxDutyDay: (warningThresholds?.maxDutyDay ?? 16).toString(),
+    maxConsecutiveDays: (warningThresholds?.maxConsecutiveDays ?? 15).toString(),
+    maxWeeklyHours: (warningThresholds?.maxWeeklyHours ?? 40).toString(),
+    maxPastSevenDaysHours: (warningThresholds?.maxPastSevenDaysHours ?? 50).toString(),
   });
   
   const [showChangeLog, setShowChangeLog] = useState(false);
