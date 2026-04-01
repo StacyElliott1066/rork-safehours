@@ -94,83 +94,97 @@ export default function SettingsScreen() {
                 <Text style={styles.label}>{"Max Flight Instruction Hours "}<Text style={styles.labelSmall}>{"(24h)"}</Text></Text>
                 <Text style={styles.uneditableText}>{"uneditable"}</Text>
               </View>
-              <View style={styles.fixedValueContainer}>
-                <Text style={styles.fixedValue}>8</Text>
+              <View style={styles.inputRow}>
+                <View style={styles.fixedValueContainer}>
+                  <Text style={styles.fixedValue}>8</Text>
+                </View>
+                <Text style={styles.unit}>hours</Text>
               </View>
-              <Text style={styles.unit}>hours</Text>
               <Text style={styles.faaNote}>FAA Limit</Text>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Min Rest Between Days</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.minRestBetweenDays}
-                onChangeText={(text) => setThresholds({ ...thresholds, minRestBetweenDays: text })}
-                keyboardType="numeric"
-                placeholder="10"
-              />
-              <Text style={styles.unit}>hours</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.minRestBetweenDays}
+                  onChangeText={(text) => setThresholds({ ...thresholds, minRestBetweenDays: text })}
+                  keyboardType="numeric"
+                  placeholder="10"
+                />
+                <Text style={styles.unit}>hours</Text>
+              </View>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Max Contact Time</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxContactTime}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxContactTime: text })}
-                keyboardType="numeric"
-                placeholder="10"
-              />
-              <Text style={styles.unit}>hours</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.maxContactTime}
+                  onChangeText={(text) => setThresholds({ ...thresholds, maxContactTime: text })}
+                  keyboardType="numeric"
+                  placeholder="10"
+                />
+                <Text style={styles.unit}>hours</Text>
+              </View>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Max Duty Day</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxDutyDay}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxDutyDay: text })}
-                keyboardType="numeric"
-                placeholder="16"
-              />
-              <Text style={styles.unit}>hours</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.maxDutyDay}
+                  onChangeText={(text) => setThresholds({ ...thresholds, maxDutyDay: text })}
+                  keyboardType="numeric"
+                  placeholder="16"
+                />
+                <Text style={styles.unit}>hours</Text>
+              </View>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Max Consecutive Days</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxConsecutiveDays}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxConsecutiveDays: text })}
-                keyboardType="numeric"
-                placeholder="15"
-              />
-              <Text style={styles.unit}>days</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.maxConsecutiveDays}
+                  onChangeText={(text) => setThresholds({ ...thresholds, maxConsecutiveDays: text })}
+                  keyboardType="numeric"
+                  placeholder="15"
+                />
+                <Text style={styles.unit}>days</Text>
+              </View>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Max Weekly Hours</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxWeeklyHours}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
-                keyboardType="numeric"
-                placeholder="40"
-              />
-              <Text style={styles.unit}>hours</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.maxWeeklyHours}
+                  onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
+                  keyboardType="numeric"
+                  placeholder="40"
+                />
+                <Text style={styles.unit}>hours</Text>
+              </View>
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Max Past 7 Days Hours</Text>
-              <TextInput
-                style={styles.input}
-                value={thresholds.maxPastSevenDaysHours}
-                onChangeText={(text) => setThresholds({ ...thresholds, maxPastSevenDaysHours: text })}
-                keyboardType="numeric"
-                placeholder="50"
-              />
-              <Text style={styles.unit}>hours</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={thresholds.maxPastSevenDaysHours}
+                  onChangeText={(text) => setThresholds({ ...thresholds, maxPastSevenDaysHours: text })}
+                  keyboardType="numeric"
+                  placeholder="50"
+                />
+                <Text style={styles.unit}>hours</Text>
+              </View>
             </View>
           </View>
           
@@ -248,12 +262,20 @@ const styles = StyleSheet.create({
   inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   labelWrap: {
     flex: 1,
   },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 120,
+    justifyContent: 'flex-end',
+  },
   label: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -267,20 +289,20 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
   },
   input: {
-    width: 80,
+    width: 60,
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 4,
     padding: 8,
     textAlign: 'center',
-    marginHorizontal: 8,
+    marginRight: 6,
   },
   fixedValueContainer: {
-    width: 80,
+    width: 60,
     backgroundColor: COLORS.lightGray,
     borderRadius: 4,
     padding: 8,
-    marginHorizontal: 8,
+    marginRight: 6,
     alignItems: 'center',
   },
   fixedValue: {
@@ -297,7 +319,7 @@ const styles = StyleSheet.create({
     bottom: -15,
   },
   unit: {
-    width: 50,
+    width: 40,
     fontSize: 14,
     color: COLORS.gray,
   },
