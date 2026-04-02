@@ -2,6 +2,7 @@ import { Activity } from '@/types/activity';
 import { File, Paths } from 'expo-file-system';
 import { Platform, Alert, Share } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import { normalizeDateToYYYYMMDD } from '@/utils/time';
 
 // Convert activities to CSV string
 export const activitiesToCSV = (activities: Activity[]): string => {
@@ -106,13 +107,14 @@ export const parseCSV = (csvString: string): Activity[] => {
     
     // Create activity object
     const prePostValue = Number(fields[header.indexOf('prePostValue')]) || 0;
+    const rawDate = fields[header.indexOf('date')];
+    const normalizedDate = normalizeDateToYYYYMMDD(rawDate) ?? rawDate;
     const activity: Activity = {
-      // Use existing ID if present, otherwise generate a new one
       id: header.includes('id') && fields[header.indexOf('id')] ? 
           fields[header.indexOf('id')] : 
           `import-${Date.now()}-${i}`,
       type: fields[header.indexOf('type')] as any,
-      date: fields[header.indexOf('date')],
+      date: normalizedDate,
       startTime: fields[header.indexOf('startTime')],
       endTime: fields[header.indexOf('endTime')],
       preValue: prePostValue / 2,

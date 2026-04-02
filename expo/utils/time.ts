@@ -161,8 +161,9 @@ export const calculateFlightHours = (activities: Activity[], date: string): numb
       return 0;
     }
     
+    const normalizedDate = normalizeDateToYYYYMMDD(date) ?? date;
     return activities
-      .filter(activity => activity.date === date && activity.type === 'Flight')
+      .filter(activity => (normalizeDateToYYYYMMDD(activity.date) ?? activity.date) === normalizedDate && activity.type === 'Flight')
       .reduce((total, activity) => {
         const duration = calculateDuration(activity.startTime, activity.endTime);
         return total + duration; // Only count actual flight time, not pre/post
@@ -180,8 +181,9 @@ export const calculateContactTime = (activities: Activity[], date: string): numb
       return 0;
     }
     
+    const normalizedDate = normalizeDateToYYYYMMDD(date) ?? date;
     return activities
-      .filter(activity => activity.date === date && !['Other Internal', 'Other External'].includes(activity.type))
+      .filter(activity => (normalizeDateToYYYYMMDD(activity.date) ?? activity.date) === normalizedDate && !['Other Internal', 'Other External'].includes(activity.type))
       .reduce((total, activity) => {
         const duration = calculateDuration(activity.startTime, activity.endTime);
         // Calculate pre/post time using separate values or legacy combined value
@@ -224,15 +226,15 @@ export const calculateRollingContactTime = (activities: Activity[], fromTime: Da
       if (['Other Internal', 'Other External'].includes(activity.type)) return; // Skip activities that don't affect contact time
       
       try {
-        // Validate date format
-        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const normalizedDate = normalizeDateToYYYYMMDD(activity.date);
+        if (!normalizedDate) {
           console.error("Invalid activity date format:", activity.date);
           return;
         }
         
         // Parse the activity date with noon time to avoid timezone issues
         // Use the exact date string without timezone conversion
-        const [year, month, day] = activity.date.split('-').map(Number);
+        const [year, month, day] = normalizedDate.split('-').map(Number);
         const activityDate = new Date(year, month - 1, day, 12, 0, 0);
         
         if (isNaN(activityDate.getTime())) {
@@ -308,7 +310,8 @@ export const calculateDutyDay = (activities: Activity[], date: string): number =
       return 0;
     }
     
-    const dayActivities = activities.filter(activity => activity.date === date);
+    const normalizedInputDate = normalizeDateToYYYYMMDD(date) ?? date;
+    const dayActivities = activities.filter(activity => (normalizeDateToYYYYMMDD(activity.date) ?? activity.date) === normalizedInputDate);
     
     if (dayActivities.length === 0) return 0;
     
@@ -353,14 +356,13 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
       return 24; // Default to full rest if invalid input
     }
     
-    // Validate date format
-    if (!currentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalizedCurrentDate = normalizeDateToYYYYMMDD(currentDate);
+    if (!normalizedCurrentDate) {
       console.error("Invalid date format:", currentDate);
       return 24;
     }
     
-    // Parse the current date with noon time to avoid timezone issues
-    const [year, month, day] = currentDate.split('-').map(Number);
+    const [year, month, day] = normalizedCurrentDate.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
     
     if (isNaN(date.getTime())) {
@@ -374,8 +376,8 @@ export const calculateRestBetween = (activities: Activity[], currentDate: string
     const prevDateStr = prevDate.toISOString().split('T')[0];
     
     // Get activities for both days
-    const prevDayActivities = activities.filter(a => a.date === prevDateStr);
-    const currentDayActivities = activities.filter(a => a.date === currentDate);
+    const prevDayActivities = activities.filter(a => (normalizeDateToYYYYMMDD(a.date) ?? a.date) === prevDateStr);
+    const currentDayActivities = activities.filter(a => (normalizeDateToYYYYMMDD(a.date) ?? a.date) === normalizedCurrentDate);
     
     if (prevDayActivities.length === 0 || currentDayActivities.length === 0) {
       return 24; // No activities on one of the days, so full rest
@@ -432,14 +434,13 @@ export const calculateConsecutiveDays = (activities: Activity[], currentDate: st
       return 0;
     }
     
-    // Validate date format
-    if (!currentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalizedCurrentDate = normalizeDateToYYYYMMDD(currentDate);
+    if (!normalizedCurrentDate) {
       console.error("Invalid date format:", currentDate);
       return 0;
     }
     
-    // Parse the current date with noon time to avoid timezone issues
-    const [year, month, day] = currentDate.split('-').map(Number);
+    const [year, month, day] = normalizedCurrentDate.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
     
     if (isNaN(date.getTime())) {
@@ -455,7 +456,7 @@ export const calculateConsecutiveDays = (activities: Activity[], currentDate: st
       checkDate.setDate(checkDate.getDate() - i);
       const checkDateStr = checkDate.toISOString().split('T')[0];
       
-      const dayActivities = activities.filter(a => a.date === checkDateStr && a.type !== 'Other External');
+      const dayActivities = activities.filter(a => (normalizeDateToYYYYMMDD(a.date) ?? a.date) === checkDateStr && a.type !== 'Other External');
       if (dayActivities.length === 0) {
         break; // Break on first day with no activities
       }
@@ -477,14 +478,13 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
       return 0;
     }
     
-    // Validate date format
-    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalizedDate = normalizeDateToYYYYMMDD(date);
+    if (!normalizedDate) {
       console.error("Invalid date format:", date);
       return 0;
     }
     
-    // Parse the current date with noon time to avoid timezone issues
-    const [year, month, day] = date.split('-').map(Number);
+    const [year, month, day] = normalizedDate.split('-').map(Number);
     const targetDate = new Date(year, month - 1, day, 12, 0, 0);
     
     if (isNaN(targetDate.getTime())) {
@@ -512,14 +512,13 @@ export const calculateWeeklyHours = (activities: Activity[], date: string): numb
       if (activity.type === 'Other External') return; // Skip 'Other External' type activities
       
       try {
-        // Validate date format
-        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const actNormalized = normalizeDateToYYYYMMDD(activity.date);
+        if (!actNormalized) {
           console.error("Invalid activity date format:", activity.date);
           return;
         }
         
-        // Parse the activity date with noon time to avoid timezone issues
-        const [actYear, actMonth, actDay] = activity.date.split('-').map(Number);
+        const [actYear, actMonth, actDay] = actNormalized.split('-').map(Number);
         const activityDate = new Date(actYear, actMonth - 1, actDay, 12, 0, 0);
         
         if (isNaN(activityDate.getTime())) {
@@ -589,14 +588,13 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
       return 0;
     }
     
-    // Validate date format
-    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalizedDate = normalizeDateToYYYYMMDD(date);
+    if (!normalizedDate) {
       console.error("Invalid date format:", date);
       return 0;
     }
     
-    // Parse the current date with noon time to avoid timezone issues
-    const [year, month, day] = date.split('-').map(Number);
+    const [year, month, day] = normalizedDate.split('-').map(Number);
     const targetDate = new Date(year, month - 1, day, 12, 0, 0);
     
     if (isNaN(targetDate.getTime())) {
@@ -621,14 +619,13 @@ export const calculatePastSevenDaysHours = (activities: Activity[], date: string
       if (activity.type === 'Other External') return; // Skip 'Other External' type activities
       
       try {
-        // Validate date format
-        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const actNormalized = normalizeDateToYYYYMMDD(activity.date);
+        if (!actNormalized) {
           console.error("Invalid activity date format:", activity.date);
           return;
         }
         
-        // Parse the activity date with noon time to avoid timezone issues
-        const [actYear, actMonth, actDay] = activity.date.split('-').map(Number);
+        const [actYear, actMonth, actDay] = actNormalized.split('-').map(Number);
         const activityDate = new Date(actYear, actMonth - 1, actDay, 12, 0, 0);
         
         if (isNaN(activityDate.getTime())) {
@@ -715,15 +712,13 @@ export const calculateRolling24HourFlightTime = (activities: Activity[], fromTim
       if (activity.type !== 'Flight') return; // Only count flight activities
       
       try {
-        // Validate date format
-        if (!activity.date || !activity.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const actNormalized = normalizeDateToYYYYMMDD(activity.date);
+        if (!actNormalized) {
           console.error("Invalid activity date format:", activity.date);
           return;
         }
         
-        // Parse the activity date with noon time to avoid timezone issues
-        // Use the exact date string without timezone conversion
-        const [year, month, day] = activity.date.split('-').map(Number);
+        const [year, month, day] = actNormalized.split('-').map(Number);
         const activityDate = new Date(year, month - 1, day, 12, 0, 0);
         
         if (isNaN(activityDate.getTime())) {
@@ -787,9 +782,10 @@ export const checkTimeOverlap = (
       return false;
     }
     
+    const normalizedNewDate = normalizeDateToYYYYMMDD(newActivity.date) ?? newActivity.date;
     // Filter activities on the same date, excluding the one being edited
     const sameDate = activities.filter(a => 
-      a.date === newActivity.date && 
+      (normalizeDateToYYYYMMDD(a.date) ?? a.date) === normalizedNewDate && 
       (editingId ? a.id !== editingId : true)
     );
     
@@ -856,6 +852,33 @@ export const getCurrentTime = (): string => {
   }
 };
 
+// Normalize any date string to YYYY-MM-DD format
+// Handles: M/D/YYYY, MM/DD/YYYY, M/D/YY, MM/DD/YY, YYYY-MM-DD
+export const normalizeDateToYYYYMMDD = (dateStr: string): string | null => {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  const trimmed = dateStr.trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  const slashParts = trimmed.split('/');
+  if (slashParts.length === 3) {
+    const month = parseInt(slashParts[0], 10);
+    const day = parseInt(slashParts[1], 10);
+    let year = parseInt(slashParts[2], 10);
+    if (!isNaN(month) && !isNaN(day) && !isNaN(year) && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      if (year < 100) {
+        year = year < 50 ? 2000 + year : 1900 + year;
+      }
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+
+  console.error('Could not normalize date:', dateStr);
+  return null;
+};
+
 // Get current date in YYYY-MM-DD format using local time
 export const getCurrentDate = (): string => {
   try {
@@ -883,14 +906,13 @@ export const formatDate = (dateString: string, format: 'full' | 'short' = 'full'
       return "Invalid date";
     }
     
-    // Validate date format
-    if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalized = normalizeDateToYYYYMMDD(dateString);
+    if (!normalized) {
       console.error("Invalid date format:", dateString);
-      return "Invalid date format"; // Return a user-friendly message
+      return "Invalid date format";
     }
     
-    // Parse the date with noon time to avoid timezone issues
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [year, month, day] = normalized.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
     
     if (isNaN(date.getTime())) {
@@ -925,14 +947,13 @@ export const safeParseDate = (dateString: string): Date | null => {
       return null;
     }
     
-    // Validate date format
-    if (!dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const normalized = normalizeDateToYYYYMMDD(dateString);
+    if (!normalized) {
       console.error("Invalid date format:", dateString);
       return null;
     }
     
-    // Parse the date with noon time to avoid timezone issues
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [year, month, day] = normalized.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
     
     // Check if the date is valid

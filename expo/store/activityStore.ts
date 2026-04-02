@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Activity, ActivityType, WarningThresholds, WarningStatus } from '@/types/activity';
-import { getCurrentDate, getCurrentTime, checkTimeOverlap } from '@/utils/time';
+import { Activity, WarningThresholds, WarningStatus } from '@/types/activity';
+import { getCurrentDate, checkTimeOverlap, normalizeDateToYYYYMMDD } from '@/utils/time';
 
 interface ActivityState {
   activities: Activity[];
@@ -76,6 +76,7 @@ export const useActivityStore = create<ActivityState>()(
         
         const newActivity: Activity = {
           ...activityData,
+          date: normalizeDateToYYYYMMDD(activityData.date) ?? activityData.date,
           id: Date.now().toString(),
           // Ensure both new and legacy fields are set for compatibility
           preValue: activityData.preValue || 0,
@@ -119,6 +120,7 @@ export const useActivityStore = create<ActivityState>()(
         
         const activityWithCompatibility = {
           ...updatedActivity,
+          date: normalizeDateToYYYYMMDD(updatedActivity.date) ?? updatedActivity.date,
           // Ensure both new and legacy fields are set for compatibility
           preValue: updatedActivity.preValue || 0,
           postValue: updatedActivity.postValue || 0,
@@ -196,7 +198,12 @@ export const useActivityStore = create<ActivityState>()(
       },
       
       importActivities: (activities) => {
-        set({ activities });
+        const normalized = activities.map((a) => ({
+          ...a,
+          id: a.id || `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          date: normalizeDateToYYYYMMDD(a.date) ?? a.date,
+        }));
+        set({ activities: normalized });
       },
     }),
     {

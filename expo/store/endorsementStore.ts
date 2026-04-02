@@ -54,7 +54,7 @@ export const [EndorsementProvider, useEndorsementStore] = createContextHook(() =
     (data: Omit<FlightEndorsement, 'id' | 'createdAt'>) => {
       const newItem: FlightEndorsement = {
         ...data,
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         createdAt: Date.now(),
       };
       setFlightEndorsements((prev) => [...prev, newItem]);
@@ -79,7 +79,7 @@ export const [EndorsementProvider, useEndorsementStore] = createContextHook(() =
     (data: Omit<WrittenPracticalTest, 'id' | 'createdAt'>) => {
       const newItem: WrittenPracticalTest = {
         ...data,
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         createdAt: Date.now(),
       };
       setWrittenPracticalTests((prev) => [...prev, newItem]);
