@@ -272,6 +272,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   label: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '500',
   },
