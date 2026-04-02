@@ -2,10 +2,12 @@ export type TestType =
   | 'Private Pilot'
   | 'Instrument Rating'
   | 'Commercial Pilot'
-  | 'Multi Engine Practical'
+  | 'Multi Engine'
   | 'CFI'
   | 'CFII'
-  | 'MEI Practical';
+  | 'MEI'
+  | 'CFI-FOI'
+  | 'CFI-FIA';
 
 export type TestCategory = 'Written' | 'Practical';
 export type TestResult = 'Pass' | 'Fail';

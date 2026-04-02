@@ -37,14 +37,36 @@ import {
   SortDirection,
 } from '@/types/endorsement';
 
-const TEST_TYPES: TestType[] = [
+const WRITTEN_TEST_TYPES: TestType[] = [
   'Private Pilot',
   'Instrument Rating',
   'Commercial Pilot',
-  'Multi Engine Practical',
   'CFI',
   'CFII',
-  'MEI Practical',
+  'CFI-FOI',
+  'CFI-FIA',
+];
+
+const PRACTICAL_TEST_TYPES: TestType[] = [
+  'Private Pilot',
+  'Instrument Rating',
+  'Commercial Pilot',
+  'Multi Engine',
+  'CFI',
+  'CFII',
+  'MEI',
+];
+
+const ALL_TEST_TYPES: TestType[] = [
+  'Private Pilot',
+  'Instrument Rating',
+  'Commercial Pilot',
+  'Multi Engine',
+  'CFI',
+  'CFII',
+  'MEI',
+  'CFI-FOI',
+  'CFI-FIA',
 ];
 
 function formatDateInput(text: string): string {
@@ -259,10 +281,16 @@ export default function WrittenPracticalScreen() {
   const handleTestTypeSelect = useCallback((type: TestType) => {
     setFormTestType(type);
     setShowTestTypeDropdown(false);
-    if (type === 'Multi Engine Practical' || type === 'MEI Practical') {
+    if (type === 'Multi Engine' || type === 'MEI') {
       setFormCategory('Practical');
+    } else if (type === 'CFI-FOI' || type === 'CFI-FIA') {
+      setFormCategory('Written');
     }
   }, []);
+
+  const availableTestTypes = useMemo(() => {
+    return formCategory === 'Written' ? WRITTEN_TEST_TYPES : PRACTICAL_TEST_TYPES;
+  }, [formCategory]);
 
   const handleAdd = useCallback(() => {
     if (!formName.trim()) {
@@ -398,7 +426,7 @@ export default function WrittenPracticalScreen() {
                 </TouchableOpacity>
                 {showTestTypeDropdown && (
                   <View style={localStyles.dropdownList}>
-                    {TEST_TYPES.map((type) => (
+                    {availableTestTypes.map((type) => (
                       <TouchableOpacity
                         key={type}
                         style={[localStyles.dropdownItem, formTestType === type && localStyles.dropdownItemActive]}
@@ -423,7 +451,13 @@ export default function WrittenPracticalScreen() {
                     <TouchableOpacity
                       key={cat}
                       style={[localStyles.segmentButton, formCategory === cat && localStyles.segmentButtonActive]}
-                      onPress={() => setFormCategory(cat)}
+                      onPress={() => {
+                        setFormCategory(cat);
+                        const types = cat === 'Written' ? WRITTEN_TEST_TYPES : PRACTICAL_TEST_TYPES;
+                        if (!types.includes(formTestType)) {
+                          setFormTestType(types[0]);
+                        }
+                      }}
                     >
                       <Text
                         style={[
@@ -474,7 +508,7 @@ export default function WrittenPracticalScreen() {
         </View>
       </Modal>
     ),
-    [formName, formDate, formTestType, formCategory, formResult, showTestTypeDropdown, allNames, handleTestTypeSelect]
+    [formName, formDate, formTestType, formCategory, formResult, showTestTypeDropdown, allNames, handleTestTypeSelect, availableTestTypes]
   );
 
   return (
@@ -538,7 +572,7 @@ export default function WrittenPracticalScreen() {
             <Text style={localStyles.filterSectionLabel}>Test Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={localStyles.chipScroll}>
               {renderFilterChip('All', filterTestType === 'All', () => setFilterTestType('All'))}
-              {TEST_TYPES.map((type) =>
+              {ALL_TEST_TYPES.map((type) =>
                 renderFilterChip(type, filterTestType === type, () => setFilterTestType(type))
               )}
             </ScrollView>
@@ -937,7 +971,7 @@ const localStyles = StyleSheet.create({
     borderRadius: 12,
   },
   badgeWritten: {
-    backgroundColor: '#1976D2',
+    backgroundColor: COLORS.primary,
   },
   badgePractical: {
     backgroundColor: '#E65100',
