@@ -5,7 +5,7 @@ import { COLORS } from '@/constants/colors';
 
 export default function SettingsScreen() {
   const { warningThresholds, updateWarningThresholds, resetWarningThresholds } = useActivityStore();
-  
+
   const [thresholds, setThresholds] = useState({
     maxFlightHours: warningThresholds.maxFlightHours.toString(),
     minRestBetweenDays: warningThresholds.minRestBetweenDays.toString(),
@@ -15,11 +15,10 @@ export default function SettingsScreen() {
     maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
     maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
   });
-  
+
   const handleSave = () => {
-    // Validate inputs
     const numericValues = {
-      maxFlightHours: 8, // Always use 8 as this is an FAA mandatory limit
+      maxFlightHours: 8,
       minRestBetweenDays: parseFloat(thresholds.minRestBetweenDays),
       maxContactTime: parseFloat(thresholds.maxContactTime),
       maxDutyDay: parseFloat(thresholds.maxDutyDay),
@@ -27,25 +26,25 @@ export default function SettingsScreen() {
       maxWeeklyHours: parseFloat(thresholds.maxWeeklyHours),
       maxPastSevenDaysHours: parseFloat(thresholds.maxPastSevenDaysHours),
     };
-    
-    // Check for invalid values (excluding maxFlightHours which is fixed)
-    if ([
-      numericValues.minRestBetweenDays,
-      numericValues.maxContactTime,
-      numericValues.maxDutyDay,
-      numericValues.maxConsecutiveDays,
-      numericValues.maxWeeklyHours,
-      numericValues.maxPastSevenDaysHours
-    ].some(isNaN)) {
+
+    if (
+      [
+        numericValues.minRestBetweenDays,
+        numericValues.maxContactTime,
+        numericValues.maxDutyDay,
+        numericValues.maxConsecutiveDays,
+        numericValues.maxWeeklyHours,
+        numericValues.maxPastSevenDaysHours,
+      ].some(isNaN)
+    ) {
       Alert.alert('Invalid Input', 'Please enter valid numbers for all thresholds.');
       return;
     }
-    
-    // Update thresholds
+
     updateWarningThresholds(numericValues);
     Alert.alert('Success', 'Warning thresholds updated successfully.');
   };
-  
+
   const handleReset = () => {
     Alert.alert(
       'Reset Thresholds',
@@ -60,7 +59,7 @@ export default function SettingsScreen() {
           onPress: () => {
             resetWarningThresholds();
             setThresholds({
-              maxFlightHours: '8', // Always 8 (FAA mandatory)
+              maxFlightHours: '8',
               minRestBetweenDays: '10',
               maxContactTime: '10',
               maxDutyDay: '16',
@@ -74,7 +73,7 @@ export default function SettingsScreen() {
       ]
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -82,28 +81,35 @@ export default function SettingsScreen() {
           <View style={styles.headerContainer}>
             <Text style={styles.headerTitle}>Settings</Text>
           </View>
-          
+
           <Text style={styles.title}>Warning Thresholds</Text>
-          
+
           <View style={styles.card}>
             <View style={styles.inputGroup}>
               <View style={styles.labelWrap}>
-                <Text style={styles.label}>{"Max Flight Instruction Hours "}<Text style={styles.labelSmall}>{"(24h)"}</Text></Text>
-                <Text style={styles.uneditableText}>{"uneditable"}</Text>
+                <Text style={styles.label}>
+                  Max Flight Instruction Hours <Text style={styles.labelSmall}>(24h)</Text>
+                </Text>
+                <Text style={styles.uneditableText}>uneditable</Text>
               </View>
+
               <View style={styles.inputRow}>
                 <View style={styles.fixedValueContainer}>
                   <Text style={styles.fixedValue}>8</Text>
                 </View>
+
                 <View style={styles.unitWrap}>
                   <Text style={styles.unit}>hours</Text>
                   <Text style={styles.faaNote}>FAA Limit</Text>
                 </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Min Rest Between Days</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Min Rest Between Days</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -112,12 +118,17 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="10"
                 />
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Contact Time</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Max Contact Time</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -126,12 +137,17 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="10"
                 />
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Duty Day</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Max Duty Day</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -140,12 +156,17 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="16"
                 />
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Consecutive Days</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Max Consecutive Days</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -154,12 +175,17 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="15"
                 />
-                <Text style={styles.unit}>days</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>days</Text>
+                </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Weekly Hours</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Max Weekly Hours</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -168,12 +194,17 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="40"
                 />
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                </View>
               </View>
             </View>
-            
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Past 7 Days Hours</Text>
+              <View style={styles.labelWrap}>
+                <Text style={styles.label}>Max Past 7 Days Hours</Text>
+              </View>
+
               <View style={styles.inputRow}>
                 <TextInput
                   style={styles.input}
@@ -182,27 +213,23 @@ export default function SettingsScreen() {
                   keyboardType="numeric"
                   placeholder="50"
                 />
-                <Text style={styles.unit}>hours</Text>
+                <View style={styles.unitWrap}>
+                  <Text style={styles.unit}>hours</Text>
+                </View>
               </View>
             </View>
           </View>
-          
+
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={[styles.button, styles.resetButton]}
-              onPress={handleReset}
-            >
+            <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={handleReset}>
               <Text style={styles.resetButtonText}>Reset to Defaults</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSave}
-            >
+
+            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Save Changes</Text>
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.aboutSectionHeader}>About</Text>
           <View style={styles.aboutContainer}>
             <Text style={styles.aboutTitle}>About SafeHours</Text>
@@ -266,22 +293,23 @@ const styles = StyleSheet.create({
   inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 16,
   },
   labelWrap: {
-    flex: 1,
-    marginRight: 12,
+    width: '58%',
+    paddingRight: 10,
   },
   inputRow: {
+    width: '42%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   label: {
-    flex: 1,
     fontSize: 15,
     fontWeight: '500',
-    marginRight: 12,
+    color: COLORS.black,
+    lineHeight: 20,
   },
   labelSmall: {
     fontSize: 14,
@@ -291,6 +319,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontStyle: 'italic',
     color: COLORS.gray,
+    marginTop: 2,
   },
   input: {
     width: 50,
@@ -301,6 +330,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     textAlign: 'center',
     fontSize: 15,
+    backgroundColor: COLORS.white,
   },
   fixedValueContainer: {
     width: 50,
@@ -309,6 +339,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 4,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   fixedValue: {
     fontSize: 16,
@@ -316,8 +347,9 @@ const styles = StyleSheet.create({
     color: COLORS.black,
   },
   unitWrap: {
-    alignItems: 'flex-end',
-    minWidth: 40,
+    width: 56,
+    marginLeft: 8,
+    alignItems: 'flex-start',
   },
   faaNote: {
     fontSize: 11,
@@ -326,11 +358,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   unit: {
-    width: 42,
     fontSize: 14,
     color: COLORS.gray,
-    textAlign: 'right',
-    marginLeft: 6,
   },
   buttonContainer: {
     flexDirection: 'row',
