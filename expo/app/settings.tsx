@@ -1,27 +1,11 @@
-import React, { useLayoutEffect, useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useActivityStore } from '@/store/activityStore';
+import { COLORS } from '@/constants/colors';
 
 export default function SettingsScreen() {
-  const navigation = useNavigation<any>();
   const { warningThresholds, updateWarningThresholds, resetWarningThresholds } = useActivityStore();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-      title: '',
-    });
-  }, [navigation]);
-
+  
   const [thresholds, setThresholds] = useState({
     maxFlightHours: warningThresholds.maxFlightHours.toString(),
     minRestBetweenDays: warningThresholds.minRestBetweenDays.toString(),
@@ -31,10 +15,11 @@ export default function SettingsScreen() {
     maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
     maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
   });
-
+  
   const handleSave = () => {
+    // Validate inputs
     const numericValues = {
-      maxFlightHours: 8,
+      maxFlightHours: 8, // Always use 8 as this is an FAA mandatory limit
       minRestBetweenDays: parseFloat(thresholds.minRestBetweenDays),
       maxContactTime: parseFloat(thresholds.maxContactTime),
       maxDutyDay: parseFloat(thresholds.maxDutyDay),
@@ -42,37 +27,40 @@ export default function SettingsScreen() {
       maxWeeklyHours: parseFloat(thresholds.maxWeeklyHours),
       maxPastSevenDaysHours: parseFloat(thresholds.maxPastSevenDaysHours),
     };
-
-    if (
-      [
-        numericValues.minRestBetweenDays,
-        numericValues.maxContactTime,
-        numericValues.maxDutyDay,
-        numericValues.maxConsecutiveDays,
-        numericValues.maxWeeklyHours,
-        numericValues.maxPastSevenDaysHours,
-      ].some(isNaN)
-    ) {
+    
+    // Check for invalid values (excluding maxFlightHours which is fixed)
+    if ([
+      numericValues.minRestBetweenDays,
+      numericValues.maxContactTime,
+      numericValues.maxDutyDay,
+      numericValues.maxConsecutiveDays,
+      numericValues.maxWeeklyHours,
+      numericValues.maxPastSevenDaysHours
+    ].some(isNaN)) {
       Alert.alert('Invalid Input', 'Please enter valid numbers for all thresholds.');
       return;
     }
-
+    
+    // Update thresholds
     updateWarningThresholds(numericValues);
     Alert.alert('Success', 'Warning thresholds updated successfully.');
   };
-
+  
   const handleReset = () => {
     Alert.alert(
       'Reset Thresholds',
       'Are you sure you want to reset all warning thresholds to default values?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
         {
           text: 'Reset',
           onPress: () => {
             resetWarningThresholds();
             setThresholds({
-              maxFlightHours: '8',
+              maxFlightHours: '8', // Always 8 (FAA mandatory)
               minRestBetweenDays: '10',
               maxContactTime: '10',
               maxDutyDay: '16',
@@ -86,131 +74,129 @@ export default function SettingsScreen() {
       ]
     );
   };
-
-  const renderEditableRow = (
-    label: string,
-    value: string,
-    key: keyof typeof thresholds,
-    unit: string,
-    placeholder: string
-  ) => (
-    <View style={styles.row} key={key}>
-      <View style={styles.labelCell}>
-        <Text style={styles.rowLabel}>{label}</Text>
-      </View>
-
-      <View style={styles.valueCell}>
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={(text) => setThresholds({ ...thresholds, [key]: text })}
-          keyboardType="numeric"
-          placeholder={placeholder}
-          placeholderTextColor="#7a7a7a"
-        />
-      </View>
-
-      <View style={styles.unitCell}>
-        <Text style={styles.unitText}>{unit}</Text>
-      </View>
-    </View>
-  );
-
+  
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.pageTitleWrap}>
-          <Text style={styles.pageTitle}>Settings</Text>
-        </View>
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeaderText}>Warning Thresholds</Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.rowTop}>
-            <View style={styles.labelCell}>
-              <Text style={styles.rowLabelTop}>
-                Max Flight Instruction{'\n'}Hours <Text style={styles.rowLabelSmall}>(24h)</Text>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.content}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerTitle}>Settings</Text>
+          </View>
+          
+          <Text style={styles.title}>Warning Thresholds</Text>
+          <Text style={styles.description}>
+            Customize the thresholds used to determine when warnings are displayed.
+          </Text>
+          
+          <View style={styles.card}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>
+                Max Flight Instruction Hours <Text style={styles.labelSmall}>(24h)</Text>
+                <Text style={styles.uneditableText}> uneditable</Text>
               </Text>
-              <Text style={styles.uneditableText}>uneditable</Text>
-            </View>
-
-            <View style={styles.valueCell}>
-              <View style={styles.fixedBox}>
-                <Text style={styles.fixedBoxText}>8</Text>
+              <View style={styles.fixedValueContainer}>
+                <Text style={styles.fixedValue}>8</Text>
               </View>
+              <Text style={styles.unit}>hours</Text>
+              <Text style={styles.faaNote}>FAA Limit</Text>
             </View>
-
-            <View style={styles.unitCell}>
-              <Text style={styles.unitText}>hours</Text>
-              <Text style={styles.faaText}>FAA Limit</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Min Rest Between Days</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.minRestBetweenDays}
+                onChangeText={(text) => setThresholds({ ...thresholds, minRestBetweenDays: text })}
+                keyboardType="numeric"
+                placeholder="10"
+              />
+              <Text style={styles.unit}>hours</Text>
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Max Contact Time</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.maxContactTime}
+                onChangeText={(text) => setThresholds({ ...thresholds, maxContactTime: text })}
+                keyboardType="numeric"
+                placeholder="10"
+              />
+              <Text style={styles.unit}>hours</Text>
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Max Duty Day</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.maxDutyDay}
+                onChangeText={(text) => setThresholds({ ...thresholds, maxDutyDay: text })}
+                keyboardType="numeric"
+                placeholder="16"
+              />
+              <Text style={styles.unit}>hours</Text>
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Max Consecutive Days</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.maxConsecutiveDays}
+                onChangeText={(text) => setThresholds({ ...thresholds, maxConsecutiveDays: text })}
+                keyboardType="numeric"
+                placeholder="15"
+              />
+              <Text style={styles.unit}>days</Text>
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Max Weekly Hours</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.maxWeeklyHours}
+                onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
+                keyboardType="numeric"
+                placeholder="40"
+              />
+              <Text style={styles.unit}>hours</Text>
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Max Past 7 Days Hours</Text>
+              <TextInput
+                style={styles.input}
+                value={thresholds.maxPastSevenDaysHours}
+                onChangeText={(text) => setThresholds({ ...thresholds, maxPastSevenDaysHours: text })}
+                keyboardType="numeric"
+                placeholder="50"
+              />
+              <Text style={styles.unit}>hours</Text>
             </View>
           </View>
-
-          {renderEditableRow(
-            'Min Rest Between Days',
-            thresholds.minRestBetweenDays,
-            'minRestBetweenDays',
-            'hours',
-            '10'
-          )}
-
-          {renderEditableRow(
-            'Max Contact Time',
-            thresholds.maxContactTime,
-            'maxContactTime',
-            'hours',
-            '10'
-          )}
-
-          {renderEditableRow(
-            'Max Duty Day',
-            thresholds.maxDutyDay,
-            'maxDutyDay',
-            'hours',
-            '16'
-          )}
-
-          {renderEditableRow(
-            'Max Consecutive Days',
-            thresholds.maxConsecutiveDays,
-            'maxConsecutiveDays',
-            'days',
-            '15'
-          )}
-
-          {renderEditableRow(
-            'Max Weekly Hours',
-            thresholds.maxWeeklyHours,
-            'maxWeeklyHours',
-            'hours',
-            '40'
-          )}
-
-          {renderEditableRow(
-            'Max Past 7 Days Hours',
-            thresholds.maxPastSevenDaysHours,
-            'maxPastSevenDaysHours',
-            'hours',
-            '50'
-          )}
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={handleReset}>
-            <Text style={styles.resetButtonText}>Reset to Defaults</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.aboutHeader}>About</Text>
-        <View style={styles.aboutBlock}>
-          <Text style={styles.aboutTitle}>About SafeHours</Text>
-          <Text style={styles.aboutSubtitle}>Version information and acknowledgments</Text>
+          
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.resetButton]}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>Reset to Defaults</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.button, styles.saveButton]}
+              onPress={handleSave}
+            >
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.aboutContainer}>
+            <Text style={styles.aboutTitle}>About SafeHours</Text>
+            <Text style={styles.aboutText}>
+              SafeHours is designed to help pilots and flight instructors track their duty time and ensure compliance with regulatory requirements.
+            </Text>
+            <Text style={styles.versionText}>Version 25.7.19.09</Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -220,180 +206,150 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f3f3',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: 24,
+  content: {
+    padding: 16,
   },
-  pageTitleWrap: {
+  headerContainer: {
     alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 6,
+    marginBottom: 10,
   },
-  pageTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2f5f2f',
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.primary,
   },
-  sectionHeader: {
-    backgroundColor: '#ececec',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#d8d8d8',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: COLORS.black,
   },
-  sectionHeaderText: {
+  description: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#757b82',
+    color: COLORS.gray,
+    marginBottom: 20,
   },
   card: {
-    marginHorizontal: 10,
-    marginTop: 8,
-    backgroundColor: '#f7f7f7',
-    borderWidth: 1,
-    borderColor: '#dddddd',
+    backgroundColor: COLORS.white,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  rowTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 7,
-  },
-  row: {
+  inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    marginBottom: 16,
   },
-  labelCell: {
+  label: {
     flex: 1,
-    paddingRight: 8,
+    fontSize: 16,
+    fontWeight: '500',
   },
-  valueCell: {
-    width: 64,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  unitCell: {
-    width: 60,
-    paddingLeft: 8,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  rowLabelTop: {
+  labelSmall: {
     fontSize: 14,
-    lineHeight: 21,
-    fontWeight: '700',
-    color: '#222222',
-  },
-  rowLabel: {
-    fontSize: 14,
-    lineHeight: 18,
-    fontWeight: '700',
-    color: '#222222',
-  },
-  rowLabelSmall: {
-    fontSize: 13,
     fontWeight: '400',
-    color: '#222222',
   },
   uneditableText: {
-    marginTop: 1,
-    fontSize: 11,
+    fontSize: 12,
     fontStyle: 'italic',
-    color: '#7d7d7d',
+    color: COLORS.gray,
   },
   input: {
-    width: 58,
-    height: 32,
+    width: 80,
     borderWidth: 1,
-    borderColor: '#d7d7d7',
+    borderColor: COLORS.lightGray,
     borderRadius: 4,
-    backgroundColor: '#fbfbfb',
+    padding: 8,
     textAlign: 'center',
-    fontSize: 14,
-    color: '#222222',
-    paddingVertical: 0,
-    paddingHorizontal: 0,
+    marginHorizontal: 8,
   },
-  fixedBox: {
-    width: 58,
-    height: 32,
+  fixedValueContainer: {
+    width: 80,
+    backgroundColor: COLORS.lightGray,
     borderRadius: 4,
-    backgroundColor: '#e6e7e8',
+    padding: 8,
+    marginHorizontal: 8,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  fixedBoxText: {
-    fontSize: 15,
+  fixedValue: {
+    fontSize: 16,
     fontWeight: '500',
-    color: '#222222',
+    color: COLORS.black,
   },
-  unitText: {
+  faaNote: {
+    fontSize: 12,
+    color: COLORS.red,
+    fontWeight: 'bold',
+    position: 'absolute',
+    right: 0,
+    bottom: -15,
+  },
+  unit: {
+    width: 50,
     fontSize: 14,
-    color: '#7b8087',
-  },
-  faaText: {
-    marginTop: 3,
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#e44747',
+    color: COLORS.gray,
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 10,
-    marginHorizontal: 10,
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    marginBottom: 24,
   },
   button: {
     flex: 1,
-    height: 40,
-    borderRadius: 6,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   resetButton: {
-    backgroundColor: '#e6e7e8',
-    marginRight: 6,
+    backgroundColor: COLORS.lightGray,
+    marginRight: 8,
   },
   saveButton: {
-    backgroundColor: '#2f6a3b',
-    marginLeft: 6,
+    backgroundColor: COLORS.primary,
+    marginLeft: 8,
   },
   resetButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#111111',
+    color: COLORS.black,
+    fontWeight: 'bold',
   },
   saveButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#ffffff',
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
-  aboutHeader: {
-    fontSize: 15,
-    color: '#4c4c4c',
-    marginTop: 2,
-    marginBottom: 4,
-    marginHorizontal: 0,
-  },
-  aboutBlock: {
-    paddingBottom: 12,
+  aboutContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   aboutTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111111',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  aboutSubtitle: {
+  aboutText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  versionText: {
     fontSize: 12,
-    color: '#7a7a7a',
-    marginTop: 2,
+    color: COLORS.gray,
+    marginTop: 8,
   },
 });
