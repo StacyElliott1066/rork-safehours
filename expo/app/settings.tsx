@@ -166,7 +166,7 @@ export default function SettingsScreen() {
                   value={thresholds.maxWeeklyHours}
                   onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
                   keyboardType="numeric"
-                  placeholder="40"
+                  placeholder="10"
                 />
                 <Text style={styles.unit}>hours</Text>
               </View>
