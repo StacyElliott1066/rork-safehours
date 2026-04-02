@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, ActivityIndicator, Modal } from 'react-native';
-import { FileDown, FileUp, Trash2, AlertTriangle, Calendar, BookOpen } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { FileDown, FileUp, Trash2, AlertTriangle, Calendar } from 'lucide-react-native';
 import { useActivityStore } from '@/store/activityStore';
 import { exportActivities, importActivities } from '@/utils/csv';
 import { exportActivitiesToICS, importActivitiesFromICS } from '@/utils/export';
 import { COLORS } from '@/constants/colors';
 
 export default function DataScreen() {
-  const router = useRouter();
   const { activities, importActivities: storeImportActivities, clearAllActivities } = useActivityStore();
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingICS, setIsExportingICS] = useState(false);
@@ -303,19 +301,6 @@ export default function DataScreen() {
           </View>
         </View>
         
-        {/* Endorsements */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Endorsements</Text>
-          <TouchableOpacity 
-            style={[styles.button, styles.endorsementButton]}
-            onPress={() => router.push('/endorsements' as never)}
-          >
-            <BookOpen size={16} color={COLORS.white} />
-            <Text style={styles.buttonText}>Manage Endorsements</Text>
-          </TouchableOpacity>
-          <Text style={styles.noteText}>Track endorsements, written & practical tests</Text>
-        </View>
-
         {/* Clear Data */}
         <View style={[styles.card, styles.dangerCard]}>
           <Text style={styles.cardTitle}>Clear All Data</Text>
@@ -414,9 +399,6 @@ const styles = StyleSheet.create({
   },
   calendarButton: {
     backgroundColor: COLORS.secondary || '#4CAF50',
-  },
-  endorsementButton: {
-    backgroundColor: COLORS.secondary,
   },
   dangerButton: {
     backgroundColor: COLORS.red,

@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { BarChart2, Calendar, Database, Settings as SettingsIcon, HelpCircle } from "lucide-react-native";
+import { BarChart2, Calendar, Database, Settings as SettingsIcon, HelpCircle, BookOpen } from "lucide-react-native";
 import { COLORS } from "@/constants/colors";
 import { ShieldWithNumber } from "@/components/ShieldWithNumber";
 import { TouchableOpacity } from "react-native";
@@ -62,8 +62,16 @@ export default function TabLayout() {
         name="data"
         options={{
           title: "Data Management",
-          tabBarLabel: "Data Management",
+          tabBarLabel: "Data",
           tabBarIcon: ({ color }) => <Database size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="endorse"
+        options={{
+          title: "Endorsements",
+          tabBarLabel: "Endorse",
+          tabBarIcon: ({ color }) => <BookOpen size={24} color={color} />,
         }}
       />
       <Tabs.Screen
