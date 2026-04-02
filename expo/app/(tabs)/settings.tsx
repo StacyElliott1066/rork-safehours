@@ -215,7 +215,8 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Log</Text>
             <ScrollView style={styles.modalScroll}>
-              <Text style={styles.modalText}>{"03/27/26: Added the ability to choose Weekly or Monthly Statistics. The program will look at the Target Date and look back from the current Sun-Sat and the three previous weeks."}</Text>
+              <Text style={styles.modalText}>{"04/02/26: Added the ability to take pictures of endorsements, group by AC 61.65 category/subcategory and to record the results of any written (for fun) and practical exam endorsements (official). The app will also display your overall pass rate for both. This new feature is under the Data Management Tab."}</Text>
+              <Text style={styles.modalText}>{"03/27/26: Added the ability to choose Weekly or Monthly Statistics. The program will look at the Target Date and look back from the current Sun-Sat and the three previous weeks."}
               <Text style={styles.modalText}>{"02/24/26: Fixed the Descending Date and Descending Time display issues. Added a startup reminder encouraging users to enter and review planned hours in advance, so the app can better help identify potential rule violations before the day is executed."}</Text>
               <Text style={styles.modalText}>{"11/10/25: Target Date will now default to the current date. Pre/Post time can now be manually inputed up to 3 hours each."}</Text>
               <Text style={styles.modalText}>{"10/14/25: All hours displays were changed to 2 decimal points to prevent rounding errors that could allow users to exceed limits by up to 0.05 hours."}</Text>
