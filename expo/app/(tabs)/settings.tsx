@@ -92,8 +92,6 @@ export default function SettingsScreen() {
       
       <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Warning Thresholds</Text>
-          
           <View style={styles.card}>
             <View style={styles.inputGroup}>
               <View style={styles.labelWrap}>
