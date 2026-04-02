@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useActivityStore } from '@/store/activityStore';
-import { COLORS } from '@/constants/colors';
 
 export default function SettingsScreen() {
+  const navigation = useNavigation<any>();
   const { warningThresholds, updateWarningThresholds, resetWarningThresholds } = useActivityStore();
-  
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+      title: '',
+    });
+  }, [navigation]);
+
   const [thresholds, setThresholds] = useState({
     maxFlightHours: warningThresholds.maxFlightHours.toString(),
     minRestBetweenDays: warningThresholds.minRestBetweenDays.toString(),
@@ -15,11 +31,10 @@ export default function SettingsScreen() {
     maxWeeklyHours: warningThresholds.maxWeeklyHours.toString(),
     maxPastSevenDaysHours: warningThresholds.maxPastSevenDaysHours.toString(),
   });
-  
+
   const handleSave = () => {
-    // Validate inputs
     const numericValues = {
-      maxFlightHours: 8, // Always use 8 as this is an FAA mandatory limit
+      maxFlightHours: 8,
       minRestBetweenDays: parseFloat(thresholds.minRestBetweenDays),
       maxContactTime: parseFloat(thresholds.maxContactTime),
       maxDutyDay: parseFloat(thresholds.maxDutyDay),
@@ -27,40 +42,37 @@ export default function SettingsScreen() {
       maxWeeklyHours: parseFloat(thresholds.maxWeeklyHours),
       maxPastSevenDaysHours: parseFloat(thresholds.maxPastSevenDaysHours),
     };
-    
-    // Check for invalid values (excluding maxFlightHours which is fixed)
-    if ([
-      numericValues.minRestBetweenDays,
-      numericValues.maxContactTime,
-      numericValues.maxDutyDay,
-      numericValues.maxConsecutiveDays,
-      numericValues.maxWeeklyHours,
-      numericValues.maxPastSevenDaysHours
-    ].some(isNaN)) {
+
+    if (
+      [
+        numericValues.minRestBetweenDays,
+        numericValues.maxContactTime,
+        numericValues.maxDutyDay,
+        numericValues.maxConsecutiveDays,
+        numericValues.maxWeeklyHours,
+        numericValues.maxPastSevenDaysHours,
+      ].some(isNaN)
+    ) {
       Alert.alert('Invalid Input', 'Please enter valid numbers for all thresholds.');
       return;
     }
-    
-    // Update thresholds
+
     updateWarningThresholds(numericValues);
     Alert.alert('Success', 'Warning thresholds updated successfully.');
   };
-  
+
   const handleReset = () => {
     Alert.alert(
       'Reset Thresholds',
       'Are you sure you want to reset all warning thresholds to default values?',
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Reset',
           onPress: () => {
             resetWarningThresholds();
             setThresholds({
-              maxFlightHours: '8', // Always 8 (FAA mandatory)
+              maxFlightHours: '8',
               minRestBetweenDays: '10',
               maxContactTime: '10',
               maxDutyDay: '16',
@@ -74,140 +86,131 @@ export default function SettingsScreen() {
       ]
     );
   };
-  
+
+  const renderEditableRow = (
+    label: string,
+    value: string,
+    key: keyof typeof thresholds,
+    unit: string,
+    placeholder: string
+  ) => (
+    <View style={styles.row} key={key}>
+      <View style={styles.labelCell}>
+        <Text style={styles.rowLabel}>{label}</Text>
+      </View>
+
+      <View style={styles.valueCell}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={(text) => setThresholds({ ...thresholds, [key]: text })}
+          keyboardType="numeric"
+          placeholder={placeholder}
+          placeholderTextColor="#7a7a7a"
+        />
+      </View>
+
+      <View style={styles.unitCell}>
+        <Text style={styles.unitText}>{unit}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>Settings</Text>
-          </View>
-          
-          <Text style={styles.title}>Warning Thresholds</Text>
-          
-          <View style={styles.card}>
-            <View style={styles.inputGroup}>
-              <View style={styles.labelWrap}>
-                <Text style={styles.label}>{"Max Flight Instruction Hours "}<Text style={styles.labelSmall}>{"(24h)"}</Text></Text>
-                <Text style={styles.uneditableText}>{"uneditable"}</Text>
-              </View>
-              <View style={styles.inputRow}>
-                <View style={styles.fixedValueContainer}>
-                  <Text style={styles.fixedValue}>8</Text>
-                </View>
-                <View style={styles.unitWrap}>
-                  <Text style={styles.unit}>hours</Text>
-                  <Text style={styles.faaNote}>FAA Limit</Text>
-                </View>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.pageTitleWrap}>
+          <Text style={styles.pageTitle}>Settings</Text>
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderText}>Warning Thresholds</Text>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.rowTop}>
+            <View style={styles.labelCell}>
+              <Text style={styles.rowLabelTop}>
+                Max Flight Instruction{'\n'}Hours <Text style={styles.rowLabelSmall}>(24h)</Text>
+              </Text>
+              <Text style={styles.uneditableText}>uneditable</Text>
+            </View>
+
+            <View style={styles.valueCell}>
+              <View style={styles.fixedBox}>
+                <Text style={styles.fixedBoxText}>8</Text>
               </View>
             </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Min Rest Between Days</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.minRestBetweenDays}
-                  onChangeText={(text) => setThresholds({ ...thresholds, minRestBetweenDays: text })}
-                  keyboardType="numeric"
-                  placeholder="10"
-                />
-                <Text style={styles.unit}>hours</Text>
-              </View>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Contact Time</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.maxContactTime}
-                  onChangeText={(text) => setThresholds({ ...thresholds, maxContactTime: text })}
-                  keyboardType="numeric"
-                  placeholder="10"
-                />
-                <Text style={styles.unit}>hours</Text>
-              </View>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Duty Day</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.maxDutyDay}
-                  onChangeText={(text) => setThresholds({ ...thresholds, maxDutyDay: text })}
-                  keyboardType="numeric"
-                  placeholder="16"
-                />
-                <Text style={styles.unit}>hours</Text>
-              </View>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Consecutive Days</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.maxConsecutiveDays}
-                  onChangeText={(text) => setThresholds({ ...thresholds, maxConsecutiveDays: text })}
-                  keyboardType="numeric"
-                  placeholder="15"
-                />
-                <Text style={styles.unit}>days</Text>
-              </View>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Weekly Hours</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.maxWeeklyHours}
-                  onChangeText={(text) => setThresholds({ ...thresholds, maxWeeklyHours: text })}
-                  keyboardType="numeric"
-                  placeholder="10"
-                />
-                <Text style={styles.unit}>hours</Text>
-              </View>
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Max Past 7 Days Hours</Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={thresholds.maxPastSevenDaysHours}
-                  onChangeText={(text) => setThresholds({ ...thresholds, maxPastSevenDaysHours: text })}
-                  keyboardType="numeric"
-                  placeholder="50"
-                />
-                <Text style={styles.unit}>hours</Text>
-              </View>
+
+            <View style={styles.unitCell}>
+              <Text style={styles.unitText}>hours</Text>
+              <Text style={styles.faaText}>FAA Limit</Text>
             </View>
           </View>
-          
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={[styles.button, styles.resetButton]}
-              onPress={handleReset}
-            >
-              <Text style={styles.resetButtonText}>Reset to Defaults</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSave}
-            >
-              <Text style={styles.saveButtonText}>Save Changes</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <Text style={styles.aboutSectionHeader}>About</Text>
-          <View style={styles.aboutContainer}>
-            <Text style={styles.aboutTitle}>About SafeHours</Text>
-            <Text style={styles.aboutSubText}>Version information and acknowledgments</Text>
-          </View>
+
+          {renderEditableRow(
+            'Min Rest Between Days',
+            thresholds.minRestBetweenDays,
+            'minRestBetweenDays',
+            'hours',
+            '10'
+          )}
+
+          {renderEditableRow(
+            'Max Contact Time',
+            thresholds.maxContactTime,
+            'maxContactTime',
+            'hours',
+            '10'
+          )}
+
+          {renderEditableRow(
+            'Max Duty Day',
+            thresholds.maxDutyDay,
+            'maxDutyDay',
+            'hours',
+            '16'
+          )}
+
+          {renderEditableRow(
+            'Max Consecutive Days',
+            thresholds.maxConsecutiveDays,
+            'maxConsecutiveDays',
+            'days',
+            '15'
+          )}
+
+          {renderEditableRow(
+            'Max Weekly Hours',
+            thresholds.maxWeeklyHours,
+            'maxWeeklyHours',
+            'hours',
+            '40'
+          )}
+
+          {renderEditableRow(
+            'Max Past 7 Days Hours',
+            thresholds.maxPastSevenDaysHours,
+            'maxPastSevenDaysHours',
+            'hours',
+            '50'
+          )}
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={handleReset}>
+            <Text style={styles.resetButtonText}>Reset to Defaults</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.aboutHeader}>About</Text>
+        <View style={styles.aboutBlock}>
+          <Text style={styles.aboutTitle}>About SafeHours</Text>
+          <Text style={styles.aboutSubtitle}>Version information and acknowledgments</Text>
         </View>
       </ScrollView>
     </View>
@@ -217,177 +220,180 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#f3f3f3',
   },
   scrollView: {
     flex: 1,
   },
-  content: {
-    padding: 16,
+  scrollContent: {
+    paddingBottom: 24,
   },
-  headerContainer: {
+  pageTitleWrap: {
     alignItems: 'center',
-    marginBottom: 10,
+    paddingTop: 8,
+    paddingBottom: 6,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.primary,
+  pageTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2f5f2f',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: COLORS.black,
+  sectionHeader: {
+    backgroundColor: '#ececec',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#d8d8d8',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  description: {
+  sectionHeaderText: {
     fontSize: 14,
-    color: COLORS.gray,
-    marginBottom: 20,
-  },
-  aboutSectionHeader: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginBottom: 8,
-    marginTop: 8,
+    fontWeight: '700',
+    color: '#757b82',
   },
   card: {
-    backgroundColor: COLORS.white,
+    marginHorizontal: 10,
+    marginTop: 8,
+    backgroundColor: '#f7f7f7',
+    borderWidth: 1,
+    borderColor: '#dddddd',
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  inputGroup: {
+  rowTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 7,
+  },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingVertical: 8,
   },
-  labelWrap: {
+  labelCell: {
     flex: 1,
-    marginRight: 12,
+    paddingRight: 8,
   },
-  inputRow: {
-    flexDirection: 'row',
+  valueCell: {
+    width: 64,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  label: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-    marginRight: 12,
+  unitCell: {
+    width: 60,
+    paddingLeft: 8,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
-  labelSmall: {
+  rowLabelTop: {
     fontSize: 14,
+    lineHeight: 21,
+    fontWeight: '700',
+    color: '#222222',
+  },
+  rowLabel: {
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '700',
+    color: '#222222',
+  },
+  rowLabelSmall: {
+    fontSize: 13,
     fontWeight: '400',
+    color: '#222222',
   },
   uneditableText: {
-    fontSize: 12,
+    marginTop: 1,
+    fontSize: 11,
     fontStyle: 'italic',
-    color: COLORS.gray,
+    color: '#7d7d7d',
   },
   input: {
-    width: 50,
+    width: 58,
+    height: 32,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: '#d7d7d7',
     borderRadius: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
+    backgroundColor: '#fbfbfb',
     textAlign: 'center',
-    fontSize: 15,
-  },
-  fixedValueContainer: {
-    width: 50,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-  },
-  fixedValue: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.black,
-  },
-  unitWrap: {
-    alignItems: 'flex-end',
-    minWidth: 40,
-  },
-  faaNote: {
-    fontSize: 11,
-    color: COLORS.red,
-    fontWeight: 'bold',
-    marginTop: 2,
-  },
-  unit: {
-    width: 42,
     fontSize: 14,
-    color: COLORS.gray,
-    textAlign: 'right',
-    marginLeft: 6,
+    color: '#222222',
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  fixedBox: {
+    width: 58,
+    height: 32,
+    borderRadius: 4,
+    backgroundColor: '#e6e7e8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fixedBoxText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#222222',
+  },
+  unitText: {
+    fontSize: 14,
+    color: '#7b8087',
+  },
+  faaText: {
+    marginTop: 3,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#e44747',
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
+    marginTop: 10,
+    marginHorizontal: 10,
+    marginBottom: 12,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    height: 40,
+    borderRadius: 6,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   resetButton: {
-    backgroundColor: COLORS.lightGray,
-    marginRight: 8,
+    backgroundColor: '#e6e7e8',
+    marginRight: 6,
   },
   saveButton: {
-    backgroundColor: COLORS.primary,
-    marginLeft: 8,
+    backgroundColor: '#2f6a3b',
+    marginLeft: 6,
   },
   resetButtonText: {
-    color: COLORS.black,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111111',
   },
   saveButtonText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
   },
-  aboutContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  aboutHeader: {
+    fontSize: 15,
+    color: '#4c4c4c',
+    marginTop: 2,
+    marginBottom: 4,
+    marginHorizontal: 0,
+  },
+  aboutBlock: {
+    paddingBottom: 12,
   },
   aboutTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#111111',
   },
-  aboutSubText: {
-    fontSize: 13,
-    color: COLORS.gray,
-    marginTop: 2,
-  },
-  aboutText: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  versionText: {
+  aboutSubtitle: {
     fontSize: 12,
-    color: COLORS.gray,
-    marginTop: 8,
+    color: '#7a7a7a',
+    marginTop: 2,
   },
 });
