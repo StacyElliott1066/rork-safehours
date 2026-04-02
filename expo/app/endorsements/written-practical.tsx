@@ -985,7 +985,8 @@ const localStyles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '90%',
+    maxHeight: '95%',
+    minHeight: '70%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1004,7 +1005,7 @@ const localStyles = StyleSheet.create({
   modalBody: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    maxHeight: 440,
+    paddingBottom: 16,
   },
   fieldLabel: {
     fontSize: 14,
