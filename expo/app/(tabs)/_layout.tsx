@@ -77,8 +77,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shield"
         options={{
-          title: "Rolling 24 Hour",
-          tabBarLabel: "Rolling 24h",
+          title: "Rolling",
+          tabBarLabel: "Rolling",
           tabBarIcon: ({ color }) => <ShieldWithNumber size={24} color={color} number="24" />,
         }}
       />
