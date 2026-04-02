@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import {
   ChevronLeft,
+  ChevronDown,
   Plus,
   Edit2,
   Trash2,
@@ -31,6 +32,7 @@ import { COLORS } from '@/constants/colors';
 import { useEndorsementStore } from '@/store/endorsementStore';
 import { CalendarModal } from '@/components/CalendarModal';
 import { FlightEndorsement } from '@/types/endorsement';
+import { ENDORSEMENT_CATEGORIES } from '@/constants/endorsementCategories';
 
 type EndorsementSortField = 'name' | 'date';
 type SortDir = 'asc' | 'desc';
@@ -161,6 +163,10 @@ export default function FlightEndorsementsScreen() {
   const [formDate, setFormDate] = useState('');
   const [formText, setFormText] = useState('');
   const [formImage, setFormImage] = useState<string | undefined>(undefined);
+  const [formCategoryIndex, setFormCategoryIndex] = useState<number | null>(null);
+  const [formEndorsementCode, setFormEndorsementCode] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showItemDropdown, setShowItemDropdown] = useState(false);
 
   const allNames = getAllNames();
 
@@ -197,6 +203,10 @@ export default function FlightEndorsementsScreen() {
     setFormDate('');
     setFormText('');
     setFormImage(undefined);
+    setFormCategoryIndex(null);
+    setFormEndorsementCode('');
+    setShowCategoryDropdown(false);
+    setShowItemDropdown(false);
   }, []);
 
   const handleAdd = useCallback(() => {
@@ -204,15 +214,18 @@ export default function FlightEndorsementsScreen() {
       Alert.alert('Required', 'Please enter a date.');
       return;
     }
+    const selectedCategory = formCategoryIndex !== null ? ENDORSEMENT_CATEGORIES[formCategoryIndex]?.title : undefined;
     addFlightEndorsement({
       name: formName.trim() || undefined,
       date: formDate,
       text: formText,
+      endorsementCategory: selectedCategory,
+      endorsementCode: formEndorsementCode || undefined,
       imageUri: formImage,
     });
     setShowAddModal(false);
     resetForm();
-  }, [formName, formDate, formText, formImage, addFlightEndorsement, resetForm]);
+  }, [formName, formDate, formText, formImage, formCategoryIndex, formEndorsementCode, addFlightEndorsement, resetForm]);
 
   const openEdit = useCallback((item: FlightEndorsement) => {
     setEditingId(item.id);
@@ -220,6 +233,11 @@ export default function FlightEndorsementsScreen() {
     setFormDate(item.date);
     setFormText(item.text);
     setFormImage(item.imageUri);
+    const catIdx = item.endorsementCategory
+      ? ENDORSEMENT_CATEGORIES.findIndex((c) => c.title === item.endorsementCategory)
+      : null;
+    setFormCategoryIndex(catIdx !== -1 ? catIdx : null);
+    setFormEndorsementCode(item.endorsementCode || '');
     setShowEditModal(true);
   }, []);
 
@@ -228,15 +246,18 @@ export default function FlightEndorsementsScreen() {
       Alert.alert('Required', 'Please enter a date.');
       return;
     }
+    const selectedCategory = formCategoryIndex !== null ? ENDORSEMENT_CATEGORIES[formCategoryIndex]?.title : undefined;
     updateFlightEndorsement(editingId, {
       name: formName.trim() || undefined,
       date: formDate,
       text: formText,
+      endorsementCategory: selectedCategory,
+      endorsementCode: formEndorsementCode || undefined,
       imageUri: formImage,
     });
     setShowEditModal(false);
     resetForm();
-  }, [editingId, formName, formDate, formText, formImage, updateFlightEndorsement, resetForm]);
+  }, [editingId, formName, formDate, formText, formImage, formCategoryIndex, formEndorsementCode, updateFlightEndorsement, resetForm]);
 
   const handleDelete = useCallback(
     (id: string) => {
@@ -339,16 +360,118 @@ export default function FlightEndorsementsScreen() {
                   placeholder="MM/DD/YY"
                 />
 
-                <Text style={styles.fieldLabel}>Endorsement Text</Text>
-                <TextInput
-                  style={[styles.modalInput, styles.multilineInput]}
-                  value={formText}
-                  onChangeText={setFormText}
-                  placeholder="Enter endorsement text"
-                  placeholderTextColor={COLORS.gray}
-                  multiline
-                  numberOfLines={4}
-                />
+                <Text style={styles.fieldLabel}>Endorsement Category</Text>
+                <TouchableOpacity
+                  style={styles.dropdownButton}
+                  onPress={() => { setShowCategoryDropdown(!showCategoryDropdown); setShowItemDropdown(false); }}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.dropdownButtonText,
+                      formCategoryIndex === null && styles.dropdownPlaceholder,
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {formCategoryIndex !== null
+                      ? ENDORSEMENT_CATEGORIES[formCategoryIndex].title
+                      : 'Select a category...'}
+                  </Text>
+                  <ChevronDown size={18} color={COLORS.gray} />
+                </TouchableOpacity>
+                {showCategoryDropdown && (
+                  <View style={styles.dropdownList}>
+                    <ScrollView style={styles.dropdownScroll} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
+                      {ENDORSEMENT_CATEGORIES.map((cat, idx) => (
+                        <TouchableOpacity
+                          key={cat.title}
+                          style={[
+                            styles.dropdownItem,
+                            formCategoryIndex === idx && styles.dropdownItemActive,
+                          ]}
+                          onPress={() => {
+                            setFormCategoryIndex(idx);
+                            setFormEndorsementCode('');
+                            setFormText('');
+                            setShowCategoryDropdown(false);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              formCategoryIndex === idx && styles.dropdownItemTextActive,
+                            ]}
+                            numberOfLines={2}
+                          >
+                            {cat.title}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+
+                <Text style={[styles.fieldLabel, { marginTop: 14 }]}>Endorsement Type</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.dropdownButton,
+                    formCategoryIndex === null && styles.dropdownDisabled,
+                  ]}
+                  onPress={() => {
+                    if (formCategoryIndex === null) return;
+                    setShowItemDropdown(!showItemDropdown);
+                    setShowCategoryDropdown(false);
+                  }}
+                  activeOpacity={formCategoryIndex === null ? 1 : 0.7}
+                >
+                  <Text
+                    style={[
+                      styles.dropdownButtonText,
+                      !formEndorsementCode && styles.dropdownPlaceholder,
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {formEndorsementCode
+                      ? (() => {
+                          const cat = formCategoryIndex !== null ? ENDORSEMENT_CATEGORIES[formCategoryIndex] : null;
+                          const item = cat?.items.find((i) => i.code === formEndorsementCode);
+                          return item ? `${item.code} – ${item.label}` : formEndorsementCode;
+                        })()
+                      : formCategoryIndex !== null
+                      ? 'Select endorsement type...'
+                      : 'Select a category first'}
+                  </Text>
+                  <ChevronDown size={18} color={COLORS.gray} />
+                </TouchableOpacity>
+                {showItemDropdown && formCategoryIndex !== null && (
+                  <View style={styles.dropdownList}>
+                    <ScrollView style={styles.dropdownScroll} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
+                      {ENDORSEMENT_CATEGORIES[formCategoryIndex].items.map((item) => (
+                        <TouchableOpacity
+                          key={item.code}
+                          style={[
+                            styles.dropdownItem,
+                            formEndorsementCode === item.code && styles.dropdownItemActive,
+                          ]}
+                          onPress={() => {
+                            setFormEndorsementCode(item.code);
+                            setFormText(`${item.code} – ${item.label}`);
+                            setShowItemDropdown(false);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              formEndorsementCode === item.code && styles.dropdownItemTextActive,
+                            ]}
+                          >
+                            {item.code} – {item.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
 
                 <Text style={styles.fieldLabel}>Photo</Text>
                 <View style={styles.photoButtons}>
@@ -388,7 +511,7 @@ export default function FlightEndorsementsScreen() {
         </View>
       </Modal>
     ),
-    [formName, formDate, formText, formImage, allNames, takePhoto, pickImage]
+    [formName, formDate, formText, formImage, allNames, takePhoto, pickImage, formCategoryIndex, formEndorsementCode, showCategoryDropdown, showItemDropdown]
   );
 
   const renderEndorsementCard = useCallback(
@@ -409,6 +532,9 @@ export default function FlightEndorsementsScreen() {
           </View>
         </View>
         {item.text ? <Text style={styles.cardText} numberOfLines={3}>{item.text}</Text> : null}
+        {item.endorsementCategory && !item.text ? (
+          <Text style={styles.cardText} numberOfLines={2}>{item.endorsementCategory}</Text>
+        ) : null}
         {item.imageUri ? (
           <TouchableOpacity
             onPress={() => {
@@ -702,6 +828,62 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 80,
     textAlignVertical: 'top',
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    backgroundColor: COLORS.background,
+  },
+  dropdownDisabled: {
+    opacity: 0.5,
+  },
+  dropdownButtonText: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.black,
+    marginRight: 8,
+  },
+  dropdownPlaceholder: {
+    color: COLORS.gray,
+  },
+  dropdownList: {
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.white,
+    marginTop: 4,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  dropdownScroll: {
+    maxHeight: 200,
+  },
+  dropdownItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  dropdownItemActive: {
+    backgroundColor: COLORS.primary + '15',
+  },
+  dropdownItemText: {
+    fontSize: 13,
+    color: COLORS.black,
+    lineHeight: 18,
+  },
+  dropdownItemTextActive: {
+    color: COLORS.primary,
+    fontWeight: '600' as const,
   },
   autocompleteDropdown: {
     borderWidth: 1,

@@ -17,6 +17,8 @@ export interface FlightEndorsement {
   name?: string;
   date: string;
   text: string;
+  endorsementCategory?: string;
+  endorsementCode?: string;
   imageUri?: string;
   createdAt: number;
 }
