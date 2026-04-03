@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 import { BarChart2, Calendar, Database, Settings as SettingsIcon, HelpCircle, BookOpen } from "lucide-react-native";
 import { COLORS } from "@/constants/colors";
 import { ShieldWithNumber } from "@/components/ShieldWithNumber";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
 
 export default function TabLayout() {
@@ -44,8 +44,9 @@ export default function TabLayout() {
             color: COLORS.primary,
           },
           headerRight: () => (
-            <TouchableOpacity onPress={navigateToAbout} style={{ marginRight: 16 }}>
+            <TouchableOpacity onPress={navigateToAbout} style={{ marginRight: 16, alignItems: 'center' }}>
               <HelpCircle size={24} color={COLORS.primary} />
+              <Text style={{ fontSize: 7, color: COLORS.gray, marginTop: 1 }}>V26.4.2</Text>
             </TouchableOpacity>
           ),
         }}
