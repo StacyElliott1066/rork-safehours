@@ -46,7 +46,7 @@ export default function TabLayout() {
           headerRight: () => (
             <TouchableOpacity onPress={navigateToAbout} style={{ marginRight: 16, alignItems: 'center' }}>
               <HelpCircle size={24} color={COLORS.primary} />
-              <Text style={{ fontSize: 7, color: COLORS.gray, marginTop: 1 }}>V26.4.2</Text>
+              <Text style={{ fontSize: 7, color: COLORS.gray, marginTop: 1 }}>V26.4.4</Text>
             </TouchableOpacity>
           ),
         }}
